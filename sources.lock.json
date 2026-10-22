@@ -3,6 +3,3506 @@
   "baseline": "18.6",
   "releases": [
     {
+      "version": "9.0.0",
+      "major": "9.0",
+      "tag": "REL9_0_0",
+      "commit": "861861edcc04a6e3ebdfe363311f122e2b226196",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.0/postgresql-9.0.0.tar.bz2",
+      "archiveSha256": "7dcc381603c02595adc96a8fc5c9d067d3b39aaa44987e7a524a7504a10ff676",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.1",
+      "major": "9.0",
+      "tag": "REL9_0_1",
+      "commit": "a0ccae7ed41201251c0da51a91b84eb9d13c4ab1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.1/postgresql-9.0.1.tar.bz2",
+      "archiveSha256": "5310cd490127845f1473a0f73f7b0d18277d81d51534ddfe17ea3e78286a3196",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.2",
+      "major": "9.0",
+      "tag": "REL9_0_2",
+      "commit": "178ca03f1cc81fd9ceb6c62b8d90397023d0d8a2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.2/postgresql-9.0.2.tar.bz2",
+      "archiveSha256": "ffb58195850aa0ec9b7b3dcdac51a6dee0c76ea3387b76c805e1c4d186fe2af5",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.3",
+      "major": "9.0",
+      "tag": "REL9_0_3",
+      "commit": "2fb64d857003c91378ba86b03d753a63ebee95b2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.3/postgresql-9.0.3.tar.bz2",
+      "archiveSha256": "cf429421dea73a7bd5ef9fbdd1212a0d01c0f63c2059e0218a0e350891867b35",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.4",
+      "major": "9.0",
+      "tag": "REL9_0_4",
+      "commit": "ffb39e1aedcdd7b77ec920221b27ab02c40ddbfc",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.4/postgresql-9.0.4.tar.bz2",
+      "archiveSha256": "30572706e3176228415991895e63a8b77343a5abad11407961cfd08790be9e84",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.5",
+      "major": "9.0",
+      "tag": "REL9_0_5",
+      "commit": "8522403c5cd2351a1292b868a85aeec0aab5f2b3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.5/postgresql-9.0.5.tar.bz2",
+      "archiveSha256": "56d8ee809ceeabeae8461ae0a197943460cba5bf8fbe37324e4451cf2eb7d504",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.6",
+      "major": "9.0",
+      "tag": "REL9_0_6",
+      "commit": "1c635b03c132a2ee07c1773c3968153f10ed5f79",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.6/postgresql-9.0.6.tar.bz2",
+      "archiveSha256": "317d99d2ff9e1de8da0cae107bc06c9fd455b1df0c0fb77b8fbb61fb08276056",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.7",
+      "major": "9.0",
+      "tag": "REL9_0_7",
+      "commit": "f054f631a087fed80e7d570e89bed395859f2dc3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.7/postgresql-9.0.7.tar.bz2",
+      "archiveSha256": "dabe26d71d8b595f9514da1363dc20c3f4b90b6908026dd06984cac448a6d833",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.8",
+      "major": "9.0",
+      "tag": "REL9_0_8",
+      "commit": "eab246d75f557cc5027568ccb0461ce5614eaad8",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.8/postgresql-9.0.8.tar.bz2",
+      "archiveSha256": "a2981ba8a64b396e2111fee5a9216275e49a2e79e839152a5e4367afd44c0bc2",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.9",
+      "major": "9.0",
+      "tag": "REL9_0_9",
+      "commit": "3b849dbf41357aa9cf209b194d6b7ac5c3c07113",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.9/postgresql-9.0.9.tar.bz2",
+      "archiveSha256": "87417d181a0f534fa96ba1d315a62b721f5bc22b7bb70af3f674bc1a68a5da8a",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.10",
+      "major": "9.0",
+      "tag": "REL9_0_10",
+      "commit": "22cdae947b8af9624ee4571ef4b1b726a774d128",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.10/postgresql-9.0.10.tar.bz2",
+      "archiveSha256": "4394184b0099e8c86a482f7d62930aa31b50fb23e7dfb8fe9e1d93eb828dc729",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.11",
+      "major": "9.0",
+      "tag": "REL9_0_11",
+      "commit": "6fa51d4ba72570d0f1776f03eaddd8f73b3c6eda",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.11/postgresql-9.0.11.tar.bz2",
+      "archiveSha256": "a6dcdc8dc5cea5feb4522b0638646173e5a6680bd1e9b7ab72a8981e54e07b2c",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.12",
+      "major": "9.0",
+      "tag": "REL9_0_12",
+      "commit": "3da04a0bb19f8543a9b13becdfeb96624e15288e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.12/postgresql-9.0.12.tar.bz2",
+      "archiveSha256": "80f06873cbdc8789abe6806dc52a708d9a7f4ac5432ffea4c069cbc33b2b1524",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.13",
+      "major": "9.0",
+      "tag": "REL9_0_13",
+      "commit": "a941e89a385c16d5b22f90ad61a103001e2a9faf",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.13/postgresql-9.0.13.tar.bz2",
+      "archiveSha256": "51aea4d099defaee307ec3b9900837446931d1aa0c6717070fa25ed033af9977",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.0.14",
+      "major": "9.0",
+      "tag": "REL9_0_14",
+      "commit": "a65e6c8217bd9fdcdfc2cb69a39e7f6787f572c1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.14/postgresql-9.0.14.tar.bz2",
+      "archiveSha256": "de42b669cb891fc9b925406e71d1669ed5c856aae6d552ac6f14bf6dec0b79f1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.15",
+      "major": "9.0",
+      "tag": "REL9_0_15",
+      "commit": "ad670a5d7344b81633ab6ac9efd150f5caac97c2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.15/postgresql-9.0.15.tar.bz2",
+      "archiveSha256": "a45acd27d546e425911ecd371247066be5dafd96304e50e0708c84b918c28f9d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.16",
+      "major": "9.0",
+      "tag": "REL9_0_16",
+      "commit": "de02167f6305804ad9ab72296a2b612a4fc58e36",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.16/postgresql-9.0.16.tar.bz2",
+      "archiveSha256": "900f6ab00fc36c94b17430e7cb22499708025da1e34d7a70aefaf9a875f0fabf",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.17",
+      "major": "9.0",
+      "tag": "REL9_0_17",
+      "commit": "192856b1b9a5abe99bcd8b417d5ef39f09ae2c9d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.17/postgresql-9.0.17.tar.bz2",
+      "archiveSha256": "d2f6d09cf941e7cbab6ee399f14080dbe822af58fda9fd132efb05c2b7d160ad",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.18",
+      "major": "9.0",
+      "tag": "REL9_0_18",
+      "commit": "391aa8aac11fe78f3b2f5743b56e78b0ad6a5d84",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.18/postgresql-9.0.18.tar.bz2",
+      "archiveSha256": "7c8a07d0ab78fe39522c6bb268a7b357f456d9d4796f57d7b43a004e4a9d3003",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.19",
+      "major": "9.0",
+      "tag": "REL9_0_19",
+      "commit": "8c15a7163c8d7dfa5df2f56639693122dd0800ec",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.19/postgresql-9.0.19.tar.bz2",
+      "archiveSha256": "53ad12bca99ba8ff0e002e39e50634c4dba1035232be1475cb77b3f6579385c0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.20",
+      "major": "9.0",
+      "tag": "REL9_0_20",
+      "commit": "760e7ad47959acc3908d3824a20e784f6aed9001",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.20/postgresql-9.0.20.tar.bz2",
+      "archiveSha256": "02fc42026dc3b9440f4626354d30dd505d3fb5a8bb4fc3c8db66c3171a48aa6f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.21",
+      "major": "9.0",
+      "tag": "REL9_0_21",
+      "commit": "b6ba1d7577177765e4f9721d01820c02bb8ae9ae",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.21/postgresql-9.0.21.tar.bz2",
+      "archiveSha256": "6ed313dd4b12650fc5fc667cfef9f3f53c0f7664a6c2ecfba8d45e2b01709cb8",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.22",
+      "major": "9.0",
+      "tag": "REL9_0_22",
+      "commit": "d7e68682fa85f6ea6fd30365e0c121976b6206bd",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.22/postgresql-9.0.22.tar.bz2",
+      "archiveSha256": "94d4b20d854cd7fa4c9c322c0b602751edbc5ca0d4f29fe92f996e28bb32f8a5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.0.23",
+      "major": "9.0",
+      "tag": "REL9_0_23",
+      "commit": "9a42e8514f7e42737992bb09bd93540dd9630a9a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.0.23/postgresql-9.0.23.tar.bz2",
+      "archiveSha256": "3dbcbe19c814139a3f4be8bc6b49db804753cbc49979f345083e835c52b4d7de",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.0",
+      "major": "9.1",
+      "tag": "REL9_1_0",
+      "commit": "1f43001424a9da624a89b213d0be606a8212a50a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.0/postgresql-9.1.0.tar.bz2",
+      "archiveSha256": "ec011c55194a0ac43687c0388c6567ffb534a8d0458e38b843bcd18aba027fca",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.1",
+      "major": "9.1",
+      "tag": "REL9_1_1",
+      "commit": "8da4007a4d78168243d0e2ce67d97073ce2812ce",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.1/postgresql-9.1.1.tar.bz2",
+      "archiveSha256": "c794016bcf3fc1f561bc86796c6c9d050e3d8d2d55356515126e048275ae56f2",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.2",
+      "major": "9.1",
+      "tag": "REL9_1_2",
+      "commit": "cfd8cf37d20be715e4bb9e382844c79556516824",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.2/postgresql-9.1.2.tar.bz2",
+      "archiveSha256": "8d54ff514f5b2754e6e36b008c43d7bbf7daf541da608767cc5bdedb1de5db30",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.3",
+      "major": "9.1",
+      "tag": "REL9_1_3",
+      "commit": "64c47e4542910ebbfb494bec3f8abf8733113394",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.3/postgresql-9.1.3.tar.bz2",
+      "archiveSha256": "7a79800a624031c1d9bc9cdce73cb40050100ac50a82050cbf7bbbd16ac4d5d5",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.4",
+      "major": "9.1",
+      "tag": "REL9_1_4",
+      "commit": "8e61ded616bdce65c43254b010f801f39b29ce3b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.4/postgresql-9.1.4.tar.bz2",
+      "archiveSha256": "a0795a8eb3ae2d1a2914b63bf143d20182835d90699915ff43567c041d3c9712",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.5",
+      "major": "9.1",
+      "tag": "REL9_1_5",
+      "commit": "04e96bc69d541dd7b5f4d3b3daf49d291c7fcbb4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.5/postgresql-9.1.5.tar.bz2",
+      "archiveSha256": "0b889c132426fc68d8c2eb1bf112bf99cc653e9c95b5f4bbebc55cd9a8d6ce44",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.6",
+      "major": "9.1",
+      "tag": "REL9_1_6",
+      "commit": "04a37a5716867f8eade144baac847a9737ac22f5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.6/postgresql-9.1.6.tar.bz2",
+      "archiveSha256": "6e396aca621a95b9f5f7292a79ebe6ce892e36c7f7021814e1bd94bcfc6c31e7",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.7",
+      "major": "9.1",
+      "tag": "REL9_1_7",
+      "commit": "c47f643c49d1f56c388dd0e7405ed280cfa9d0b2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.7/postgresql-9.1.7.tar.bz2",
+      "archiveSha256": "df19eaa98e6065034401b312f476ab4d3c27d67e0ae5063400eae8b00d333c82",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.8",
+      "major": "9.1",
+      "tag": "REL9_1_8",
+      "commit": "69c026512f1141a92dca118768d858e59d76a994",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.8/postgresql-9.1.8.tar.bz2",
+      "archiveSha256": "1d88f9dda24062dbfcc09aca9a316981f2aa93322613b853cf32d7a431b44c6d",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.9",
+      "major": "9.1",
+      "tag": "REL9_1_9",
+      "commit": "114fca526e4f843d17f9a052f81f580d9d006ef1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.9/postgresql-9.1.9.tar.bz2",
+      "archiveSha256": "28a533e181009308722e8b3c51f1ea7224ab910c380ac1a86f07118667602dd8",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.1.10",
+      "major": "9.1",
+      "tag": "REL9_1_10",
+      "commit": "b444726ef6642ed2289a1dc10fe53644dba05623",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.10/postgresql-9.1.10.tar.bz2",
+      "archiveSha256": "8329bcd160fcb76ee8c79676f6c979a94069ca5c108449fbb365e1ea98f92b77",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.11",
+      "major": "9.1",
+      "tag": "REL9_1_11",
+      "commit": "c53cbb39f880959d7ca04f43943e787ec5cad830",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.11/postgresql-9.1.11.tar.bz2",
+      "archiveSha256": "ccbc35aae1490ee5878b97a6aea48dad7465cdad296b380542e4303b68cc6f74",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.12",
+      "major": "9.1",
+      "tag": "REL9_1_12",
+      "commit": "ae51ce4c47cabc4476a7830089d24a68f1dbd76c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.12/postgresql-9.1.12.tar.bz2",
+      "archiveSha256": "0b267ebab5feb39ad6ef945b9588787886e7f7e5284467921d18cc7b76bcb383",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.13",
+      "major": "9.1",
+      "tag": "REL9_1_13",
+      "commit": "697becf743b3176a038d78857b14976d441a0027",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.13/postgresql-9.1.13.tar.bz2",
+      "archiveSha256": "20f8aa5dfcb47688ca6b6c41340cac61712d9cf87c34d58b0a75bb2f85d89b7f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.14",
+      "major": "9.1",
+      "tag": "REL9_1_14",
+      "commit": "972a21d736f0f5ded750c1be7153a0571f2dc83e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.14/postgresql-9.1.14.tar.bz2",
+      "archiveSha256": "d0647ce563d18ae02bf68c5dd646a4c75e8b45b3a4fada64d481371fdc16f522",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.15",
+      "major": "9.1",
+      "tag": "REL9_1_15",
+      "commit": "506a519f3a45c0c8a7e07cf5ab8d17dc6d388ba5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.15/postgresql-9.1.15.tar.bz2",
+      "archiveSha256": "67d6deaf15cdc35fcdff2c319234d0577a86bce6f363e4f0e4e987e419e0de5f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.16",
+      "major": "9.1",
+      "tag": "REL9_1_16",
+      "commit": "5b461f239eae2ad67f268e31ada7d79331b89652",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.16/postgresql-9.1.16.tar.bz2",
+      "archiveSha256": "2b65e2f7d6171107b96d3e92f42b869ec21f3b4e920d8941e511111372909456",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.17",
+      "major": "9.1",
+      "tag": "REL9_1_17",
+      "commit": "f2044bd49f08535308a21185ee54ff0edb99ce7e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.17/postgresql-9.1.17.tar.bz2",
+      "archiveSha256": "ddddd0a250c4b415d2edbf90671808276f29d81ee01971806f8ec5f2beae16aa",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.18",
+      "major": "9.1",
+      "tag": "REL9_1_18",
+      "commit": "2b7c7ac9ab6c9c5c21f693da51bf40ee001dd471",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.18/postgresql-9.1.18.tar.bz2",
+      "archiveSha256": "2726d526666904b454f87fe2ae54357c2ab9eb8aba299a4c904829b7598584a8",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.19",
+      "major": "9.1",
+      "tag": "REL9_1_19",
+      "commit": "f0ceb25d04da0b672e16efd20fa30641b78ffe63",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.19/postgresql-9.1.19.tar.bz2",
+      "archiveSha256": "cbd5057451147dd63a1e764176a4e17a7795773be1e4266ea9faa951064c0ec6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.20",
+      "major": "9.1",
+      "tag": "REL9_1_20",
+      "commit": "3dca6f36fcd694c8c49d26e7c4971194dee2754a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.20/postgresql-9.1.20.tar.bz2",
+      "archiveSha256": "6d1e6c4334c265a85f0f96407b7a9aafff0f26cb62db2d8d03a32ba0c2872937",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.21",
+      "major": "9.1",
+      "tag": "REL9_1_21",
+      "commit": "158a0fb254578e93cec7a940c780426217b79343",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.21/postgresql-9.1.21.tar.bz2",
+      "archiveSha256": "d66ee9076f3149a4cab4be3c6f47e13bc047138d17dfcb531ad01f78cfdeb393",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.22",
+      "major": "9.1",
+      "tag": "REL9_1_22",
+      "commit": "ddb0843d44a53518cfbbb5c2fd535021d75d07cd",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.22/postgresql-9.1.22.tar.bz2",
+      "archiveSha256": "f619664b0dde4e1a75fdc00c35afb4517002984a462d70967ffcdedfeee5e16e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.23",
+      "major": "9.1",
+      "tag": "REL9_1_23",
+      "commit": "cb5b88af7dc7529dcdfd8c0ff71c5372877b7f19",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.23/postgresql-9.1.23.tar.bz2",
+      "archiveSha256": "7f7471e8b3b369726f1c1df0e6a163dde63b6546c4bba985c1f36a574c75f6d5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.1.24",
+      "major": "9.1",
+      "tag": "REL9_1_24",
+      "commit": "e85493559c4678f54d30b6b4e04b17c03a3192d7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.1.24/postgresql-9.1.24.tar.bz2",
+      "archiveSha256": "de0d84e9f32af145fcd66d8d324f6ef1a0b17944ea344b7bbe9d99fff68ae5d3",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.0",
+      "major": "9.2",
+      "tag": "REL9_2_0",
+      "commit": "ef47adb414e46099155c34529a2a5caeea02fc41",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.0/postgresql-9.2.0.tar.bz2",
+      "archiveSha256": "3731c607df492bbb57f37917b49f57719c0d6f823720426431fff10d82b1fe33",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.2.1",
+      "major": "9.2",
+      "tag": "REL9_2_1",
+      "commit": "e0327d103013c41c83f41a05187b90956b38c5b7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.1/postgresql-9.2.1.tar.bz2",
+      "archiveSha256": "db61d498105a7d5fe46185e67ac830c878cdd7dc1f82a87f06b842217924c461",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.2.2",
+      "major": "9.2",
+      "tag": "REL9_2_2",
+      "commit": "a20751ef44b47034e8082a14d42b876b169e8713",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.2/postgresql-9.2.2.tar.bz2",
+      "archiveSha256": "e1a7a854a98896cb7fcd1696a76fca6f3bcac94d75e68a6154ffe2b69184f7f3",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.2.3",
+      "major": "9.2",
+      "tag": "REL9_2_3",
+      "commit": "51dac56ad5fd4cf5fe90f59c4b40f967fc3b13c5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.3/postgresql-9.2.3.tar.bz2",
+      "archiveSha256": "c4f5a63290c0c32d8d9899edee8188d0c8ab124a7199b154fac75e62eec35f7f",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.2.4",
+      "major": "9.2",
+      "tag": "REL9_2_4",
+      "commit": "73c122769ca1f49c451e315d476c80fdcf9f20cc",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.4/postgresql-9.2.4.tar.bz2",
+      "archiveSha256": "d97dd918a88a4449225998f46aafa85216a3f89163a3411830d6890507ffae93",
+      "checksumSource": "computed-md5-verified"
+    },
+    {
+      "version": "9.2.5",
+      "major": "9.2",
+      "tag": "REL9_2_5",
+      "commit": "7800229b36d0444cf2c61f5c5895108ee5e8ee2a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.5/postgresql-9.2.5.tar.bz2",
+      "archiveSha256": "22c1edfd6a404bb15fba655863e94f09a10716ded1910a8bc98ee85f413007a4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.6",
+      "major": "9.2",
+      "tag": "REL9_2_6",
+      "commit": "8b47c9d413b10a482b21aa9aad9d4f8569de8798",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.6/postgresql-9.2.6.tar.bz2",
+      "archiveSha256": "4ba98053a66e5678af93dbc2956e8b04623f759e174f48940c41f4251cf0f886",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.7",
+      "major": "9.2",
+      "tag": "REL9_2_7",
+      "commit": "6237fadcc95bdcadd760f893d7bd9b866fadfff3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.7/postgresql-9.2.7.tar.bz2",
+      "archiveSha256": "83c042c3f61c69b176d3e4344e59104f844bc8b8628dad2bb9022a64cf5afe86",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.8",
+      "major": "9.2",
+      "tag": "REL9_2_8",
+      "commit": "f07692e1906c5f78d4dc4f777ade31cbfdb0069e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.8/postgresql-9.2.8.tar.bz2",
+      "archiveSha256": "568ba482340219097475cce9ab744766889692ee7c9df886563e8292d66ed87c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.9",
+      "major": "9.2",
+      "tag": "REL9_2_9",
+      "commit": "e1ea61a30121a97eee192adc0808635fcf7b6f25",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.9/postgresql-9.2.9.tar.bz2",
+      "archiveSha256": "94ec6d330f125b6fc725741293073b07d7d20cc3e7b8ed127bc3d14ad2370197",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.10",
+      "major": "9.2",
+      "tag": "REL9_2_10",
+      "commit": "9f20f2fc43f7dbe5a60958bc41f24130957560a3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.10/postgresql-9.2.10.tar.bz2",
+      "archiveSha256": "35545bbfead46f70936a7f3f39ccef13e02cdb79c2b3ef3688888df5b18d73ad",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.11",
+      "major": "9.2",
+      "tag": "REL9_2_11",
+      "commit": "baf379bf22a9b4fd9caa4cf95de397cac480cceb",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.11/postgresql-9.2.11.tar.bz2",
+      "archiveSha256": "65b2f5f4fe5c1bfc3247dd84cc3f188e2b5ca45406c4fbbf39df631bed38b1cc",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.12",
+      "major": "9.2",
+      "tag": "REL9_2_12",
+      "commit": "3f7928a2890b05908e7c1ef711d48e609c86982e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.12/postgresql-9.2.12.tar.bz2",
+      "archiveSha256": "5f381b15fb63f7aa6b221ee56677b6029db0ae4f84bc78768ff9e753063b6d03",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.13",
+      "major": "9.2",
+      "tag": "REL9_2_13",
+      "commit": "582eff507eb3e3acae8c7d2d562ac2beb00b344f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.13/postgresql-9.2.13.tar.bz2",
+      "archiveSha256": "5dcbd6209a8c0f508504fa433486583a42caaa240c823e1b3576db8a72db6a44",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.14",
+      "major": "9.2",
+      "tag": "REL9_2_14",
+      "commit": "69157086413efb8c1de793aa4493187c819cc5ae",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.14/postgresql-9.2.14.tar.bz2",
+      "archiveSha256": "54c20b3f320a48c38487f2711e98b2fa3f9ce4305905a294ad0449e8b4fb292e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.15",
+      "major": "9.2",
+      "tag": "REL9_2_15",
+      "commit": "a0606058016b7d20406910b7a73e60ddb3e4c9ff",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.15/postgresql-9.2.15.tar.bz2",
+      "archiveSha256": "7ced4807589899e83c64dd0803cf1f9782b6a20077ab545c66e868ef26543e60",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.16",
+      "major": "9.2",
+      "tag": "REL9_2_16",
+      "commit": "4edcd5f5d23c55f60d6c11451437437611731fff",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.16/postgresql-9.2.16.tar.bz2",
+      "archiveSha256": "d2164cb8706bf828161871c195299841c5be1fbd9bc85d7866704e54f0741b11",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.17",
+      "major": "9.2",
+      "tag": "REL9_2_17",
+      "commit": "e9dca8ce147f32d7d64a9e64f9d8339310ad6535",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.17/postgresql-9.2.17.tar.bz2",
+      "archiveSha256": "c660cc0ee42c221ebedc2c75ad0d4b30ec8da488a954df9987a3fc83bcb7363f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.18",
+      "major": "9.2",
+      "tag": "REL9_2_18",
+      "commit": "01de6f3fd80721583baf2378ee8fe2b06a448ed0",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.18/postgresql-9.2.18.tar.bz2",
+      "archiveSha256": "d7aa37d586ae4d46d07a4fac417ff966e45a9dd99bac8b3cd149be8df9ea35f4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.19",
+      "major": "9.2",
+      "tag": "REL9_2_19",
+      "commit": "b3453562b349a104b92ff02289cf41ff09a8a875",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.19/postgresql-9.2.19.tar.bz2",
+      "archiveSha256": "1d29d73a4f590fcc348280f13ac2ff6a0f72c94908c54e3c20b7ab1560e8dbad",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.20",
+      "major": "9.2",
+      "tag": "REL9_2_20",
+      "commit": "903bfef382f286a75e82b8b9edd93b2bdc6cfd96",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.20/postgresql-9.2.20.tar.bz2",
+      "archiveSha256": "0b8abdae8400cabea5587a726003c9dd71c73c049bdae523abc35f9312dd8f26",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.21",
+      "major": "9.2",
+      "tag": "REL9_2_21",
+      "commit": "1ad47d574e31f3bbe47bc015b2e04b42f55a582c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.21/postgresql-9.2.21.tar.bz2",
+      "archiveSha256": "0697e843523ee60c563f987f9c65bc4201294b18525d6e5e4b2c50c6d4058ef9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.22",
+      "major": "9.2",
+      "tag": "REL9_2_22",
+      "commit": "56fc4f7c9c8168b93b45ccf48781d77073d271dc",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.22/postgresql-9.2.22.tar.bz2",
+      "archiveSha256": "a70e94fa58776b559a8f7b5301371ac4922c9e3ed313ccbef20862514de7c192",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.23",
+      "major": "9.2",
+      "tag": "REL9_2_23",
+      "commit": "2f4ffae5ada6ec272997ce1d6fe415eb9a025924",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.23/postgresql-9.2.23.tar.bz2",
+      "archiveSha256": "0e6ecdfeed69030dac8d219ecd4c350ce45e9f2caa9d73e166e407e87afec450",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.2.24",
+      "major": "9.2",
+      "tag": "REL9_2_24",
+      "commit": "8786f783ab2398468a8c4d8eac937fc6533d16e3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.2.24/postgresql-9.2.24.tar.bz2",
+      "archiveSha256": "a754c02f7051c2f21e52f8669a421b50485afcde9a581674d6106326b189d126",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.0",
+      "major": "9.3",
+      "tag": "REL9_3_0",
+      "commit": "da645b3a73580ac30cf02e932b42d06157b98229",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.0/postgresql-9.3.0.tar.bz2",
+      "archiveSha256": "784e5db7d8fd69b08ddb125c4452211e04b089516359a5cf72d292cade7c728e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.1",
+      "major": "9.3",
+      "tag": "REL9_3_1",
+      "commit": "b7f59e6d3e7c10ef0e222ce8ee6d19e8be304e29",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.1/postgresql-9.3.1.tar.bz2",
+      "archiveSha256": "8ea4a7a92a6f5a79359b02e683ace335c5eb45dffe7f8a681a9ce82470a8a0b8",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.2",
+      "major": "9.3",
+      "tag": "REL9_3_2",
+      "commit": "05ec931add20f201e579e960b18c1cf770da6ee3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.2/postgresql-9.3.2.tar.bz2",
+      "archiveSha256": "700da51a71857e092f6af1c85fcd86b46d7d5cd2f2ba343cafb1f206c20232d7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.3",
+      "major": "9.3",
+      "tag": "REL9_3_3",
+      "commit": "0691fe504723c06ce6ccd1de257fe212609beb13",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.3/postgresql-9.3.3.tar.bz2",
+      "archiveSha256": "e925d8abe7157bd8bece6b7c0dd0c343d87a2b4336f85f4681ce596af99c3879",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.4",
+      "major": "9.3",
+      "tag": "REL9_3_4",
+      "commit": "d4f8dde3c1c2c90c723ab550e7f449fc75599316",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.4/postgresql-9.3.4.tar.bz2",
+      "archiveSha256": "9ee819574dfc8798a448dc23a99510d2d8924c2f8b49f8228cd77e4efc8a6621",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.5",
+      "major": "9.3",
+      "tag": "REL9_3_5",
+      "commit": "f7ba173cb3548ddccaab68fcaeae3dd5efdcfbf1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.5/postgresql-9.3.5.tar.bz2",
+      "archiveSha256": "14176ffb1f90a189e7626214365be08ea2bfc26f26994bafb4235be314b9b4b0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.6",
+      "major": "9.3",
+      "tag": "REL9_3_6",
+      "commit": "b5ea07b06d58519c54aa3f15067f9a44d84f6d8e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.6/postgresql-9.3.6.tar.bz2",
+      "archiveSha256": "2368cb61e68d9581da7bfdb61bdf39ffbe59d2d95609b0e93adb3b6b8fd6ca14",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.7",
+      "major": "9.3",
+      "tag": "REL9_3_7",
+      "commit": "70f2e3e20ff7dd10d2b405764f4818b11f167925",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.7/postgresql-9.3.7.tar.bz2",
+      "archiveSha256": "8b746ab3f7e84db9ba0c9fa0d9865f458fe4e43d5ae1d4ff2860db1f5204ff3d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.8",
+      "major": "9.3",
+      "tag": "REL9_3_8",
+      "commit": "00ca051844e6a5a1746d9088d2c92b3fd1bcf151",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.8/postgresql-9.3.8.tar.bz2",
+      "archiveSha256": "bc5c3ce755dfc5f6fbc0186a564f97abac3c2914f9a5d5a47f22f4fd354aadfa",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.9",
+      "major": "9.3",
+      "tag": "REL9_3_9",
+      "commit": "553e576e05b50f9faffbd3dd721e44fc3746898d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.9/postgresql-9.3.9.tar.bz2",
+      "archiveSha256": "f73bd0ec2028511732430beb22414a022d2114231366e8cbe78c149793910549",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.10",
+      "major": "9.3",
+      "tag": "REL9_3_10",
+      "commit": "f5bbaeef1a5cdce1349ed6a1f87a85f17d741b56",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.10/postgresql-9.3.10.tar.bz2",
+      "archiveSha256": "e5444f0f76aff98a251400b7c28bc361d65e3d72d8d6cb9bb5d8361a69541531",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.11",
+      "major": "9.3",
+      "tag": "REL9_3_11",
+      "commit": "de07063c05b8ffa86e804c6cc8117a8e8e5cff9b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.11/postgresql-9.3.11.tar.bz2",
+      "archiveSha256": "3d222a90c941d3a6c02c7c749fc9eb54ff20a1166570459d09c5476743496a21",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.12",
+      "major": "9.3",
+      "tag": "REL9_3_12",
+      "commit": "a3c643938166abed9a390cdbd8a5df09bfe39523",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.12/postgresql-9.3.12.tar.bz2",
+      "archiveSha256": "f3339ea23f86d07f3730adc878b2e5d433087ff44aad65a5ec9c22c32b112e67",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.13",
+      "major": "9.3",
+      "tag": "REL9_3_13",
+      "commit": "cd5a6521fa8e9d51090330eb500157079fda1381",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.13/postgresql-9.3.13.tar.bz2",
+      "archiveSha256": "5544e1d29bfdb9a815d3533400ae242b8763c399285e5d4020ffdb49c362a72b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.14",
+      "major": "9.3",
+      "tag": "REL9_3_14",
+      "commit": "757f567ec8d6d4767e74cf987a5cc63e63f1c9dc",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.14/postgresql-9.3.14.tar.bz2",
+      "archiveSha256": "5c4322f1c42ba1ff4b28383069c56663b46160bb08e85d41fa2ab9a5009d039d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.15",
+      "major": "9.3",
+      "tag": "REL9_3_15",
+      "commit": "59a0c01e3d88910e92a24e388f346670f4f696ef",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.15/postgresql-9.3.15.tar.bz2",
+      "archiveSha256": "a9fcba1446a93aa95e3e1b6535756f0472d10b0f267a0845f8b2b29f89de5c4f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.16",
+      "major": "9.3",
+      "tag": "REL9_3_16",
+      "commit": "6f5e8094c2c0b829e3d00fc1e1656248457e16e6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.16/postgresql-9.3.16.tar.bz2",
+      "archiveSha256": "845f5e4ac8cf026b6a77c5a180a2fe869f51e9d06acf8d0365b05505a2c66873",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.17",
+      "major": "9.3",
+      "tag": "REL9_3_17",
+      "commit": "57811b751a8f6cc3e7fce01e4944e556ae4578af",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.17/postgresql-9.3.17.tar.bz2",
+      "archiveSha256": "9c03e5f280cfe9bd202fa01af773eb146abd8ab3065f7279d574c568f6948dbe",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.18",
+      "major": "9.3",
+      "tag": "REL9_3_18",
+      "commit": "a5915db2fab1fbe555b6410440df5177a247a2f2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.18/postgresql-9.3.18.tar.bz2",
+      "archiveSha256": "ad60d12a5a3dd0f6f5904c41b87e43eff49d3f74e45129fe52c5744366ff2fe0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.19",
+      "major": "9.3",
+      "tag": "REL9_3_19",
+      "commit": "93067c53ae49eaa1fe7bedaf2ba4e3e8f2a6cbfa",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.19/postgresql-9.3.19.tar.bz2",
+      "archiveSha256": "fb9e872cd9e927ba331690d86bc63dcb5a596acb7a536fa0518a3c7d43ac2fb5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.20",
+      "major": "9.3",
+      "tag": "REL9_3_20",
+      "commit": "f3eff7b5c053735868c3967b7426d9f28d86873f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.20/postgresql-9.3.20.tar.bz2",
+      "archiveSha256": "eb138ad67075b8acb4fae56e98ca7be5d85f3da0ba658fc48206834598a2e6ca",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.21",
+      "major": "9.3",
+      "tag": "REL9_3_21",
+      "commit": "0a0ee721f8190f8e6e633aa959bf9801932bd361",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.21/postgresql-9.3.21.tar.bz2",
+      "archiveSha256": "b9babc5148188a410e023d7178a5678e989ec2e276498de6cd0028bc331a40e0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.22",
+      "major": "9.3",
+      "tag": "REL9_3_22",
+      "commit": "3652766ba932c7b7efdb2b29524898d881a94a33",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.22/postgresql-9.3.22.tar.bz2",
+      "archiveSha256": "1b18ed4aa59bab6283a0d8f3a00b9d896f4588bb2ba88ceef2816cb5c4cce91a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.23",
+      "major": "9.3",
+      "tag": "REL9_3_23",
+      "commit": "ec8e7d60bac23b1b9102798afc30078aca9076ae",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.23/postgresql-9.3.23.tar.bz2",
+      "archiveSha256": "1d981006dce3851e470b038e88bf496a80813c614c2e89ed7d2c7fb38e66f6cb",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.24",
+      "major": "9.3",
+      "tag": "REL9_3_24",
+      "commit": "e0fb7a2ce39f25cbbbe50c95aebdab1ee3beff23",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.24/postgresql-9.3.24.tar.bz2",
+      "archiveSha256": "8214a73a3b2135226bdc1394c9efdcb80f79e504ec700cf9b23d0b6bc2b60da9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.3.25",
+      "major": "9.3",
+      "tag": "REL9_3_25",
+      "commit": "c10bb239d29017ba66eca88a24b84a1d4db36a6c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.3.25/postgresql-9.3.25.tar.bz2",
+      "archiveSha256": "e4953e80415d039ccd33d34be74526a090fd585cf93f296cd9c593972504b6db",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.0",
+      "major": "9.4",
+      "tag": "REL9_4_0",
+      "commit": "8ca336f4ac3f08a5f23e76c6e9a5f2c8064f5883",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.0/postgresql-9.4.0.tar.bz2",
+      "archiveSha256": "7a35c3cb77532f7b15702e474d7ef02f0f419527ee80a4ca6036fffb551625a5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.1",
+      "major": "9.4",
+      "tag": "REL9_4_1",
+      "commit": "d0f83327d3739a45102fdd486947248c70e0249d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.1/postgresql-9.4.1.tar.bz2",
+      "archiveSha256": "29ddb77c820095b8f52e5455e9c6c6c20cf979b0834ed1986a8857b84888c3a6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.2",
+      "major": "9.4",
+      "tag": "REL9_4_2",
+      "commit": "bd9c6dc9ab9de8f07647015af65d6d2cec0057e3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.2/postgresql-9.4.2.tar.bz2",
+      "archiveSha256": "81fda191c165ba1d25d75cd0166ece5abdcb4a7f5eca01b349371e279ebb4d11",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.3",
+      "major": "9.4",
+      "tag": "REL9_4_3",
+      "commit": "de17fe43fa2d67a9d93bd70979a4744ea98fb076",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.3/postgresql-9.4.3.tar.bz2",
+      "archiveSha256": "734acfd2ac352dd0cd353d226f3199c2e1a2730200998aea5b38cf685136d755",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.4",
+      "major": "9.4",
+      "tag": "REL9_4_4",
+      "commit": "7c055f3ec3bd338a1ebb8c73cff3d01df626471e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.4/postgresql-9.4.4.tar.bz2",
+      "archiveSha256": "538ed99688d6fdbec6fd166d1779cf4588bf2f16c52304e5ef29f904c43b0013",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.5",
+      "major": "9.4",
+      "tag": "REL9_4_5",
+      "commit": "d25c7d70ff46d1b2f2400f29d100190efe84d70d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.5/postgresql-9.4.5.tar.bz2",
+      "archiveSha256": "b87c50c66b6ea42a9712b5f6284794fabad0616e6ae420cf0f10523be6d94a39",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.6",
+      "major": "9.4",
+      "tag": "REL9_4_6",
+      "commit": "a1efb790fb99e989e5cd3ff5ae8cc6df3e250516",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.6/postgresql-9.4.6.tar.bz2",
+      "archiveSha256": "cbce1f4d01a6142c5d8bebe125623c5198ec04f363da7dd3d3b3a4100b4140a6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.7",
+      "major": "9.4",
+      "tag": "REL9_4_7",
+      "commit": "d77841d1cebd3514603af055f141a84c8e53cbd3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.7/postgresql-9.4.7.tar.bz2",
+      "archiveSha256": "cc795e6c35b30e697e5891e3056376af685f848a4e67fab1702e74a2385f81e0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.8",
+      "major": "9.4",
+      "tag": "REL9_4_8",
+      "commit": "d130536e93378d9b6512d268639324ba7f60a815",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.8/postgresql-9.4.8.tar.bz2",
+      "archiveSha256": "4a10640e180e0d9adb587bc25a82dcce6bf507b033637e7fb9d4eeffa33a6b4c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.9",
+      "major": "9.4",
+      "tag": "REL9_4_9",
+      "commit": "860f8fb1aa4ee01259bac8fa4e1c4da9570ac1b7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.9/postgresql-9.4.9.tar.bz2",
+      "archiveSha256": "c120a62e90214c20d9160da3ca3fbaec97d5f1656f1dd033f60e7297b7a1e1c9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.10",
+      "major": "9.4",
+      "tag": "REL9_4_10",
+      "commit": "c7681b2b9a115eb05048a485480826bc0efa6d3b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.10/postgresql-9.4.10.tar.bz2",
+      "archiveSha256": "7061678bed1981c681ce54c76b98b6ec17743f090a9775104a45e7e1a8826ecf",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.11",
+      "major": "9.4",
+      "tag": "REL9_4_11",
+      "commit": "01306452b1481a73a24fe7396f84797d37269865",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.11/postgresql-9.4.11.tar.bz2",
+      "archiveSha256": "e3eb51d045c180b03d2de1f0c3af9356e10be49448e966ca01dfc2c6d1cc9d23",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.12",
+      "major": "9.4",
+      "tag": "REL9_4_12",
+      "commit": "34af9129e6b0f163e03fac55b7ffa71aa925d4c7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.12/postgresql-9.4.12.tar.bz2",
+      "archiveSha256": "fca055481875d1c49e31c28443f56472a1474b3fbe25b7ae64440c6118f82e64",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.13",
+      "major": "9.4",
+      "tag": "REL9_4_13",
+      "commit": "6d81d0a215a5b843bf003b0a1c4b43f6d2cccc78",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.13/postgresql-9.4.13.tar.bz2",
+      "archiveSha256": "0080f55d65194de8b96a2dab153443f8248ff2b2b10e6ab4cda2dcadcac7f2ab",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.14",
+      "major": "9.4",
+      "tag": "REL9_4_14",
+      "commit": "ca3f8299ef4e02efb821f082519ea4ca680e4fc1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.14/postgresql-9.4.14.tar.bz2",
+      "archiveSha256": "8e7df23a104b057b360d03180ebcb67f645e198a4a0bee94bf56b2bc9505ec6b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.15",
+      "major": "9.4",
+      "tag": "REL9_4_15",
+      "commit": "de7dabfd35e8f657af9a54cb0ff3171e1cf8e957",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.15/postgresql-9.4.15.tar.bz2",
+      "archiveSha256": "12bfb3c7e8e45515ef921ad365e122682a5c4935dcc0032644433af2de31acc4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.16",
+      "major": "9.4",
+      "tag": "REL9_4_16",
+      "commit": "b7e1ca7d8e65319cc325bdbc757e723ce5b02937",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.16/postgresql-9.4.16.tar.bz2",
+      "archiveSha256": "dcbc62b621e4d8a445c2f33750f7d96257c38103cccebeb934e6913a3c135e81",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.17",
+      "major": "9.4",
+      "tag": "REL9_4_17",
+      "commit": "5181bebba73b2fdcb38f4c7f06491e8092873969",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.17/postgresql-9.4.17.tar.bz2",
+      "archiveSha256": "7a320cd335052b840d209dc9688f09965763351c590e3cc7bf577591179fd7c6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.18",
+      "major": "9.4",
+      "tag": "REL9_4_18",
+      "commit": "364998df87a8fc498302d4b02681909f81635914",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.18/postgresql-9.4.18.tar.bz2",
+      "archiveSha256": "428337f2b2f5e3ea21b8a44f88eb89c99a07a324559b99aebe777c9abdf4c4c0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.19",
+      "major": "9.4",
+      "tag": "REL9_4_19",
+      "commit": "895fb6e2e270654b2a89042ddaf7db0e1a29003c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.19/postgresql-9.4.19.tar.bz2",
+      "archiveSha256": "03776b036b2a05371083558e10c21cc4b90bde9eb3aff60299c4ce7c084c168b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.20",
+      "major": "9.4",
+      "tag": "REL9_4_20",
+      "commit": "4f0bf3359faee12317808634024627a824d658f5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.20/postgresql-9.4.20.tar.bz2",
+      "archiveSha256": "eeb1d8ddb2854c9e4d8b5cbd65665260c0ae8cbcb911003f24c2d82ccb97f87f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.21",
+      "major": "9.4",
+      "tag": "REL9_4_21",
+      "commit": "4bf9119adf599dccccb7b1ad073606d0f28617d6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.21/postgresql-9.4.21.tar.bz2",
+      "archiveSha256": "0049b4d239a00654e792997aff32a0be7a6bdd922b5ca97f1a06797cd4d06006",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.22",
+      "major": "9.4",
+      "tag": "REL9_4_22",
+      "commit": "30b1e1ac4cea9ab32f2912e503589cda09e535aa",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.22/postgresql-9.4.22.tar.bz2",
+      "archiveSha256": "d6aa4c2b9204e375545b9845b0e5957b34affff1783863a80a194f2b2833c66b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.23",
+      "major": "9.4",
+      "tag": "REL9_4_23",
+      "commit": "a01e72fb69cb808364788b5360546f75cf2198df",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.23/postgresql-9.4.23.tar.bz2",
+      "archiveSha256": "0d009c08b0c82b12484950bba10ae8bfd6f0c7bafd8f086ab756c483dd231d9b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.24",
+      "major": "9.4",
+      "tag": "REL9_4_24",
+      "commit": "246893dce8ebea90ef083ab801da4d1f474e01ad",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.24/postgresql-9.4.24.tar.bz2",
+      "archiveSha256": "52253d67dd46a7463a9d7c5e82bf959931fa4c11ec56293150210fa82a0f9429",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.25",
+      "major": "9.4",
+      "tag": "REL9_4_25",
+      "commit": "6cd154923526141ee65548513324fa66c72e83d4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.25/postgresql-9.4.25.tar.bz2",
+      "archiveSha256": "cb98afaef4748de76c13202c14198e3e4717adde49fd9c90fdc81da877520928",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.4.26",
+      "major": "9.4",
+      "tag": "REL9_4_26",
+      "commit": "30ffdd24d7222bc01183a56d536c236240674516",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.4.26/postgresql-9.4.26.tar.bz2",
+      "archiveSha256": "f5c014fc4a5c94e8cf11314cbadcade4d84213cfcc82081c9123e1b8847a20b9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.0",
+      "major": "9.5",
+      "tag": "REL9_5_0",
+      "commit": "cdd4ed5449bf317cc71b45a8deee0173822e7592",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.0/postgresql-9.5.0.tar.bz2",
+      "archiveSha256": "f1c0d3a1a8aa8c92738cab0153fbfffcc4d4158b3fee84f7aa6bfea8283978bc",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.1",
+      "major": "9.5",
+      "tag": "REL9_5_1",
+      "commit": "616eaa396a9bf82d8208a79367d784590be9370d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.1/postgresql-9.5.1.tar.bz2",
+      "archiveSha256": "6b309d8506a39773a752ff074f47656e5424576ea090b04a24fe1725958c5bd2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.2",
+      "major": "9.5",
+      "tag": "REL9_5_2",
+      "commit": "730811c7d1600b92d4bcb91ac66d2206cf3a06ef",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.2/postgresql-9.5.2.tar.bz2",
+      "archiveSha256": "f8d132e464506b551ef498719f18cfe9d777709c7a1589dc360afc0b20e47c41",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.3",
+      "major": "9.5",
+      "tag": "REL9_5_3",
+      "commit": "ba37ac217791dfdf2b327c4b75e7083b6b03a2f5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.3/postgresql-9.5.3.tar.bz2",
+      "archiveSha256": "7385c01dc58acba8d7ac4e6ad42782bd7c0b59272862a3a3d5fe378d4503a0b4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.4",
+      "major": "9.5",
+      "tag": "REL9_5_4",
+      "commit": "eb4dfa239e6f54fef5c486caf4b58a9805c19572",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.4/postgresql-9.5.4.tar.bz2",
+      "archiveSha256": "cf5e571164ad66028ecd7dd8819e3765470d45bcd440d258b686be7e69c76ed0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.5",
+      "major": "9.5",
+      "tag": "REL9_5_5",
+      "commit": "811b6c4a1df5d8323b532460ef2157e771dfb358",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.5/postgresql-9.5.5.tar.bz2",
+      "archiveSha256": "02c65290be74de6604c3fed87c9fd3e6b32e949f0ab8105a75bd7ed5aa71f394",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.6",
+      "major": "9.5",
+      "tag": "REL9_5_6",
+      "commit": "bcbbc4cfc9ca163c4a562f24ff9e2fb070647786",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.6/postgresql-9.5.6.tar.bz2",
+      "archiveSha256": "bb9e5f6d34e20783e96e10c1d6c0c09c31749e802aaa46b793ce2522725ae12f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.7",
+      "major": "9.5",
+      "tag": "REL9_5_7",
+      "commit": "aa3bcba08d466bc6fd2558f8f0bf0e6d6c89b58b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.7/postgresql-9.5.7.tar.bz2",
+      "archiveSha256": "8b1e936f82109325decc0f5575e846b93fb4fd384e8c4bde83ff5e7f87fc6cad",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.8",
+      "major": "9.5",
+      "tag": "REL9_5_8",
+      "commit": "029386ccbddd0a33d481b94e511f5219b03e6636",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.8/postgresql-9.5.8.tar.bz2",
+      "archiveSha256": "ade57068f134f36710fa953e1ef79185abd96572f8098741413132f79ed37202",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.9",
+      "major": "9.5",
+      "tag": "REL9_5_9",
+      "commit": "8c894c5ff58ff41b59f1ba5c9d487aa9c3073a2f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.9/postgresql-9.5.9.tar.bz2",
+      "archiveSha256": "e98cd5c664ab5a05cb83618ba8078647815cb71f7a60437f0322c7518727cdd4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.10",
+      "major": "9.5",
+      "tag": "REL9_5_10",
+      "commit": "9ce323f612ab19eda1322bb6cf8227b835027511",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.10/postgresql-9.5.10.tar.bz2",
+      "archiveSha256": "945d7ade094dded6b95495d8f1561a12ac9608276858ed30adf3c3658275f281",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.11",
+      "major": "9.5",
+      "tag": "REL9_5_11",
+      "commit": "b2be11138b4532c9ce4d7e9d795547b162e8abd5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.11/postgresql-9.5.11.tar.bz2",
+      "archiveSha256": "8182cd74e27a75ae39166b2603b5014f4272855b4101b40819761b853a77c8dd",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.12",
+      "major": "9.5",
+      "tag": "REL9_5_12",
+      "commit": "41545d1524eb461b91698f53316b556c96aaf3a5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.12/postgresql-9.5.12.tar.bz2",
+      "archiveSha256": "02e86f5c66467731bbec18fde96e0daf38c13c9141d8e7d41be663ab6fa6f698",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.13",
+      "major": "9.5",
+      "tag": "REL9_5_13",
+      "commit": "ceb2b0b0abaf0e7a14d25c3e75d4fd0b80714149",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.13/postgresql-9.5.13.tar.bz2",
+      "archiveSha256": "5408b86a0b56fd0140c6a0016bf9179bc7817fa03d5571cca346c9ab122ea5ee",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.14",
+      "major": "9.5",
+      "tag": "REL9_5_14",
+      "commit": "2a37ee373aad7f8a702601b1c0bc0df6c79cff58",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.14/postgresql-9.5.14.tar.bz2",
+      "archiveSha256": "3e2cd5ea0117431f72c9917c1bbad578ea68732cb284d1691f37356ca0301a4d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.15",
+      "major": "9.5",
+      "tag": "REL9_5_15",
+      "commit": "0b09804544cb51e0d90c874f62a1d600ca9321d6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.15/postgresql-9.5.15.tar.bz2",
+      "archiveSha256": "dbda3fdefd7f9fd5359a7989085aaef25c9f9d08816eda6378c2575d1ff55444",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.16",
+      "major": "9.5",
+      "tag": "REL9_5_16",
+      "commit": "394ef2397dd47ffa0fb2c1f51e19a2c8e51bec4d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.16/postgresql-9.5.16.tar.bz2",
+      "archiveSha256": "a4576c95d4dcee8d4b7835b333d38e909848222e4b87895878bb1c026206e131",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.17",
+      "major": "9.5",
+      "tag": "REL9_5_17",
+      "commit": "b221b78f83f5bc337b596170d70ab0a9d72a2951",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.17/postgresql-9.5.17.tar.bz2",
+      "archiveSha256": "88f9e37a0069f2fd4442d1d0d5d811d3121cac685514435b0248d0674723f705",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.18",
+      "major": "9.5",
+      "tag": "REL9_5_18",
+      "commit": "683c768cbb7adc18fa0be93e41a090a48b000225",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.18/postgresql-9.5.18.tar.bz2",
+      "archiveSha256": "dfc940487ed5acd5f657d6d02d53a18f9699888d4b0f820071e4564ed2f9f3dd",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.19",
+      "major": "9.5",
+      "tag": "REL9_5_19",
+      "commit": "167e5353799eabb034817b1e7bafd674d3c2bb04",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.19/postgresql-9.5.19.tar.bz2",
+      "archiveSha256": "960caa26612bca8a3791d1c0bdc5c6d24b3d15841becb617470424edbc5e1bb3",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.20",
+      "major": "9.5",
+      "tag": "REL9_5_20",
+      "commit": "2b634067fcd0c3ac6d528b261b4c77d97e6aeae2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.20/postgresql-9.5.20.tar.bz2",
+      "archiveSha256": "925751b375cf975bebbe79753fbcb5fe85d7a62abe516d4c56861a6b877dde0d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.21",
+      "major": "9.5",
+      "tag": "REL9_5_21",
+      "commit": "d9b89f1939cc33f14bb8c3f01ced946eb0febaa5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.21/postgresql-9.5.21.tar.bz2",
+      "archiveSha256": "7eb56e4fa877243c2df78adc5a0ef02f851060c282682b4bb97b854100fb732c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.22",
+      "major": "9.5",
+      "tag": "REL9_5_22",
+      "commit": "7aa52945de3206191f8b2b121568d316ac4b234e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.22/postgresql-9.5.22.tar.bz2",
+      "archiveSha256": "48555470a17248cb204d25ab1ad4231ef16295db55161922f006b9942d69640f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.23",
+      "major": "9.5",
+      "tag": "REL9_5_23",
+      "commit": "641d7cf4bc92499fdbf23f3b47112502d5720599",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.23/postgresql-9.5.23.tar.bz2",
+      "archiveSha256": "e314fa7e3355c4b8a35e94eeb8e58a6cf46adf49a2f9afa0c15cbc39980c8366",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.24",
+      "major": "9.5",
+      "tag": "REL9_5_24",
+      "commit": "f57cc8693b15b79186684f02b729090a149b7555",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.24/postgresql-9.5.24.tar.bz2",
+      "archiveSha256": "065cfd3db9f5aca84e794e73e71a797c984b2e728e760f4f4226a9162a99c22a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.5.25",
+      "major": "9.5",
+      "tag": "REL9_5_25",
+      "commit": "202c587e2f28bc295f6935d044e20680b627e7a1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.5.25/postgresql-9.5.25.tar.bz2",
+      "archiveSha256": "7628c55eb23768a2c799c018988d8f2ab48ee3d80f5e11259938f7a935f0d603",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.0",
+      "major": "9.6",
+      "tag": "REL9_6_0",
+      "commit": "a721a1ba9cf6c86cb52f1bf325d5a27b64e870d6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.0/postgresql-9.6.0.tar.bz2",
+      "archiveSha256": "3b5fe9634b80a4511aac1832a087586a7caa8c3413619562bdda009a015863ce",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.1",
+      "major": "9.6",
+      "tag": "REL9_6_1",
+      "commit": "16e7c02c423449697b78ca857e5847981785e9ed",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.1/postgresql-9.6.1.tar.bz2",
+      "archiveSha256": "e5101e0a49141fc12a7018c6dad594694d3a3325f5ab71e93e0e51bd94e51fcd",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.2",
+      "major": "9.6",
+      "tag": "REL9_6_2",
+      "commit": "6a18e4bc2d13d077c52cf90a4c6ec68343808ba7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.2/postgresql-9.6.2.tar.bz2",
+      "archiveSha256": "0187b5184be1c09034e74e44761505e52357248451b0c854dddec6c231fe50c9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.3",
+      "major": "9.6",
+      "tag": "REL9_6_3",
+      "commit": "ca9cfed883333d5801716eb01cf28b6b5be2b5cd",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.3/postgresql-9.6.3.tar.bz2",
+      "archiveSha256": "1645b3736901f6d854e695a937389e68ff2066ce0cde9d73919d6ab7c995b9c6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.4",
+      "major": "9.6",
+      "tag": "REL9_6_4",
+      "commit": "eca2f8a7dd9bda862a25fcc57ddf77f7c0dc3afe",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.4/postgresql-9.6.4.tar.bz2",
+      "archiveSha256": "2b3ab16d82e21cead54c08b95ce3ac480696944a68603b6c11b3205b7376ce13",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.5",
+      "major": "9.6",
+      "tag": "REL9_6_5",
+      "commit": "254bb39b720426f7a4616cb6b40f810c44b24b20",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.5/postgresql-9.6.5.tar.bz2",
+      "archiveSha256": "06da12a7e3dddeb803962af8309fa06da9d6989f49e22865335f0a14bad0744c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.6",
+      "major": "9.6",
+      "tag": "REL9_6_6",
+      "commit": "0a13f1966d4cda2eb49dec0324ab5d482bbdd956",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.6/postgresql-9.6.6.tar.bz2",
+      "archiveSha256": "399cdffcb872f785ba67e25d275463d74521566318cfef8fe219050d063c8154",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.7",
+      "major": "9.6",
+      "tag": "REL9_6_7",
+      "commit": "799107108b36ca3ef498bf5997626f5fc43cabb0",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.7/postgresql-9.6.7.tar.bz2",
+      "archiveSha256": "2ebe3df3c1d1eab78023bdc3ffa55a154aa84300416b075ef996598d78a624c6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.8",
+      "major": "9.6",
+      "tag": "REL9_6_8",
+      "commit": "ad5fe2d22d020a439e96d476c65eb43885338d86",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.8/postgresql-9.6.8.tar.bz2",
+      "archiveSha256": "eafdb3b912e9ec34bdd28b651d00226a6253ba65036cb9a41cad2d9e82e3eb70",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.9",
+      "major": "9.6",
+      "tag": "REL9_6_9",
+      "commit": "2f895f784fb31bf008162e9c52cc0b2c717823e8",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.9/postgresql-9.6.9.tar.bz2",
+      "archiveSha256": "b97952e3af02dc1e446f9c4188ff53021cc0eed7ed96f254ae6daf968c443e2e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.10",
+      "major": "9.6",
+      "tag": "REL9_6_10",
+      "commit": "ca3489e768990e32096f0f24d46d5f0b8b70cff4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.10/postgresql-9.6.10.tar.bz2",
+      "archiveSha256": "8615acc56646401f0ede97a767dfd27ce07a8ae9c952afdb57163b7234fe8426",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.11",
+      "major": "9.6",
+      "tag": "REL9_6_11",
+      "commit": "518d5492911d445b126e9d5c669a83b5cae43e50",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.11/postgresql-9.6.11.tar.bz2",
+      "archiveSha256": "38250adc69a1e8613fb926c894cda1d01031391a03648894b9a6e13ff354a530",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.12",
+      "major": "9.6",
+      "tag": "REL9_6_12",
+      "commit": "9848bd725e3b021bbe53e606ac9c261079ee82ba",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.12/postgresql-9.6.12.tar.bz2",
+      "archiveSha256": "2e8c8446ba94767bda8a26cf5a2152bf0ae68a86aaebf894132a763084579d84",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.13",
+      "major": "9.6",
+      "tag": "REL9_6_13",
+      "commit": "d22ca701a39dfd03cdfa1ca238370d34f4bc4ac4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.13/postgresql-9.6.13.tar.bz2",
+      "archiveSha256": "ecbed20056296a65b6a4f5526c477e3ae5cc284cb01a15507785ddb23831e9a4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.14",
+      "major": "9.6",
+      "tag": "REL9_6_14",
+      "commit": "25cd1175fce691517c9e55311d9a1e4ecf930a32",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.14/postgresql-9.6.14.tar.bz2",
+      "archiveSha256": "3f08c265c9ae814f727461408ab24fdf3d954c4f7ae42d9c97b3c7e03fc31a22",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.15",
+      "major": "9.6",
+      "tag": "REL9_6_15",
+      "commit": "86ca7f81f7dfc17f04698189dec8973d358bc711",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.15/postgresql-9.6.15.tar.bz2",
+      "archiveSha256": "3cd9fe9af247167f863030842c1a57f58bdf3e5d50a94997d34a802b6032170a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.16",
+      "major": "9.6",
+      "tag": "REL9_6_16",
+      "commit": "39b3a8c830097af84f655a36879eb1b686fb4cd7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.16/postgresql-9.6.16.tar.bz2",
+      "archiveSha256": "5c6cba9cc0df70ba2b128c4a87d0babfce7c0e2b888f70a9c8485745f66b22e7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.17",
+      "major": "9.6",
+      "tag": "REL9_6_17",
+      "commit": "d48d8ba2361c93378d49050ff9526c8a7f289e34",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.17/postgresql-9.6.17.tar.bz2",
+      "archiveSha256": "f6e1e32d32545f97c066f3c19f4d58dfab1205c01252cf85c5c92294ace1a0c2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.18",
+      "major": "9.6",
+      "tag": "REL9_6_18",
+      "commit": "b3960286a6fa1b195a06cfc38701866e21394861",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.18/postgresql-9.6.18.tar.bz2",
+      "archiveSha256": "517ec282b785e6d22f360c30ba0c5e2a506fca5ca07dcc545427511d94c89999",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.19",
+      "major": "9.6",
+      "tag": "REL9_6_19",
+      "commit": "03f5894b35c044f9b261bd00822ae4f009004871",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.19/postgresql-9.6.19.tar.bz2",
+      "archiveSha256": "61f93a94ccddbe0b2d1afaf03f04ba605d8af5b774ff9b830e5adeb50ab55cb0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.20",
+      "major": "9.6",
+      "tag": "REL9_6_20",
+      "commit": "e4554425e6d3b429a207ac1a109af9d7e1d14da6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.20/postgresql-9.6.20.tar.bz2",
+      "archiveSha256": "3d08cba409d45ab62d42b24431a0d55e7537bcd1db2d979f5f2eefe34d487bb6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.21",
+      "major": "9.6",
+      "tag": "REL9_6_21",
+      "commit": "43b434edefdae5607000bb044caec1cf5e0c25c4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.21/postgresql-9.6.21.tar.bz2",
+      "archiveSha256": "930feaef28885c97ec40c26ab6221903751eeb625de92b22602706d7d47d1634",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.22",
+      "major": "9.6",
+      "tag": "REL9_6_22",
+      "commit": "836dda6f1b31c5f7c70ebf52537364ffc3eff577",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.22/postgresql-9.6.22.tar.bz2",
+      "archiveSha256": "3d32cd101025a0556813397c69feff3df3d63736adb8adeaf365c522f39f2930",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.23",
+      "major": "9.6",
+      "tag": "REL9_6_23",
+      "commit": "b979c788a9b79b615457e94b6e9f709513fe2e27",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.23/postgresql-9.6.23.tar.bz2",
+      "archiveSha256": "a849f798401ab8c6dfa653ebbcd853b43f2200b4e3bc1ea3cb5bec9a691947b9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "9.6.24",
+      "major": "9.6",
+      "tag": "REL9_6_24",
+      "commit": "a4116b8d5a4f68803452d8f1aa3f74f302049a90",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v9.6.24/postgresql-9.6.24.tar.bz2",
+      "archiveSha256": "aeb7a196be3ebed1a7476ef565f39722187c108dd47da7489be9c4fcae982ace",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.0",
+      "major": "10",
+      "tag": "REL_10_0",
+      "commit": "5df0e99bea1c3e5fbffa7fbd0982da88ea149bb6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.0/postgresql-10.0.tar.bz2",
+      "archiveSha256": "712f5592e27b81c5b454df96b258c14d94b6b03836831e015c65d6deeae57fd1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.1",
+      "major": "10",
+      "tag": "REL_10_1",
+      "commit": "958fe549884928cd3bdf009993e9a05df5fd6cee",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.1/postgresql-10.1.tar.bz2",
+      "archiveSha256": "3ccb4e25fe7a7ea6308dea103cac202963e6b746697366d72ec2900449a5e713",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.2",
+      "major": "10",
+      "tag": "REL_10_2",
+      "commit": "2840d201c6a62beb86d9671a66eeec56183d261b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.2/postgresql-10.2.tar.bz2",
+      "archiveSha256": "fe32009b62ddb97f7f014307ce9d0edb6972f5a698e63cb531088e147d145bad",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.3",
+      "major": "10",
+      "tag": "REL_10_3",
+      "commit": "65c6b53991e1c56f6a0700ae26928962ddf2b9fe",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.3/postgresql-10.3.tar.bz2",
+      "archiveSha256": "6ea268780ee35e88c65cdb0af7955ad90b7d0ef34573867f223f14e43467931a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.4",
+      "major": "10",
+      "tag": "REL_10_4",
+      "commit": "ab5e9caa4a3ec4765348a0482e88edcf3f6aab4a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.4/postgresql-10.4.tar.bz2",
+      "archiveSha256": "1b60812310bd5756c62d93a9f93de8c28ea63b0df254f428cd1cf1a4d9020048",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.5",
+      "major": "10",
+      "tag": "REL_10_5",
+      "commit": "4191e37a9a1fb598267c445c717914012d9bc423",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.5/postgresql-10.5.tar.bz2",
+      "archiveSha256": "6c8e616c91a45142b85c0aeb1f29ebba4a361309e86469e0fb4617b6a73c4011",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.6",
+      "major": "10",
+      "tag": "REL_10_6",
+      "commit": "c63d9ebb5940bf3d24a6ecdc300ca9e95e29ddbe",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.6/postgresql-10.6.tar.bz2",
+      "archiveSha256": "68a8276f08bda8fbefe562faaf8831cb20664a7a1d3ffdbbcc5b83e08637624b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.7",
+      "major": "10",
+      "tag": "REL_10_7",
+      "commit": "a093e1444955d6ee1d7cfda68932c19d5613d87a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.7/postgresql-10.7.tar.bz2",
+      "archiveSha256": "bfed1065380c1bba927bfe51f23168471373f26e3324cbad859269cc32733ede",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.8",
+      "major": "10",
+      "tag": "REL_10_8",
+      "commit": "441190289892c4ae870d0781175aa8edd0ec528e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.8/postgresql-10.8.tar.bz2",
+      "archiveSha256": "b198c2aadf1d68308127a0f5b51dbe798958ffe60dd999134f6495c489afcd5d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.9",
+      "major": "10",
+      "tag": "REL_10_9",
+      "commit": "cb4cb7401e12f5796a5e16fabddeffae3cac39b5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.9/postgresql-10.9.tar.bz2",
+      "archiveSha256": "958b317fb007e94f3bef7e2a6641875db8f7f9d73db9f283324f3d6e8f5b0f54",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.10",
+      "major": "10",
+      "tag": "REL_10_10",
+      "commit": "2fbecb66c45eccb8922c371084ae4f0b3a72a86b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.10/postgresql-10.10.tar.bz2",
+      "archiveSha256": "ad4f9b8575f98ed6091bf9bb2cb16f0e52795a5f66546c1f499ca5c69b21f253",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.11",
+      "major": "10",
+      "tag": "REL_10_11",
+      "commit": "004ae0a9766236d5d1769301089a014c5ef09cae",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.11/postgresql-10.11.tar.bz2",
+      "archiveSha256": "0d5d14ff6b075655f4421038fbde3a5d7b418c26a249a187a4175600d7aecc09",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.12",
+      "major": "10",
+      "tag": "REL_10_12",
+      "commit": "95d2576d023ec2a8b984472191b4e4be4205516e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.12/postgresql-10.12.tar.bz2",
+      "archiveSha256": "388f7f888c4fbcbdf424ec2bce52535195b426010b720af7bea767e23e594ae7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.13",
+      "major": "10",
+      "tag": "REL_10_13",
+      "commit": "a411361705cdf0c0d63d1de231d7ea33a030b4f9",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.13/postgresql-10.13.tar.bz2",
+      "archiveSha256": "4d701f450cd92ffb123cf6c296e9656abbc2ab7ea6507894ff1e2475ae0754e1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.14",
+      "major": "10",
+      "tag": "REL_10_14",
+      "commit": "a293b42e5274bb563fc10910272f30451f0857fb",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.14/postgresql-10.14.tar.bz2",
+      "archiveSha256": "381cd8f491d8f77db2f4326974542a50095b5fa7709f24d7c5b760be2518b23b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.15",
+      "major": "10",
+      "tag": "REL_10_15",
+      "commit": "e6c792ab72b99a3d68bf0696d0720e9afc61695c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.15/postgresql-10.15.tar.bz2",
+      "archiveSha256": "5956bce0becffa77883c41594c95a23110b94f10cd66a1157e373c3575921f7e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.16",
+      "major": "10",
+      "tag": "REL_10_16",
+      "commit": "5aa3189116ae8f6099b9f1a374978282e38edd43",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.16/postgresql-10.16.tar.bz2",
+      "archiveSha256": "a35c718b1b6690e01c69626d467edb933784f8d1d6741e21fe6cce0738467bb3",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.17",
+      "major": "10",
+      "tag": "REL_10_17",
+      "commit": "cffc8fd1ecb09fcd4d8aa98134f4ba8613a01a3a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.17/postgresql-10.17.tar.bz2",
+      "archiveSha256": "5af28071606c9cd82212c19ba584657a9d240e1c4c2da28fc1f3998a2754b26c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.18",
+      "major": "10",
+      "tag": "REL_10_18",
+      "commit": "29abec3a62229a37ce21203acdeb03a7860c1102",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.18/postgresql-10.18.tar.bz2",
+      "archiveSha256": "57477c2edc82c3f86a74747707b3babc1f301f389315ae14e819e025c0ba3801",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.19",
+      "major": "10",
+      "tag": "REL_10_19",
+      "commit": "477008d10fb5a024038ed23f0beba901f1f47ae2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.19/postgresql-10.19.tar.bz2",
+      "archiveSha256": "6eb830b428b60e84ae87e20436bce679c4d9d0202be7aec0e41b0c67d9134239",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.20",
+      "major": "10",
+      "tag": "REL_10_20",
+      "commit": "fa362d2b3bde0f99ba8a22486205de11b2e00e14",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.20/postgresql-10.20.tar.bz2",
+      "archiveSha256": "87de16d59bcfe42fa605c312c59be5e294e8a3e6acb655dd7ad47cbb930a659f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.21",
+      "major": "10",
+      "tag": "REL_10_21",
+      "commit": "6979736b4bcdc57e4699eadcca44b699fd1afd29",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.21/postgresql-10.21.tar.bz2",
+      "archiveSha256": "d32198856d52a9a6f5d50642ef86687ac058bd6efca5c9ed57be7808496f45d1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.22",
+      "major": "10",
+      "tag": "REL_10_22",
+      "commit": "c8b932112db2589bd9bb12d120f09fa29ab1f080",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.22/postgresql-10.22.tar.bz2",
+      "archiveSha256": "955977555c69df1a64f44b81d4a1987eb74abbd1870579f5ad9d946133dd8e4d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "10.23",
+      "major": "10",
+      "tag": "REL_10_23",
+      "commit": "02991e79f8f58bc208f05dcc8af0c62dbe0a6ea4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v10.23/postgresql-10.23.tar.bz2",
+      "archiveSha256": "94a4b2528372458e5662c18d406629266667c437198160a18cdfd2c4a4d6eee9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.0",
+      "major": "11",
+      "tag": "REL_11_0",
+      "commit": "19f20081df059fef87e14c8e953669bd173dd7f1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.0/postgresql-11.0.tar.bz2",
+      "archiveSha256": "bf9bba03d0c3902c188af12e454b35343c4a9bf9e377ec2fe50132efb44ef36b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.1",
+      "major": "11",
+      "tag": "REL_11_1",
+      "commit": "d06fe6ce2c79420fd19ac89ace81b66579f08493",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.1/postgresql-11.1.tar.bz2",
+      "archiveSha256": "90815e812874831e9a4bf6e1136bf73bc2c5a0464ef142e2dfea40cda206db08",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.2",
+      "major": "11",
+      "tag": "REL_11_2",
+      "commit": "6cd404b344f7e27f4d64555bb133f18a758fe851",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.2/postgresql-11.2.tar.bz2",
+      "archiveSha256": "2676b9ce09c21978032070b6794696e0aa5a476e3d21d60afc036dc0a9c09405",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.3",
+      "major": "11",
+      "tag": "REL_11_3",
+      "commit": "0616aed243b23e68b5c06ceb3df3e4ec35e731b7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.3/postgresql-11.3.tar.bz2",
+      "archiveSha256": "2a85e082fc225944821dfd23990e32dfcd2284c19060864b0ad4ca537d30522d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.4",
+      "major": "11",
+      "tag": "REL_11_4",
+      "commit": "e5f26d79badfae8018ac70f2137158fe36246c2b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.4/postgresql-11.4.tar.bz2",
+      "archiveSha256": "02802ddffd1590805beddd1e464dd28a46a41a5f1e1df04bab4f46663195cc8b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.5",
+      "major": "11",
+      "tag": "REL_11_5",
+      "commit": "fdf16779f107dd22a2cb8430d2eee6c344b34187",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.5/postgresql-11.5.tar.bz2",
+      "archiveSha256": "7fdf23060bfc715144cbf2696cf05b0fa284ad3eb21f0c378591c6bca99ad180",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.6",
+      "major": "11",
+      "tag": "REL_11_6",
+      "commit": "34f805c8cf1bc4d54075526d3b023d9194ccd2cd",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.6/postgresql-11.6.tar.bz2",
+      "archiveSha256": "49924f7ff92965fdb20c86e0696f2dc9f8553e1563124ead7beedf8910c13170",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.7",
+      "major": "11",
+      "tag": "REL_11_7",
+      "commit": "a8423a99122bae8e90a3874a4466c39031657a55",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.7/postgresql-11.7.tar.bz2",
+      "archiveSha256": "324ae93a8846fbb6a25d562d271bc441ffa8794654c5b2839384834de220a313",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.8",
+      "major": "11",
+      "tag": "REL_11_8",
+      "commit": "d439e27d5f57df1365b53688daa367d56d55599d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.8/postgresql-11.8.tar.bz2",
+      "archiveSha256": "eaf2f4329ccc349c89e950761b81daf8c99bb8966abcab5665ccd6ee95c77ae2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.9",
+      "major": "11",
+      "tag": "REL_11_9",
+      "commit": "25180875cb90ef18e83ce45697a9a4d4686b552b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.9/postgresql-11.9.tar.bz2",
+      "archiveSha256": "35618aa72e0372091f923c42389c6febd07513157b4fbb9408371706afbb6635",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.10",
+      "major": "11",
+      "tag": "REL_11_10",
+      "commit": "7e0c8283c021abf15f24f217e6bcc7faf4860b34",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.10/postgresql-11.10.tar.bz2",
+      "archiveSha256": "13e6d2f80662fe463bc7718cdf0de6a9ec67fc78afcc7a3ae66b9ea19bb97899",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.11",
+      "major": "11",
+      "tag": "REL_11_11",
+      "commit": "db5b64b978290e2c2bb0a18edbf2447c1405ccad",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.11/postgresql-11.11.tar.bz2",
+      "archiveSha256": "40607b7fa15b7d63f5075a7277daf7b3412486aa5db3aedffdb7768b9298186c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.12",
+      "major": "11",
+      "tag": "REL_11_12",
+      "commit": "fae98e3293de89f2fe8fc6e7c196d351378ce80e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.12/postgresql-11.12.tar.bz2",
+      "archiveSha256": "87f9d8b16b2b8ef71586f2ec76beac844819f64734b07fa33986755c2f53cb04",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.13",
+      "major": "11",
+      "tag": "REL_11_13",
+      "commit": "2b4006920ca0d0a579579aecff65ef7fe81185bb",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.13/postgresql-11.13.tar.bz2",
+      "archiveSha256": "a0c3689ff7f565288002cbc138779d5121d74831a5e8341aea7aa86e99b6bc48",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.14",
+      "major": "11",
+      "tag": "REL_11_14",
+      "commit": "7f05af399052dab32c28c253fa891dc1e8b4224b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.14/postgresql-11.14.tar.bz2",
+      "archiveSha256": "965c7f4be96fb64f9581852c58c4f05c3812d4ad823c0f3e2bdfe777c162f999",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.15",
+      "major": "11",
+      "tag": "REL_11_15",
+      "commit": "ff2a6d2621439d3d3f6e340c363d3b5e71749919",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.15/postgresql-11.15.tar.bz2",
+      "archiveSha256": "c8f58e8ebd4f4567f4f9ba1032eb3e99e0251d87cbe3e564b485590e37a879e3",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.16",
+      "major": "11",
+      "tag": "REL_11_16",
+      "commit": "6ac9161f69829fe327e393bff83d5f390105a70f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.16/postgresql-11.16.tar.bz2",
+      "archiveSha256": "2dd9e111f0a5949ee7cacc065cea0fb21092929bae310ce05bf01b4ffc5103a5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.17",
+      "major": "11",
+      "tag": "REL_11_17",
+      "commit": "866f915688b02294275d8791828dca3442cbeb78",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.17/postgresql-11.17.tar.bz2",
+      "archiveSha256": "6e984963ae0765e61577995103a7e6594db0f0bd01528ac123e0de4a6a4cb4c4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.18",
+      "major": "11",
+      "tag": "REL_11_18",
+      "commit": "eb3ff8600bd313071838ab376dd5c35524937242",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.18/postgresql-11.18.tar.bz2",
+      "archiveSha256": "d24f20efc52e918acfbcca21e9cea28e0e263b846a0c408fcfac3b3c4a0f7504",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.19",
+      "major": "11",
+      "tag": "REL_11_19",
+      "commit": "0da63ea07a3b610a5f0c4fc43595d76f3d8fa0d7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.19/postgresql-11.19.tar.bz2",
+      "archiveSha256": "13109e2b71f1139405c27201da3733a61ace72ee1c228d9c9f0320e06aee14c2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.20",
+      "major": "11",
+      "tag": "REL_11_20",
+      "commit": "f96e531b1c079ae148b927a204845c7150a573f8",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.20/postgresql-11.20.tar.bz2",
+      "archiveSha256": "3d7c8882f64a7e98534a044257dfee7abad77a5b7da12508d85d722b98b5acce",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.21",
+      "major": "11",
+      "tag": "REL_11_21",
+      "commit": "a2cbee74b0e174da7bcb441c142022216b9b266f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.21/postgresql-11.21.tar.bz2",
+      "archiveSha256": "07b0837471d5dd77b25166b34718f3ba10816b6ad61e691e6fc547cf3fcff850",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "11.22",
+      "major": "11",
+      "tag": "REL_11_22",
+      "commit": "fd851f9e4a13d81cccc4ac5d6059d732c7518111",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v11.22/postgresql-11.22.tar.bz2",
+      "archiveSha256": "2cb7c97d7a0d7278851bbc9c61f467b69c094c72b81740b751108e7892ebe1f0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.0",
+      "major": "12",
+      "tag": "REL_12_0",
+      "commit": "ad1f2885b8c82e0c2d56d7974f012cbecce17a17",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.0/postgresql-12.0.tar.bz2",
+      "archiveSha256": "cda2397215f758b793f741c86be05468257b0e6bcb1a6113882ab5d0df0855c6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.1",
+      "major": "12",
+      "tag": "REL_12_1",
+      "commit": "578a551f82f7ad746b36d98c401bdc92c136d664",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.1/postgresql-12.1.tar.bz2",
+      "archiveSha256": "a09bf3abbaf6763980d0f8acbb943b7629a8b20073de18d867aecdb7988483ed",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.2",
+      "major": "12",
+      "tag": "REL_12_2",
+      "commit": "45b88269a353ad93744772791feb6d01bc7e1e42",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.2/postgresql-12.2.tar.bz2",
+      "archiveSha256": "ad1dcc4c4fc500786b745635a9e1eba950195ce20b8913f50345bb7d5369b5de",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.3",
+      "major": "12",
+      "tag": "REL_12_3",
+      "commit": "5060275aa8a1ead56e0a41308d7a43049a6cbe43",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.3/postgresql-12.3.tar.bz2",
+      "archiveSha256": "94ed64a6179048190695c86ec707cc25d016056ce10fc9d229267d9a8f1dcf41",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.4",
+      "major": "12",
+      "tag": "REL_12_4",
+      "commit": "0ad348f38ea9aaafe51f9197c8a2498aaec70ff1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.4/postgresql-12.4.tar.bz2",
+      "archiveSha256": "bee93fbe2c32f59419cb162bcc0145c58da9a8644ee154a30b9a5ce47de606cc",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.5",
+      "major": "12",
+      "tag": "REL_12_5",
+      "commit": "6bb1b38fa5388a4aa39ed9e56ef477f618fb28e1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.5/postgresql-12.5.tar.bz2",
+      "archiveSha256": "bd0d25341d9578b5473c9506300022de26370879581f5fddd243a886ce79ff95",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.6",
+      "major": "12",
+      "tag": "REL_12_6",
+      "commit": "1b9eb7cde7e9cdacd62d206b75ab66bfe6a9a0a4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.6/postgresql-12.6.tar.bz2",
+      "archiveSha256": "df7dd98d5ccaf1f693c7e1d0d084e9fed7017ee248bba5be0167c42ad2d70a09",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.7",
+      "major": "12",
+      "tag": "REL_12_7",
+      "commit": "4bf0bce161097869be5a56706b31388ba15e0113",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.7/postgresql-12.7.tar.bz2",
+      "archiveSha256": "8490741f47c88edc8b6624af009ce19fda4dc9b31c4469ce2551d84075d5d995",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.8",
+      "major": "12",
+      "tag": "REL_12_8",
+      "commit": "de835071fda945fb5e40340d3ea8dd2ca13e725c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.8/postgresql-12.8.tar.bz2",
+      "archiveSha256": "e26401e090c34ccb15ffb33a111f340833833535a7b7c5cd11cd88ab57d9c62a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.9",
+      "major": "12",
+      "tag": "REL_12_9",
+      "commit": "8a94efd9bb71c2d5473836ce4899aedb9b4cfb2e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.9/postgresql-12.9.tar.bz2",
+      "archiveSha256": "89fda2de33ed04a98548e43f3ee5f15b882be17505d631fe0dd1a540a2b56dce",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.10",
+      "major": "12",
+      "tag": "REL_12_10",
+      "commit": "ec24521950fb055488e3ab2c652ffbf7fe0180b9",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.10/postgresql-12.10.tar.bz2",
+      "archiveSha256": "83dd192e6034951192b9a86dc19cf3717a8b82120e2f11a0a36723c820d2b257",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.11",
+      "major": "12",
+      "tag": "REL_12_11",
+      "commit": "f4206b3e5f816bcc45511411bb208d21a68a7e6a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.11/postgresql-12.11.tar.bz2",
+      "archiveSha256": "1026248a5fd2beeaf43e4c7236ac817e56d58b681a335856465dfbc75b3e8302",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.12",
+      "major": "12",
+      "tag": "REL_12_12",
+      "commit": "7cd0d523d2581895e65cd0ebebc7e50caa8bbfda",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.12/postgresql-12.12.tar.bz2",
+      "archiveSha256": "34b3f1c69408e22068c0c71b1827691f1c89153b0ad576c1a44f8920a858039c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.13",
+      "major": "12",
+      "tag": "REL_12_13",
+      "commit": "26b9b5dddfa21ce73d9b99e79e2336c5584745bd",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.13/postgresql-12.13.tar.bz2",
+      "archiveSha256": "b6c623046af4548f11a84b407934d675d11ed070c793d15b04683bf5f322e02d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.14",
+      "major": "12",
+      "tag": "REL_12_14",
+      "commit": "533cc39b750bd7600e8e2e5cab819a27f1717960",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.14/postgresql-12.14.tar.bz2",
+      "archiveSha256": "785610237d382c842d356e347138e58c06ffeae240e6cc0b52ac5ebcc30d043e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.15",
+      "major": "12",
+      "tag": "REL_12_15",
+      "commit": "117dd58fd9cd01e661a2c36977e16a2722306a6d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.15/postgresql-12.15.tar.bz2",
+      "archiveSha256": "bb5206e2864c1c4579938b96ea6096d155f22abf2d2cc2aa57571e3c4cb12b36",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.16",
+      "major": "12",
+      "tag": "REL_12_16",
+      "commit": "66c1983d96b66edbae1f1eb0070b447f128176e2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.16/postgresql-12.16.tar.bz2",
+      "archiveSha256": "c5f1fff7a0f93e1ec3746417b0594290ece617b4995ed95b8d527af0ba0e38f3",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.17",
+      "major": "12",
+      "tag": "REL_12_17",
+      "commit": "2fe2d1af14fd2fb5afeee94b94c4d8a34a829e32",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.17/postgresql-12.17.tar.bz2",
+      "archiveSha256": "93e8e1b23981d5f03c6c5763f77b28184c1ce4db7194fa466e2edb65d9c1c5f6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.18",
+      "major": "12",
+      "tag": "REL_12_18",
+      "commit": "3ba17930941ea629b2ffb5cd252f3055d4d4a9a6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.18/postgresql-12.18.tar.bz2",
+      "archiveSha256": "4f9919725d941ce9868e07fe1ed1d3a86748599b483386547583928b74c3918a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.19",
+      "major": "12",
+      "tag": "REL_12_19",
+      "commit": "01aeb431c12a3388594a445ca97e71cbed410ed2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.19/postgresql-12.19.tar.bz2",
+      "archiveSha256": "617e3de52c22e822f4f57d01d5b2240503e198a9eccaf598a851109bd18e6fbb",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.20",
+      "major": "12",
+      "tag": "REL_12_20",
+      "commit": "76265a851b13bbb001a218481c0cb6315c0fdfe6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.20/postgresql-12.20.tar.bz2",
+      "archiveSha256": "2d543af3009fec7fd5af35f7a70c95085d3eef6b508e517aa9493e99b15e9ea9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.21",
+      "major": "12",
+      "tag": "REL_12_21",
+      "commit": "20a82026828536331ebe912b86f060078a173633",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.21/postgresql-12.21.tar.bz2",
+      "archiveSha256": "6c711550ac1cc7828865e5823d9f457e3bdad6f4320177169f90e419be0c27f2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "12.22",
+      "major": "12",
+      "tag": "REL_12_22",
+      "commit": "498f30a8b7025a2a7bd3715acc1d1692122ba542",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v12.22/postgresql-12.22.tar.bz2",
+      "archiveSha256": "8df3c0474782589d3c6f374b5133b1bd14d168086edbc13c6e72e67dd4527a3b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.0",
+      "major": "13",
+      "tag": "REL_13_0",
+      "commit": "29be9983a64c011eac0b9ee29895cce71e15ea77",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.0/postgresql-13.0.tar.bz2",
+      "archiveSha256": "80e750be8d436b54197636a02636f8fd3263ba6779bf865b04832495ea592296",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.1",
+      "major": "13",
+      "tag": "REL_13_1",
+      "commit": "6daf725a9c66e880fd76d25279ce00710535e030",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.1/postgresql-13.1.tar.bz2",
+      "archiveSha256": "12345c83b89aa29808568977f5200d6da00f88a035517f925293355432ffe61f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.2",
+      "major": "13",
+      "tag": "REL_13_2",
+      "commit": "3fb4c75e857adee3da4386e947ba58a75f3e74b7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.2/postgresql-13.2.tar.bz2",
+      "archiveSha256": "5fd7fcd08db86f5b2aed28fcfaf9ae0aca8e9428561ac547764c2a2b0f41adfc",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.3",
+      "major": "13",
+      "tag": "REL_13_3",
+      "commit": "272d82ec6febb97ab25fd7c67e9c84f4660b16ac",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.3/postgresql-13.3.tar.bz2",
+      "archiveSha256": "3cd9454fa8c7a6255b6743b767700925ead1b9ab0d7a0f9dcb1151010f8eb4a1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.4",
+      "major": "13",
+      "tag": "REL_13_4",
+      "commit": "e849f3f1f884ad140b60a24354c6371cbd2efbb6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.4/postgresql-13.4.tar.bz2",
+      "archiveSha256": "ea93e10390245f1ce461a54eb5f99a48d8cabd3a08ce4d652ec2169a357bc0cd",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.5",
+      "major": "13",
+      "tag": "REL_13_5",
+      "commit": "084346ccee8ead6b387a90cdf6a29036ae9ec77e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.5/postgresql-13.5.tar.bz2",
+      "archiveSha256": "9b81067a55edbaabc418aacef457dd8477642827499560b00615a6ea6c13f6b3",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.6",
+      "major": "13",
+      "tag": "REL_13_6",
+      "commit": "d7db9572070a627bae9919fd1b4e16c8208d4fca",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.6/postgresql-13.6.tar.bz2",
+      "archiveSha256": "bafc7fa3d9d4da8fe71b84c63ba8bdfe8092935c30c0aa85c24b2c08508f67fc",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.7",
+      "major": "13",
+      "tag": "REL_13_7",
+      "commit": "4695fdb40fbb1e977e7e62f7d9af1fa948230d6a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.7/postgresql-13.7.tar.bz2",
+      "archiveSha256": "1b905bf4f3d83614a393b3c51fd345910fd261e4f5124a68d9a1fdd3a2a46399",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.8",
+      "major": "13",
+      "tag": "REL_13_8",
+      "commit": "4bc493d14409857090928ea51c02a20aba8db364",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.8/postgresql-13.8.tar.bz2",
+      "archiveSha256": "73876fdd3a517087340458dca4ce15b8d2a4dbceb334c0441424551ae6c4cded",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.9",
+      "major": "13",
+      "tag": "REL_13_9",
+      "commit": "b664e3552b800b480e2b4fadd847f8b312e00642",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.9/postgresql-13.9.tar.bz2",
+      "archiveSha256": "ef1966c0a5e49fbed3370ad2824928cb6b1164617aeeae1606da283f7f33a415",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.10",
+      "major": "13",
+      "tag": "REL_13_10",
+      "commit": "20aba55fae83cd0b6f7511365d172da8cd7e0135",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.10/postgresql-13.10.tar.bz2",
+      "archiveSha256": "5bbcf5a56d85c44f3a8b058fb46862ff49cbc91834d07e295d02e6de3c216df2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.11",
+      "major": "13",
+      "tag": "REL_13_11",
+      "commit": "2faab87390b03929a8cbb5a9336a04faa45a27c5",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.11/postgresql-13.11.tar.bz2",
+      "archiveSha256": "4992ff647203566b670d4e54dc5317499a26856c93576d0ea951bdf6bee50bfb",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.12",
+      "major": "13",
+      "tag": "REL_13_12",
+      "commit": "c9d50b21a72d2bbc092ea9d7de4d4c044d8f8275",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.12/postgresql-13.12.tar.bz2",
+      "archiveSha256": "0da1edcee3514b7bc7ba6dbaf0c00499e8ac1590668e8789c50253a6249f218b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.13",
+      "major": "13",
+      "tag": "REL_13_13",
+      "commit": "319310aa121285b1c7c036cb956a11bcc9d1bcb2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.13/postgresql-13.13.tar.bz2",
+      "archiveSha256": "8af69c2599047a2ad246567d68ec4131aef116954d8c3e469e9789080b37a474",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.14",
+      "major": "13",
+      "tag": "REL_13_14",
+      "commit": "b3b2bf3b9cc1f31170d3b4e21cb6ac0cf24bf90a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.14/postgresql-13.14.tar.bz2",
+      "archiveSha256": "b8df078551898960bd500dc5d38a177e9905376df81fe7f2b660a1407fa6a5ed",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.15",
+      "major": "13",
+      "tag": "REL_13_15",
+      "commit": "8e5faba4b918ba6142339c8f55eaa4eb99776a03",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.15/postgresql-13.15.tar.bz2",
+      "archiveSha256": "42edd415446d33b8c242be76d1ad057531b2264b2e86939339b7075c6e4ec925",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.16",
+      "major": "13",
+      "tag": "REL_13_16",
+      "commit": "0dc08bbfcc93ac4f04d2a3f4b9d1231a80e2cc0c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.16/postgresql-13.16.tar.bz2",
+      "archiveSha256": "c9cbbb6129f02328204828066bb3785c00a85c8ca8fd329c2a8a53c1f5cd8865",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.17",
+      "major": "13",
+      "tag": "REL_13_17",
+      "commit": "64ecc00908b7557afa911c15bb342ff06845bb19",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.17/postgresql-13.17.tar.bz2",
+      "archiveSha256": "022b0a6e7bc374a777eece33708895d7b60cae07d492b286b296a49d7395d78b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.18",
+      "major": "13",
+      "tag": "REL_13_18",
+      "commit": "4f8df7a3fb750007ff5018f8125e0d4793cab337",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.18/postgresql-13.18.tar.bz2",
+      "archiveSha256": "ceea92abee2a8c19408d278b68de6a78b6bd3dbb4fa2d653fa7ca745d666aab1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.19",
+      "major": "13",
+      "tag": "REL_13_19",
+      "commit": "bf5710d3b6656516d828ebe9f6e2ffd49e54d084",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.19/postgresql-13.19.tar.bz2",
+      "archiveSha256": "482cce0a9f8d24c2447cfc7b2817e55f86d51afe5f7f1a85214bf93644e774ea",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.20",
+      "major": "13",
+      "tag": "REL_13_20",
+      "commit": "c8f198c3acb59ed858b5b9b88b4fbc55cece544e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.20/postgresql-13.20.tar.bz2",
+      "archiveSha256": "8134b685724d15e60d93bea206fbe0f14c8295e84f1cc91d5a3928163e4fb288",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.21",
+      "major": "13",
+      "tag": "REL_13_21",
+      "commit": "8b3c5d9f5299666e2c548cc6e18d837d52f2ab2e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.21/postgresql-13.21.tar.bz2",
+      "archiveSha256": "dcda1294df45f033b0656cf7a8e4afbbc624c25e1b144aec79530f74d7ef4ab4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.22",
+      "major": "13",
+      "tag": "REL_13_22",
+      "commit": "af2dbe860b638dbd45604270d103e0a59dc0a372",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.22/postgresql-13.22.tar.bz2",
+      "archiveSha256": "d36d83dc89e625502cf6fb1d0529642ba1266bd614b4e4a41cefd1dddcf09080",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "13.23",
+      "major": "13",
+      "tag": "REL_13_23",
+      "commit": "89df812eb890814b105d871185935b580478e660",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v13.23/postgresql-13.23.tar.bz2",
+      "archiveSha256": "6ec3c82726af92b7dec873fa1cdf881eca92a4219787dfad05acb6b10e041fd6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.0",
+      "major": "14",
+      "tag": "REL_14_0",
+      "commit": "86a4dc1e6f29d1992a2afa3fac1a0b0a6e84568c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.0/postgresql-14.0.tar.bz2",
+      "archiveSha256": "ee2ad79126a7375e9102c4db77c4acae6ae6ffe3e082403b88826d96d927a122",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.1",
+      "major": "14",
+      "tag": "REL_14_1",
+      "commit": "0a455b8d61d8fc5a7d1fdc152667f9ba1fd27fda",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.1/postgresql-14.1.tar.bz2",
+      "archiveSha256": "4d3c101ea7ae38982f06bdc73758b53727fb6402ecd9382006fa5ecc7c2ca41f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.2",
+      "major": "14",
+      "tag": "REL_14_2",
+      "commit": "78b1ddc753b3e5e3f3e9eb0e7519b48146018394",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.2/postgresql-14.2.tar.bz2",
+      "archiveSha256": "2cf78b2e468912f8101d695db5340cf313c2e9f68a612fb71427524e8c9a977a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.3",
+      "major": "14",
+      "tag": "REL_14_3",
+      "commit": "0e9cc8c0f3bc411de888a77318d8854ccba90e80",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.3/postgresql-14.3.tar.bz2",
+      "archiveSha256": "279057368bf59a919c05ada8f95c5e04abb43e74b9a2a69c3d46a20e07a9af38",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.4",
+      "major": "14",
+      "tag": "REL_14_4",
+      "commit": "164d174bbf9a3aba719c845497863cd3c49a3ad0",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.4/postgresql-14.4.tar.bz2",
+      "archiveSha256": "c23b6237c5231c791511bdc79098617d6852e9e3bdf360efd8b5d15a1a3d8f6a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.5",
+      "major": "14",
+      "tag": "REL_14_5",
+      "commit": "278273ccbad27a8834dfdf11895da9cd91de4114",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.5/postgresql-14.5.tar.bz2",
+      "archiveSha256": "d4f72cb5fb857c9a9f75ec8cf091a1771272802f2178f0b2e65b7b6ff64f4a30",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.6",
+      "major": "14",
+      "tag": "REL_14_6",
+      "commit": "6dde6ed3efb4baaa0955f78ba5c93e9490aaa490",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.6/postgresql-14.6.tar.bz2",
+      "archiveSha256": "508840fc1809d39ab72274d5f137dabb9fd7fb4f933da4168aeebb20069edf22",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.7",
+      "major": "14",
+      "tag": "REL_14_7",
+      "commit": "e4c4e6258c747d440e161f387d2eff84a835ca08",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.7/postgresql-14.7.tar.bz2",
+      "archiveSha256": "cef60f0098fa8101c1546f4254e45b722af5431337945b37af207007630db331",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.8",
+      "major": "14",
+      "tag": "REL_14_8",
+      "commit": "b6cf730e80e8571066c0ce76e76ce99b9144c149",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.8/postgresql-14.8.tar.bz2",
+      "archiveSha256": "39d38f0030737ed03835debeefee3b37d335462ce4995e2497bc38d621ebe45a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.9",
+      "major": "14",
+      "tag": "REL_14_9",
+      "commit": "86648dcdaec67b83cec20a9d25b45ec089a7c624",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.9/postgresql-14.9.tar.bz2",
+      "archiveSha256": "b1fe3ba9b1a7f3a9637dd1656dfdad2889016073fd4d35f13b50143cbbb6a8ef",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.10",
+      "major": "14",
+      "tag": "REL_14_10",
+      "commit": "33d5cf65f8c97d6bf085dffecb51c6a52d1f3f0d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.10/postgresql-14.10.tar.bz2",
+      "archiveSha256": "c99431c48e9d470b0d0ab946eb2141a3cd19130c2fb4dc4b3284a7774ecc8399",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.11",
+      "major": "14",
+      "tag": "REL_14_11",
+      "commit": "d1a2a93766b0a27eb4ffecdb63ed3879088dbfbe",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.11/postgresql-14.11.tar.bz2",
+      "archiveSha256": "a670bd7dce22dcad4297b261136b3b1d4a09a6f541719562aa14ca63bf2968a8",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.12",
+      "major": "14",
+      "tag": "REL_14_12",
+      "commit": "cf07a47dc0c3b16778291e62d730537b45da51ef",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.12/postgresql-14.12.tar.bz2",
+      "archiveSha256": "6118d08f9ddcc1bd83cf2b7cc74d3b583bdcec2f37e6245a8ac003b8faa80923",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.13",
+      "major": "14",
+      "tag": "REL_14_13",
+      "commit": "33965476b6ef6a37af2bc9bb1b5b2af17c35dc5e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.13/postgresql-14.13.tar.bz2",
+      "archiveSha256": "59aa3c4b495ab26a9ec69f3ad0a0228c51f0fe6facf3634dfad4d1197d613a56",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.14",
+      "major": "14",
+      "tag": "REL_14_14",
+      "commit": "8abd1324049759c1cbd81a4793c470a4f43e1fdb",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.14/postgresql-14.14.tar.bz2",
+      "archiveSha256": "84727fbccdbd1efe01d8de64bc1b33095db773ad2457cefcedc2d8258ebc09d6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.15",
+      "major": "14",
+      "tag": "REL_14_15",
+      "commit": "4f5b14879d8271a73786105bf8aafda347dd7aea",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.15/postgresql-14.15.tar.bz2",
+      "archiveSha256": "02e891e314b4e9ee24cbd78028dab7c73f9c1ba3e30835bcbef71fe220401fc5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.16",
+      "major": "14",
+      "tag": "REL_14_16",
+      "commit": "6884202705699820ec9427d1fba7eeba0e2de03e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.16/postgresql-14.16.tar.bz2",
+      "archiveSha256": "673c26f15ebb14306ad0ea051d8acfb3915dd342de942f5b502e5354a0ab760c",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.17",
+      "major": "14",
+      "tag": "REL_14_17",
+      "commit": "e5cabe28006995d90cc9ebc613dad072c44c7f4a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.17/postgresql-14.17.tar.bz2",
+      "archiveSha256": "6ce0ccd6403bf7f0f2eddd333e2ee9ba02edfa977c66660ed9b4b1057e7630a1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.18",
+      "major": "14",
+      "tag": "REL_14_18",
+      "commit": "8bde80e30edd408a5bef4d5612db0bb173206293",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.18/postgresql-14.18.tar.bz2",
+      "archiveSha256": "83ab29d6bfc3dc58b2ed3c664114fdfbeb6a0450c4b8d7fa69aee91e3ca14f8e",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.19",
+      "major": "14",
+      "tag": "REL_14_19",
+      "commit": "4e9da016ade3e75400f6fdc22ed1fed7fdd32f7a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.19/postgresql-14.19.tar.bz2",
+      "archiveSha256": "727e9e334bc1a31940df808259f69fe47a59f6d42174b22ae62d67fe7a01ad80",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.20",
+      "major": "14",
+      "tag": "REL_14_20",
+      "commit": "9ad034be354da9af1cea76836a9e576c110d1ff3",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.20/postgresql-14.20.tar.bz2",
+      "archiveSha256": "7527f10f1640761bc280ad97d105d286d0cf72e54d36d78cf68e5e5f752b646b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.21",
+      "major": "14",
+      "tag": "REL_14_21",
+      "commit": "eb788b43371849237c61ba2747fc11e96c08d861",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.21/postgresql-14.21.tar.bz2",
+      "archiveSha256": "5b30f19347efff32b6e09ed2cdff0b04e9aee913ec9bb7414de2b7c17b17f1f9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.22",
+      "major": "14",
+      "tag": "REL_14_22",
+      "commit": "966473719c7f8067848dc79b58da0fb17ed136b1",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.22/postgresql-14.22.tar.bz2",
+      "archiveSha256": "f57938ad30067077720277f6d7db05aafc07d1545efd2ed82f199ba828a7ad34",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.23",
+      "major": "14",
+      "tag": "REL_14_23",
+      "commit": "4e1a23c0ea0be0214c6806baa212886cee8f14a6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.23/postgresql-14.23.tar.bz2",
+      "archiveSha256": "cc7216822b546330e29c2f91e123c8734a4c41795082145bb962aa712e8c94a5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "14.24",
+      "major": "14",
+      "tag": "REL_14_24",
+      "commit": "6b3806732b7c5df06bdd0ed150e8a07b4ad62315",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v14.24/postgresql-14.24.tar.bz2",
+      "archiveSha256": "a7fa7ed3d558172355f51406097a7bd4f6b473be80f311ef7cda96bf383d8897",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.0",
+      "major": "15",
+      "tag": "REL_15_0",
+      "commit": "2a7ce2e2ce474504a707ec03e128fde66cfb8b48",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.0/postgresql-15.0.tar.bz2",
+      "archiveSha256": "72ec74f4a7c16e684f43ea42e215497fcd4c55d028a68fb72e99e61ff40da4d6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.1",
+      "major": "15",
+      "tag": "REL_15_1",
+      "commit": "c5dc80c1bc216f0e21a2f79f5e0415c2d4cfb35d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.1/postgresql-15.1.tar.bz2",
+      "archiveSha256": "64fdf23d734afad0dfe4077daca96ac51dcd697e68ae2d3d4ca6c45cb14e21ae",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.2",
+      "major": "15",
+      "tag": "REL_15_2",
+      "commit": "78ec02d612a9b69039ec2610740f738968fe144d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.2/postgresql-15.2.tar.bz2",
+      "archiveSha256": "99a2171fc3d6b5b5f56b757a7a3cb85d509a38e4273805def23941ed2b8468c7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.3",
+      "major": "15",
+      "tag": "REL_15_3",
+      "commit": "8382864eb5c9f9ebe962ac20b3392be5ae304d23",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2",
+      "archiveSha256": "ffc7d4891f00ffbf5c3f4eab7fbbced8460b8c0ee63c5a5167133b9e6599d932",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.4",
+      "major": "15",
+      "tag": "REL_15_4",
+      "commit": "83ed1f71c88ae948a5b6ec6d2a4802cc54470102",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.4/postgresql-15.4.tar.bz2",
+      "archiveSha256": "baec5a4bdc4437336653b6cb5d9ed89be5bd5c0c58b94e0becee0a999e63c8f9",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.5",
+      "major": "15",
+      "tag": "REL_15_5",
+      "commit": "1e7f81e90741795d547c0290b4a82d84d518faac",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.5/postgresql-15.5.tar.bz2",
+      "archiveSha256": "8f53aa95d78eb8e82536ea46b68187793b42bba3b4f65aa342f540b23c9b10a6",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.6",
+      "major": "15",
+      "tag": "REL_15_6",
+      "commit": "496a1dc44bf1261053da9b3f7e430769754298b4",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.6/postgresql-15.6.tar.bz2",
+      "archiveSha256": "8455146ed9c69c93a57de954aead0302cafad035c2b242175d6aa1e17ebcb2fb",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.7",
+      "major": "15",
+      "tag": "REL_15_7",
+      "commit": "4a53584cf2d676e685d899d01cde18c075fbeca7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.7/postgresql-15.7.tar.bz2",
+      "archiveSha256": "a46fe49485ab6385e39dabbbb654f5d3049206f76cd695e224268729520998f7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.8",
+      "major": "15",
+      "tag": "REL_15_8",
+      "commit": "3cc5e51ab4507b33acc82684b7d79ac43b8a6b5d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.8/postgresql-15.8.tar.bz2",
+      "archiveSha256": "4403515f9a69eeb3efebc98f30b8c696122bfdf895e92b3b23f5b8e769edcb6a",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.9",
+      "major": "15",
+      "tag": "REL_15_9",
+      "commit": "0c53d54c812cea0d840490fd107910ed949e18c2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.9/postgresql-15.9.tar.bz2",
+      "archiveSha256": "74f2d4565035f0cf729ecb059949faaf1102cbd93759b359822f98f82198c783",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.10",
+      "major": "15",
+      "tag": "REL_15_10",
+      "commit": "a4bd20b6d7f9d42750b797c450592f55d5374c1f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.10/postgresql-15.10.tar.bz2",
+      "archiveSha256": "55abe738d441f0e58658b3ec6f88097a713b5e3b73139f6230d7b5c4c389e573",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.11",
+      "major": "15",
+      "tag": "REL_15_11",
+      "commit": "e3cbae2221c8107fa816673adaea4e357c1393df",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.11/postgresql-15.11.tar.bz2",
+      "archiveSha256": "5367e97e81e493301cc4aab049dfbc9b4913822985bc62379faab2a281cfbdf0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.12",
+      "major": "15",
+      "tag": "REL_15_12",
+      "commit": "50d3d22baba63613d1f1406b2ed460dc9b03c3fc",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.12/postgresql-15.12.tar.bz2",
+      "archiveSha256": "3bc8462a38ca0857270cc88b949a3f6659f0d5c44c029c482355835b61a0f6f7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.13",
+      "major": "15",
+      "tag": "REL_15_13",
+      "commit": "5261b40acb67fdb8ed1e5976ae99599f16864c93",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.13/postgresql-15.13.tar.bz2",
+      "archiveSha256": "4f62e133d22ea08a0401b0840920e26698644d01a80c34341fb732dd0a90ca5d",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.14",
+      "major": "15",
+      "tag": "REL_15_14",
+      "commit": "0ab43b548237b3791261480d6a023f6b95b53942",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.14/postgresql-15.14.tar.bz2",
+      "archiveSha256": "06dd75d305cd3870ee62b3932e661c624543eaf9ae2ba37cdec0a4f8edd051d2",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.15",
+      "major": "15",
+      "tag": "REL_15_15",
+      "commit": "32f38816779420502d4a311835d5fe939e9548a0",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.15/postgresql-15.15.tar.bz2",
+      "archiveSha256": "5753aaeb8b09cbf61016f78aa69bf5cbdf01b43263f010cbf168c82896213aaa",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.16",
+      "major": "15",
+      "tag": "REL_15_16",
+      "commit": "78bc85dd4455c302c345c550e0628a1522df108d",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.16/postgresql-15.16.tar.bz2",
+      "archiveSha256": "695ee29a77be1f5010e10f3667696f29871587f7aa311eadc1f809bea287cf48",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.17",
+      "major": "15",
+      "tag": "REL_15_17",
+      "commit": "3eb6f61958ac5027a18791a828a0c7a47accf211",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.17/postgresql-15.17.tar.bz2",
+      "archiveSha256": "ae14f24c14727e0b2ded1c5553031666099bd1054db3ef44bfa6e2bd6d554a56",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.18",
+      "major": "15",
+      "tag": "REL_15_18",
+      "commit": "005c1971a2926fbb9caf5a1ad634cd17a42bfd3c",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.18/postgresql-15.18.tar.bz2",
+      "archiveSha256": "11df0df97fe3ea4ba9a791faaf39cee1d2fe571e78885b5b55d8517d27c323b4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "15.19",
+      "major": "15",
+      "tag": "REL_15_19",
+      "commit": "2ff1375b5dd8bf09d8cb0e795974528180fd75ca",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v15.19/postgresql-15.19.tar.bz2",
+      "archiveSha256": "e1a64a87a46b825b88c082e4518161a47aab53c45694964f8ba1df28f7859f89",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.0",
+      "major": "16",
+      "tag": "REL_16_0",
+      "commit": "c372fbbd8e911f2412b80a8c39d7079366565d67",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.0/postgresql-16.0.tar.bz2",
+      "archiveSha256": "df9e823eb22330444e1d48e52cc65135a652a6fdb3ce325e3f08549339f51b99",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.1",
+      "major": "16",
+      "tag": "REL_16_1",
+      "commit": "3edc6580c0e27fb8f13322efd255a88d20dda6c2",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.1/postgresql-16.1.tar.bz2",
+      "archiveSha256": "ce3c4d85d19b0121fe0d3f8ef1fa601f71989e86f8a66f7dc3ad546dd5564fec",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.2",
+      "major": "16",
+      "tag": "REL_16_2",
+      "commit": "b78fa8547d02fc72ace679fb4d5289dccdbfc781",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.2/postgresql-16.2.tar.bz2",
+      "archiveSha256": "446e88294dbc2c9085ab4b7061a646fa604b4bec03521d5ea671c2e5ad9b2952",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.3",
+      "major": "16",
+      "tag": "REL_16_3",
+      "commit": "05ffe9398b758bbb8d30cc76e9bbc638dab2d477",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.3/postgresql-16.3.tar.bz2",
+      "archiveSha256": "331963d5d3dc4caf4216a049fa40b66d6bcb8c730615859411b9518764e60585",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.4",
+      "major": "16",
+      "tag": "REL_16_4",
+      "commit": "2caa85f4aae689e6f6721d7363b4c66a2a6417d6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.4/postgresql-16.4.tar.bz2",
+      "archiveSha256": "971766d645aa73e93b9ef4e3be44201b4f45b5477095b049125403f9f3386d6f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.5",
+      "major": "16",
+      "tag": "REL_16_5",
+      "commit": "8c9d34cdc4d213a57fa8b8a7197f7d6f22fca4c9",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.5/postgresql-16.5.tar.bz2",
+      "archiveSha256": "a6cbbb7037f98cb8afa7d3970b7c48040cf02b115e39253a0c037a8bb8e778f0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.6",
+      "major": "16",
+      "tag": "REL_16_6",
+      "commit": "1f47e7b59b92c58eee6840325d1aaa6acee84194",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.6/postgresql-16.6.tar.bz2",
+      "archiveSha256": "23369cdaccd45270ac5dcc30fa9da205d5be33fa505e1f17a0418d2caeca477b",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.7",
+      "major": "16",
+      "tag": "REL_16_7",
+      "commit": "61f3dcf2d9f7e2957753a00a5d932eca98b36f64",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.7/postgresql-16.7.tar.bz2",
+      "archiveSha256": "62e02f77ebfc4a37f1700c20cc3ccd85ff797b5613766ebf949a7899bb2113fe",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.8",
+      "major": "16",
+      "tag": "REL_16_8",
+      "commit": "71eb35c0b18de96537bd3876ec9bf8075bfd484f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.8/postgresql-16.8.tar.bz2",
+      "archiveSha256": "9468083a56ce0ee7d294601b74dad3dd9fc69d87aff61f0a9fb63c813ff7efd8",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.9",
+      "major": "16",
+      "tag": "REL_16_9",
+      "commit": "6e4ab1b69197e2756192a1019439aebacdea5497",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.9/postgresql-16.9.tar.bz2",
+      "archiveSha256": "07c00fb824df0a0c295f249f44691b86e3266753b380c96f633c3311e10bd005",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.10",
+      "major": "16",
+      "tag": "REL_16_10",
+      "commit": "c13dd7d50f21268dc64b4b3edbce31993985ab12",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.10/postgresql-16.10.tar.bz2",
+      "archiveSha256": "de8485f4ce9c32e3ddfeef0b7c261eed1cecb54c9bcd170e437ff454cb292b42",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.11",
+      "major": "16",
+      "tag": "REL_16_11",
+      "commit": "d61dd817be70749d14e982a369e97fdda9d5cba6",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.11/postgresql-16.11.tar.bz2",
+      "archiveSha256": "6deb08c23d03d77d8f8bd1c14049eeef64aef8968fd8891df2dfc0b42f178eac",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.12",
+      "major": "16",
+      "tag": "REL_16_12",
+      "commit": "e15d96551f9760e62888b5082ad050329c1c4cdf",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.12/postgresql-16.12.tar.bz2",
+      "archiveSha256": "b253ee949303ef5df00e24002600da4fb37e5ccfafa78718c6ea6a936b4d97f1",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.13",
+      "major": "16",
+      "tag": "REL_16_13",
+      "commit": "776479eed63aac4185e57adaf7db1ce0810a4d3e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.13/postgresql-16.13.tar.bz2",
+      "archiveSha256": "dc2ddbbd245c0265a689408e3d2f2f3f9ba2da96bd19318214b313cdd9797287",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.14",
+      "major": "16",
+      "tag": "REL_16_14",
+      "commit": "0d1c00c624fa7367d4a895f44381887757289682",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.14/postgresql-16.14.tar.bz2",
+      "archiveSha256": "f6d077142737920858ce958ccdb75c6ee137a63b5b0853c70693d401ac7e3471",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "16.15",
+      "major": "16",
+      "tag": "REL_16_15",
+      "commit": "7d3e000c5961a544302072058a1184e9a588837b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v16.15/postgresql-16.15.tar.bz2",
+      "archiveSha256": "c1575341fa7bd40f5274ea465b34390f4dc64cdd0770af327005caaeb9f6b7ed",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.0",
+      "major": "17",
+      "tag": "REL_17_0",
+      "commit": "d7ec59a63d745ba74fba0e280bbf85dc6d1caa3e",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.0/postgresql-17.0.tar.bz2",
+      "archiveSha256": "7e276131c0fdd6b62588dbad9b3bb24b8c3498d5009328dba59af16e819109de",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.1",
+      "major": "17",
+      "tag": "REL_17_1",
+      "commit": "91f20bc2f7e4fcf5de5c65a6cb1190e0afa91c0b",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.1/postgresql-17.1.tar.bz2",
+      "archiveSha256": "7849db74ef6a8555d0723f87e81539301422fa9c8e9f21cce61fdc14e9199dcd",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.2",
+      "major": "17",
+      "tag": "REL_17_2",
+      "commit": "6304632eaa2107bb1763d29e213ff166ff6104c0",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.2/postgresql-17.2.tar.bz2",
+      "archiveSha256": "82ef27c0af3751695d7f64e2d963583005fbb6a0c3df63d0e4b42211d7021164",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.3",
+      "major": "17",
+      "tag": "REL_17_3",
+      "commit": "3819b30c4c5bbb4e772a6f209fa7bbccccb91a11",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.3/postgresql-17.3.tar.bz2",
+      "archiveSha256": "13c18b35bf67a97bd639925fc581db7fd2aae4d3548eac39fcdb8da74ace2bea",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.4",
+      "major": "17",
+      "tag": "REL_17_4",
+      "commit": "f8554dee417ffc4540c94cf357f7bf7d4b6e5d80",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.4/postgresql-17.4.tar.bz2",
+      "archiveSha256": "c4605b73fea11963406699f949b966e5d173a7ee0ccaef8938dec0ca8a995fe7",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.5",
+      "major": "17",
+      "tag": "REL_17_5",
+      "commit": "5e2f3df49d4298c6097789364a5a53be172f6e85",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.5/postgresql-17.5.tar.bz2",
+      "archiveSha256": "fcb7ab38e23b264d1902cb25e6adafb4525a6ebcbd015434aeef9eda80f528d8",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.6",
+      "major": "17",
+      "tag": "REL_17_6",
+      "commit": "7885b94dd81b98bbab9ed878680d156df7bf857f",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.6/postgresql-17.6.tar.bz2",
+      "archiveSha256": "e0630a3600aea27511715563259ec2111cd5f4353a4b040e0be827f94cd7a8b0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.7",
+      "major": "17",
+      "tag": "REL_17_7",
+      "commit": "fbb530a3dff569222bea7098ad4de3d8bde97740",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.7/postgresql-17.7.tar.bz2",
+      "archiveSha256": "ef9e343302eccd33112f1b2f0247be493cb5768313adeb558b02de8797a2e9b5",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.8",
+      "major": "17",
+      "tag": "REL_17_8",
+      "commit": "6af885119b52a2a6229959670ba3ae5e36bf9806",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.8/postgresql-17.8.tar.bz2",
+      "archiveSha256": "a88d195dd93730452d0cfa1a11896720d6d1ba084bc2be7d7fc557fa4e4158a0",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.9",
+      "major": "17",
+      "tag": "REL_17_9",
+      "commit": "6d396980fc5aed4f1a525e0bd75cb16b25ed40ca",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.9/postgresql-17.9.tar.bz2",
+      "archiveSha256": "3b9a62538a8da151e807a3ddb1198e8605f2032544d78f403ae883d27ecf1ee4",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.10",
+      "major": "17",
+      "tag": "REL_17_10",
+      "commit": "25c49f3a4a742ba283f5cc43cc7f1d361552e917",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.10/postgresql-17.10.tar.bz2",
+      "archiveSha256": "078a03516dcdbdb705fecaf415ea3d13a956c589e46f09fed68a06fb00598c90",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "17.11",
+      "major": "17",
+      "tag": "REL_17_11",
+      "commit": "083ac033419f690758508e08c1736089384bbee8",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v17.11/postgresql-17.11.tar.bz2",
+      "archiveSha256": "dd27f2b3c59e73ed14aa3324901242bf69a032a6347805f274e6260322d42979",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "18.0",
+      "major": "18",
+      "tag": "REL_18_0",
+      "commit": "3d6a828938a5fa0444275d3d2f67b64ec3199eb7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v18.0/postgresql-18.0.tar.bz2",
+      "archiveSha256": "0d5b903b1e5fe361bca7aa9507519933773eb34266b1357c4e7780fdee6d6078",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "18.1",
+      "major": "18",
+      "tag": "REL_18_1",
+      "commit": "4b324845ba5d24682b9b3708a769f00d160afbd7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v18.1/postgresql-18.1.tar.bz2",
+      "archiveSha256": "ff86675c336c46e98ac991ebb306d1b67621ece1d06787beaade312c2c915d54",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "18.2",
+      "major": "18",
+      "tag": "REL_18_2",
+      "commit": "5a461dc4dbf72a1ec281394a76eb36d68cbdd935",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v18.2/postgresql-18.2.tar.bz2",
+      "archiveSha256": "5245bd1b79700d55b8e0575be0325ef61e7bbef627e6a616e4cf36ad4687be36",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "18.3",
+      "major": "18",
+      "tag": "REL_18_3",
+      "commit": "62d6c7d3df6287f1bd83199c1a746e50d31571a0",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v18.3/postgresql-18.3.tar.bz2",
+      "archiveSha256": "d95663fbbf3a80f81a9d98d895266bdcb74ba274bcc04ef6d76630a72dee016f",
+      "checksumSource": "official-sha256-file"
+    },
+    {
+      "version": "18.4",
+      "major": "18",
+      "tag": "REL_18_4",
+      "commit": "f5cc81719e6da4cbdb1f797c48b693e91018153a",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v18.4/postgresql-18.4.tar.bz2",
+      "archiveSha256": "81a81ec695fb0c7901407defaa1d2f7973617154cf27ba74e3a7ab8e64436094",
+      "checksumSource": "official-sha256-file"
+    },
+    {
       "version": "18.6",
       "major": "18",
       "tag": "REL_18_6",

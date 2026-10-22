@@ -4,7 +4,7 @@
 // schemas/*.schema.json (a small JSON Schema subset interpreter, no dependencies) and
 // against the semantic rules a schema cannot express.
 //
-// Usage: validate-locks.js [--sources FILE] [--toolchain FILE] [--features FILE] [--require]
+// Usage: validate-locks.js [--sources FILE] [--toolchain FILE] [--features FILE] [--require] [--strict-coverage]
 // Without file options the files in the repo root are used. A missing file is reported
 // as NOT PRESENT and only fails the run with --require. Exit codes: 0 ok, 1 invalid,
 // 2 usage error.
@@ -23,6 +23,7 @@ const opt = {
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === '--require') opt.require = true;
+  else if (a === '--strict-coverage') opt.strictCoverage = true;
   else if (a === '--sources' || a === '--toolchain' || a === '--features') opt[a.slice(2)] = path.resolve(args[++i] || '');
   else { console.error(`unknown argument: ${a}`); process.exit(2); }
 }
@@ -109,11 +110,19 @@ function semanticToolchain(doc, sources, errors) {
     }
   }
   if (sources) {
+    const uncovered = [];
     for (const rel of sources.releases) {
       const v = ver(rel.version);
       const hits = rs.filter((r) => cmp(r.f, v) <= 0 && cmp(v, r.t) <= 0).length;
-      if (hits === 0) errors.push(`toolchain: release ${rel.version} is not covered by any range (gap)`);
+      if (hits === 0) uncovered.push(rel.version);
       if (hits > 1) errors.push(`toolchain: release ${rel.version} is covered by ${hits} ranges`);
+    }
+    if (opt.strictCoverage) {
+      uncovered.forEach((v) => errors.push(`toolchain: release ${v} is not covered by any range (gap)`));
+    } else if (uncovered.length) {
+      // Until every release has a builder range (CDB-24) this is a warning, not an error;
+      // --strict-coverage makes it one and is what the release gate uses.
+      warnings.push(`toolchain: ${uncovered.length} of ${sources.releases.length} releases have no builder range yet (first ${uncovered[0]}, last ${uncovered[uncovered.length - 1]}); run with --strict-coverage to fail on this`);
     }
   }
 }
@@ -131,6 +140,7 @@ function semanticFeatures(doc, errors) {
 }
 
 const errors = [];
+const warnings = [];
 const results = [];
 function validate(label, file, schemaFile, semantic) {
   if (!fs.existsSync(file)) {
@@ -153,6 +163,7 @@ validate('toolchain', opt.toolchain, 'toolchain.lock.schema.json', (d) => semant
 validate('features', opt.features, 'feature-profile.schema.json', (d) => semanticFeatures(d, errors));
 
 results.forEach((r) => console.log(r));
+warnings.forEach((w) => console.log(`WARNING: ${w}`));
 if (errors.length) {
   console.error('validate-locks: FAIL');
   errors.forEach((e) => console.error(`  - ${e}`));

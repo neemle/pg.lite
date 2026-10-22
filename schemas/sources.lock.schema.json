@@ -27,7 +27,7 @@
           "gitUrl": { "type": "string", "pattern": "^https://" },
           "archiveUrl": { "type": "string", "pattern": "^https://" },
           "archiveSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-          "checksumSource": { "type": "string", "enum": ["official-sha256-file", "computed-unverified"] }
+          "checksumSource": { "type": "string", "enum": ["official-sha256-file", "computed-md5-verified", "computed-unverified"], "description": "official-sha256-file: value read from the official .sha256 file. computed-md5-verified: no official sha256 exists; the archive was downloaded, hashed, and its md5 equals the official .md5. computed-unverified: hashed from the download with no official file to compare." }
         }
       }
     }

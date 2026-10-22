@@ -19,7 +19,7 @@ NOT_IMPL := scripts/not-implemented.sh
         validate-locks test-locks test-fetch selftest \
         patches-verify patches-apply test-patches \
         builder-check capture-toolchain update-toolchain-lock reference \
-        feature-check feature-matrix test-feature
+        feature-check feature-matrix test-feature release-index test-release-index
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -82,6 +82,14 @@ capture-toolchain:
 update-toolchain-lock:
 	@node scripts/update-toolchain-lock.js
 
+# Release list: every final PostgreSQL release 9.0..latest -> sources.lock.json (needs network;
+# ./dc enables it for this target). test-release-index is offline.
+release-index:
+	@node scripts/release-index.js
+
+test-release-index:
+	@node tests/release/run.js
+
 # Feature profile (docs/feature-matrix.md is generated from feature-profile.json).
 # feature-check needs the fetched tree (./dc make fetch); the others do not.
 feature-check:
@@ -110,7 +118,7 @@ test-patches:
 	@node tests/patches/run.js
 
 # All repo self-tests that need no network.
-selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature
+selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:

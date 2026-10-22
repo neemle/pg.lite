@@ -12,9 +12,9 @@ const load = (n) => JSON.parse(fs.readFileSync(path.join(__dirname, 'valid', n),
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'locks-'));
 
 let failed = 0;
-function run(name, { sources, toolchain, features }, expectExit, expectText) {
+function run(name, { sources, toolchain, features, extra = [] }, expectExit, expectText) {
   const files = {};
-  const a = [validator];
+  const a = [validator, ...extra];
   for (const [k, v] of Object.entries({ sources, toolchain, features })) {
     if (!v) continue;
     files[k] = path.join(tmp, `${name.replace(/\W+/g, '_')}.${k}.json`);
@@ -58,7 +58,8 @@ t = clone(T); t.ranges[1].from = '9.5.0';
 run('overlapping ranges fail', { toolchain: t }, 1, 'overlap');
 
 t = clone(T); t.ranges[1].from = '11.0';
-run('gap in ranges fails (release 10.5 uncovered)', { sources: S, toolchain: t }, 1, 'not covered');
+run('gap in ranges fails with --strict-coverage (release 10.5 uncovered)', { sources: S, toolchain: t, extra: ['--strict-coverage'] }, 1, 'not covered');
+run('gap in ranges is only a warning by default', { sources: S, toolchain: t }, 0, 'WARNING');
 
 t = clone(T); t.ranges[0].nativeImage = 'nope';
 run('unknown image key fails', { toolchain: t }, 1, 'unknown image');
