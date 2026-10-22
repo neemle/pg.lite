@@ -25,7 +25,7 @@ const BORROWED = ['Source-URL', 'Source-Commit', 'Source-License', 'Adaptation']
 function usage(msg) { if (msg) console.error(msg); console.error('usage: patches.js verify|apply [options] (see header of this file)'); process.exit(2); }
 
 const [cmd, ...rest] = process.argv.slice(2);
-const opt = { patches: path.join(root, 'patches'), thirdParty: path.join(root, 'THIRD_PARTY.md'), targets: ['common', 'native', 'wasm'], fuzz: 0 };
+const opt = { patches: path.join(root, 'patches'), thirdParty: path.join(root, 'THIRD_PARTY.md'), targets: ['common', 'native', 'wasm'], fuzz: 0, series: {} };
 for (let i = 0; i < rest.length; i++) {
   const a = rest[i];
   if (a === '--patches') opt.patches = path.resolve(rest[++i] || usage('--patches needs a value'));
@@ -34,15 +34,16 @@ for (let i = 0; i < rest.length; i++) {
   else if (a === '--out') opt.out = path.resolve(rest[++i] || usage('--out needs a value'));
   else if (a === '--targets') opt.targets = (rest[++i] || usage('--targets needs a value')).split(',').filter(Boolean);
   else if (a === '--fuzz') opt.fuzz = Number(rest[++i]);
+  else if (a === '--series') { const m = /^(common|native|wasm)=(series(\.[a-z0-9-]+)?)$/.exec(rest[++i] || ''); if (!m) usage('--series needs target=series[.name]'); opt.series[m[1]] = m[2]; }
   else usage(`unknown argument ${a}`);
 }
 for (const t of opt.targets) if (!TARGETS.includes(t)) usage(`unknown target ${t}; known: ${TARGETS.join(', ')}`);
 if (!Number.isInteger(opt.fuzz) || opt.fuzz < 0) usage('--fuzz must be a non-negative integer');
 
 // ---- series and headers ------------------------------------------------------------
-function readSeries(target, errors) {
+function readSeries(target, errors, name = 'series') {
   const dir = path.join(opt.patches, target);
-  const file = path.join(dir, 'series');
+  const file = path.join(dir, name);
   if (!fs.existsSync(file)) { errors.push(`${target}: series file missing (${path.relative(root, file)})`); return []; }
   const seen = new Set();
   const entries = [];
@@ -50,9 +51,9 @@ function readSeries(target, errors) {
     const line = raw.trim();
     if (!line || line.startsWith('#')) return;
     if (line.includes('..') || path.isAbsolute(line) || !line.endsWith('.patch')) {
-      errors.push(`${target}/series:${n + 1}: "${line}" must be a relative *.patch path without ".."`); return;
+      errors.push(`${target}/${name}:${n + 1}: "${line}" must be a relative *.patch path without ".."`); return;
     }
-    if (seen.has(line)) { errors.push(`${target}/series:${n + 1}: duplicate entry ${line}`); return; }
+    if (seen.has(line)) { errors.push(`${target}/${name}:${n + 1}: duplicate entry ${line}`); return; }
     seen.add(line);
     entries.push({ target, rel: line, file: path.join(dir, line) });
   });
@@ -90,14 +91,22 @@ function verify() {
   const errors = [];
   const thirdParty = fs.existsSync(opt.thirdParty) ? fs.readFileSync(opt.thirdParty, 'utf8') : '';
   let count = 0;
+  let seriesFiles = 0;
   for (const target of TARGETS) {
-    const entries = readSeries(target, errors);
-    for (const e of entries) {
-      count++;
-      if (!fs.existsSync(e.file)) { errors.push(`${target}: series entry ${e.rel} does not exist`); continue; }
-      checkHeader(`${target}/${e.rel}`, parseHeader(fs.readFileSync(e.file, 'utf8')), thirdParty, errors);
-    }
     const dir = path.join(opt.patches, target);
+    // Every series file of the target: "series" (the baseline) and "series.<range>" ones.
+    const names = ['series'];
+    if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir)) if (/^series\.[a-z0-9-]+$/.test(f)) names.push(f);
+    const entries = [];
+    for (const name of names) {
+      seriesFiles++;
+      for (const e of readSeries(target, errors, name)) {
+        count++;
+        entries.push(e);
+        if (!fs.existsSync(e.file)) { errors.push(`${target}: series entry ${e.rel} (${name}) does not exist`); continue; }
+        checkHeader(`${target}/${e.rel}`, parseHeader(fs.readFileSync(e.file, 'utf8')), thirdParty, errors);
+      }
+    }
     if (fs.existsSync(dir)) {
       const listed = new Set(entries.map((e) => path.normalize(e.rel)));
       const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((x) => (x.isDirectory() ? walk(path.join(d, x.name)) : [path.join(d, x.name)]));
@@ -108,7 +117,7 @@ function verify() {
     }
   }
   if (errors.length) { console.error('patches verify: FAIL'); errors.forEach((e) => console.error(`  - ${e}`)); process.exit(1); }
-  console.log(`patches verify: PASS (${count} patch(es) in ${TARGETS.length} series)`);
+  console.log(`patches verify: PASS (${count} patch(es) in ${seriesFiles} series file(s))`);
 }
 
 // ---- apply -------------------------------------------------------------------------
@@ -131,7 +140,7 @@ function apply() {
   if (path.resolve(opt.out) === path.resolve(opt.src)) { console.error('apply: --out must differ from --src (the fetched tree is never patched in place)'); process.exit(1); }
 
   const errors = [];
-  const entries = opt.targets.flatMap((t) => readSeries(t, errors));
+  const entries = opt.targets.flatMap((t) => readSeries(t, errors, opt.series[t] || 'series'));
   const thirdParty = fs.existsSync(opt.thirdParty) ? fs.readFileSync(opt.thirdParty, 'utf8') : '';
   for (const e of entries) {
     if (!fs.existsSync(e.file)) { errors.push(`${e.target}: series entry ${e.rel} does not exist`); continue; }

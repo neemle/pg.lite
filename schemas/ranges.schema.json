@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ranges.json",
+  "description": "The version-range model: for each span of PostgreSQL versions, which patch series apply, extra configure options and the features deliberately omitted. This is the only place version differences live; scripts contain no version-conditional logic. Builder images per range live in toolchain.lock.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "ranges"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "enum": [1] },
+    "ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "from", "to", "patches", "configure", "omittedFeatures"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^pg[0-9]+(-[0-9]+)?$" },
+          "from": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+          "to": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$", "description": "Inclusive; use a high patch number (9.6.99, 17.99) to cover every minor." },
+          "patches": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["common", "native", "wasm"],
+            "description": "Series file name per target, inside patches/<target>/.",
+            "properties": {
+              "common": { "type": "string", "pattern": "^series(\\.[a-z0-9-]+)?$" },
+              "native": { "type": "string", "pattern": "^series(\\.[a-z0-9-]+)?$" },
+              "wasm": { "type": "string", "pattern": "^series(\\.[a-z0-9-]+)?$" }
+            }
+          },
+          "configure": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^--(with|without|enable|disable)-[a-z0-9-]+(=.+)?$" },
+            "description": "Extra configure options for this range, as data."
+          },
+          "omittedFeatures": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+            "description": "Capabilities deliberately left out of this range's ports; the support matrix states them per version."
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -18,13 +18,14 @@ const opt = {
   sources: path.join(root, 'sources.lock.json'),
   toolchain: path.join(root, 'toolchain.lock.json'),
   features: path.join(root, 'feature-profile.json'),
+  ranges: path.join(root, 'ranges.json'),
   require: false,
 };
 for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === '--require') opt.require = true;
   else if (a === '--strict-coverage') opt.strictCoverage = true;
-  else if (a === '--sources' || a === '--toolchain' || a === '--features') opt[a.slice(2)] = path.resolve(args[++i] || '');
+  else if (a === '--sources' || a === '--toolchain' || a === '--features' || a === '--ranges') opt[a.slice(2)] = path.resolve(args[++i] || '');
   else { console.error(`unknown argument: ${a}`); process.exit(2); }
 }
 
@@ -127,6 +128,29 @@ function semanticToolchain(doc, sources, errors) {
   }
 }
 
+// The version-range model must tile the release index: ordered, no overlap, and every release
+// in sources.lock.json inside exactly one range (this one is always an error).
+function semanticRanges(doc, sources, errors) {
+  const ids = new Set();
+  const rs = doc.ranges.map((r) => ({ ...r, f: ver(r.from), t: ver(r.to) }));
+  for (const r of rs) {
+    if (ids.has(r.id)) errors.push(`ranges: duplicate id ${r.id}`);
+    ids.add(r.id);
+    if (cmp(r.f, r.t) > 0) errors.push(`ranges: ${r.id} has from > to`);
+  }
+  const sorted = [...rs].sort((a, b) => cmp(a.f, b.f));
+  for (let i = 1; i < sorted.length; i++) {
+    if (cmp(sorted[i].f, sorted[i - 1].t) <= 0) errors.push(`ranges: ${sorted[i - 1].id} and ${sorted[i].id} overlap`);
+  }
+  if (sources) {
+    for (const rel of sources.releases) {
+      const v = ver(rel.version);
+      const hits = rs.filter((r) => cmp(r.f, v) <= 0 && cmp(v, r.t) <= 0).length;
+      if (hits !== 1) errors.push(`ranges: release ${rel.version} is covered by ${hits} ranges (must be exactly 1)`);
+    }
+  }
+}
+
 function semanticFeatures(doc, errors) {
   const names = new Map();
   for (const f of doc.features) {
@@ -160,6 +184,7 @@ function validate(label, file, schemaFile, semantic) {
 
 const sources = validate('sources', opt.sources, 'sources.lock.schema.json', (d) => semanticSources(d, errors));
 validate('toolchain', opt.toolchain, 'toolchain.lock.schema.json', (d) => semanticToolchain(d, sources, errors));
+validate('ranges', opt.ranges, 'ranges.schema.json', (d) => semanticRanges(d, sources, errors));
 validate('features', opt.features, 'feature-profile.schema.json', (d) => semanticFeatures(d, errors));
 
 results.forEach((r) => console.log(r));

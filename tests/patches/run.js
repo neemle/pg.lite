@@ -121,6 +121,19 @@ expect('apply refuses --out equal to --src', run(d, ['apply', '--src', path.join
 d = good(); fs.rmSync(path.join(d, 'patches', 'native', '0001-exit.patch'));
 expect('apply refuses a series with a missing file', run(d, applyArgs(d)), 1, 'does not exist');
 
+// --- named series (range model: series.<range>)
+d = sandbox(); baseSeries(d);
+put(d, 'common', '0001-greet.patch', header() + P_COMMON, false);
+fs.writeFileSync(path.join(d, 'patches', 'common', 'series.alt'), '0001-greet.patch\n');
+expect('verify accepts a patch that is listed only in a named series', run(d, ['verify']), 0, '1 patch(es) in 4 series file(s)');
+const outAlt = run(d, applyArgs(d, ['--targets', 'common', '--series', 'common=series.alt']));
+expect('apply --series common=series.alt applies the named series', outAlt, 0, '0001-greet.patch');
+expect('apply of the default (empty) series applies nothing', run(d, applyArgs(d, ['--targets', 'common'])), 0, '"applied": []');
+expect('apply rejects a malformed --series value', run(d, applyArgs(d, ['--series', 'common=../x'])), 2, '--series needs');
+d = sandbox(); baseSeries(d);
+fs.writeFileSync(path.join(d, 'patches', 'native', 'series.alt'), 'missing.patch\n');
+expect('verify fails on a missing file listed in a named series', run(d, ['verify']), 1, 'series.alt');
+
 for (const t of tmps) fs.rmSync(t, { recursive: true, force: true });
 console.log(failed ? `\n${failed} test(s) FAILED` : '\nall patch-tooling tests passed');
 process.exit(failed ? 1 : 0);

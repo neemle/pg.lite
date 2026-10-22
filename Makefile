@@ -19,7 +19,7 @@ NOT_IMPL := scripts/not-implemented.sh
         validate-locks test-locks test-fetch selftest \
         patches-verify patches-apply test-patches \
         builder-check capture-toolchain update-toolchain-lock reference \
-        feature-check feature-matrix test-feature release-index test-release-index
+        feature-check feature-matrix test-feature release-index test-release-index \n        resolve resolve-check test-resolve
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -82,6 +82,16 @@ capture-toolchain:
 update-toolchain-lock:
 	@node scripts/update-toolchain-lock.js
 
+# Version-range model (docs/ranges.md): ./dc make resolve VERSION=13.4 [RESOLVE_OPTS=--allow-missing-builder]
+resolve:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/resolve.js $(VERSION) $(RESOLVE_OPTS)
+
+resolve-check:
+	@node scripts/resolve.js --check-all --allow-missing-builder
+
+test-resolve:
+	@node tests/resolve/run.js
+
 # Release list: every final PostgreSQL release 9.0..latest -> sources.lock.json (needs network;
 # ./dc enables it for this target). test-release-index is offline.
 release-index:
@@ -118,7 +128,7 @@ test-patches:
 	@node tests/patches/run.js
 
 # All repo self-tests that need no network.
-selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index
+selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index test-resolve resolve-check
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "ranges": [
+    {
+      "id": "pg9",
+      "from": "9.0.0",
+      "to": "9.6.99",
+      "patches": { "common": "series.pg9", "native": "series.pg9", "wasm": "series.pg9" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.0 to 9.6. Patch series are empty until the ports for this era land (CDB-25, CDB-28)."
+    },
+    {
+      "id": "pg10-12",
+      "from": "10.0",
+      "to": "12.99",
+      "patches": { "common": "series.pg10-12", "native": "series.pg10-12", "wasm": "series.pg10-12" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 10 to 12. Patch series are empty until the ports for this era land (CDB-26, CDB-29)."
+    },
+    {
+      "id": "pg13-17",
+      "from": "13.0",
+      "to": "17.99",
+      "patches": { "common": "series.pg13-17", "native": "series.pg13-17", "wasm": "series.pg13-17" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 13 to 17: adapted from the 18.x baseline (CDB-27, CDB-30)."
+    },
+    {
+      "id": "pg18",
+      "from": "18.0",
+      "to": "18.99",
+      "patches": { "common": "series", "native": "series", "wasm": "series" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "Baseline: the 18.x patch series (CDB-3, CDB-6) live in the default series files."
+    }
+  ]
+}
