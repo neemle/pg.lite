@@ -42,9 +42,9 @@ Build-side facts worth knowing:
 
 ## What is verified (18.6, this host)
 
-- `scripts/check-static.sh` on all 5 ELF files in the final image: no `PT_INTERP`, no `DT_NEEDED`, stripped (`postgres` 11,688,312 B,
+- `scripts/check-static.sh` on every ELF file in the final image (3 since the slimming below; 5 before it, same files plus the two optional tools): no `PT_INTERP`, no `DT_NEEDED`, stripped (`postgres` 11,688,312 B,
   `initdb` 569,528 B, `pg-launcher` 51,072 B).
-- `scripts/native-image.sh manifest`: 404 files, 14,226,288 bytes, no shell, no loader, no `.so` (`reports/native-image-files.txt`).
+- `scripts/native-image.sh manifest`: 401 files, 13,908,357 bytes, no shell, no loader, no `.so` (`reports/native-image-files.txt`).
 - `scripts/native-image.sh test`: cold init as uid 70 in the scratch image; `SELECT 1` from an external client container; `PostgreSQL 18.6 on
   x86_64-pc-linux-musl`; UTF8, UTC, builtin provider; a plpgsql function; snowball stemming (foxes -> fox); `LOAD` of an unknown library gives the
   clear error and the server keeps answering; wrong SCRAM password rejected; data survives a restart on the same volume; a non-empty,
@@ -60,3 +60,29 @@ Build-side facts worth knowing:
 - **Not done yet:** two concurrent sessions with row locks and isolation (N07), crash/recovery after a confirmed commit (N08), the shared SQL corpus
   on this build (N09), upstream regression and isolation suites, size/startup/memory measurements, sizes of the compressed image layer.
 - Built and tested for 18.6 only; the 13-17 backport and older majors are separate items.
+
+## What is in the image, why, and what can still go
+
+Three programs are required, everything else is data for them:
+
+| Program | Why it is there |
+| --- | --- |
+| `postgres` (11.7 MB) | the server. The postmaster, client backends, autovacuum, checkpointer, WAL writer and the rest are `fork()`s of this one file on Linux (no helper executables), so one binary covers every server role. |
+| `initdb` (0.57 MB) | cold init on the first start, in the same image and without a shell (the requirement). Needed only until the cluster exists. |
+| `pg-launcher` (51 KB) | the entrypoint that replaces the shell script of the official image: init if `PGDATA` is empty, refuse if it is not a cluster, then `exec` the server as PID 1. |
+
+`pg_resetwal` and `pg_controldata` (284 KB together) are recovery and diagnostic tools, not needed to run the server. They were in the first
+image by habit and are now removed; `WITH_TOOLS=1 scripts/native-image.sh image` builds `compactdb-native:18.6-tools` with them (the compatibility
+test uses that variant for its control-file comparison). `errcodes.txt` (33 KB) is a build-time input that nothing reads at run time and is removed
+too. Tested: the full native test and the 16-check compatibility test pass on the slim image (401 files, 13,908,357 bytes, 317,931 bytes less).
+
+Files `initdb` opens from `share` (so they must stay for cold init): `postgres.bki`, `pg_hba.conf.sample`, `pg_ident.conf.sample`,
+`postgresql.conf.sample`, `snowball_create.sql`, `information_schema.sql`, `sql_features.txt`, `system_constraints.sql`, `system_functions.sql`,
+`system_views.sql`, plus `extension/plpgsql*` for `CREATE EXTENSION plpgsql`, `timezone/`, `timezonesets/` and `tsearch_data/`.
+
+Not removed yet, with the honest estimate (none of these is tested):
+- `postgres` itself is 94% of the executable bytes. Size flags (`-Os`, LTO, `--gc-sections`), dropping the exception tables, and a packer such as xsfx are the
+  real levers (CDB-10); the data files total only about 1.6 MB.
+- `timezonesets/` has 12 optional abbreviation sets besides `Default` (roughly 70 KB), selectable only through the `timezone_abbreviations` setting.
+- `timezone/`: 341 files, 201 KB. Cutting zones would break `AT TIME ZONE` for the removed names, so it is kept.
+- `initdb` and the ~1.3 MB of init-only SQL could move to a separate init image, but the task requires cold init in the same image.

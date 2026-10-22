@@ -33,6 +33,10 @@ wait_ready() {
 case "$cmd" in
 image)
     docker image inspect "$builder" >/dev/null 2>&1 || { echo "native: build the musl builder first (./dcb musl make builder-check)" >&2; exit 1; }
+    # Runtime needs three programs: postgres, initdb (first start only) and the launcher.
+    # WITH_TOOLS=1 adds pg_resetwal and pg_controldata (recovery/diagnostics) and tags <image>-tools.
+    tools="postgres initdb"; tag="$img"
+    if [ "${WITH_TOOLS:-0}" = 1 ]; then tools="postgres initdb pg_resetwal pg_controldata"; tag="$img-tools"; fi
     docker run --rm --network none -v compactdb-build:/b:ro -v "$root/docker/native:/n:ro" "$builder" sh -c \
         "set -e
          inst=/b/native/$ver/install-strip/usr/local/pgsql
@@ -41,15 +45,16 @@ image)
          mkdir -p \$r/usr/local/pgsql/bin \$r/usr/local/pgsql/lib \$r/etc \$r/tmp \$d/pgdata
          chmod 1777 \$r/tmp
          : > \$r/usr/local/pgsql/lib/.keep   # the server requires this directory; an empty one does not survive COPY
-         for b in postgres initdb pg_resetwal pg_controldata; do cp \$inst/bin/\$b \$r/usr/local/pgsql/bin/; done
+         for b in $tools; do cp \$inst/bin/\$b \$r/usr/local/pgsql/bin/; done
          cp -a \$inst/share \$r/usr/local/pgsql/share
+         rm -f \$r/usr/local/pgsql/share/errcodes.txt   # build-time input only; nothing reads it at run time
          gcc -O2 -static -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c
          strip --strip-all \$r/usr/local/pgsql/bin/pg-launcher
          printf 'postgres:x:70:70:postgres:/var/lib/postgresql:/sbin/nologin\n' > \$r/etc/passwd
          printf 'postgres:x:70:\n' > \$r/etc/group
          cp /n/Dockerfile \$d/
-         tar -C \$d -cf - ." | docker build -q -t "$img" -
-    echo "native: built $img"
+         tar -C \$d -cf - ." | docker build -q -t "$tag" -
+    echo "native: built $tag"
     ;;
 up)
     docker network inspect "$net" >/dev/null 2>&1 || docker network create "$net" >/dev/null

@@ -21,6 +21,7 @@ pw="compat-test-only"
 export MSYS_NO_PATHCONV=1
 
 docker image inspect "$static_img" >/dev/null 2>&1 || { echo "compat: build the static image first (scripts/native-image.sh image $ver)" >&2; exit 1; }
+docker image inspect "$static_img-tools" >/dev/null 2>&1 || WITH_TOOLS=1 sh "$(dirname "$0")/native-image.sh" image "$ver" >/dev/null
 docker image inspect "$client_img" >/dev/null 2>&1 || { echo "compat: build the reference image first (scripts/reference.sh image $ver)" >&2; exit 1; }
 docker network inspect "$net" >/dev/null 2>&1 || docker network create "$net" >/dev/null
 
@@ -128,7 +129,7 @@ G3=$(fingerprint static); [ "$G3" = "$F3" ] && pass "static reads the final stat
 stop_clean static
 
 echo "=== control file written by each server (same cluster, same fields expected)"
-ctl_static=$(docker run --rm -v "$vol:/var/lib/postgresql" --entrypoint /usr/local/pgsql/bin/pg_controldata "$static_img" "$pgdata" 2>&1 | grep -E 'catalog version|block size|checksum|cluster state|Database system identifier|Maximum data alignment|Float8' | sed 's/  */ /g')
+ctl_static=$(docker run --rm -v "$vol:/var/lib/postgresql" --entrypoint /usr/local/pgsql/bin/pg_controldata "$static_img-tools" "$pgdata" 2>&1 | grep -E 'catalog version|block size|checksum|cluster state|Database system identifier|Maximum data alignment|Float8' | sed 's/  */ /g')
 ctl_official=$(docker run --rm -v "$vol:/var/lib/postgresql" --entrypoint pg_controldata "$official" "$pgdata" 2>&1 | grep -E 'catalog version|block size|checksum|cluster state|Database system identifier|Maximum data alignment|Float8' | sed 's/  */ /g')
 [ -n "$ctl_static" ] && [ "$ctl_static" = "$ctl_official" ] && pass "pg_controldata from both builds agrees" || { bad "pg_controldata differs"; echo "static:"; echo "$ctl_static"; echo "official:"; echo "$ctl_official"; }
 echo "$ctl_static"
