@@ -51,11 +51,10 @@ also be recorded in `THIRD_PARTY.md`. A continuation line starts with whitespace
   `.patch` file that is not in its series, an incomplete header, a bad `Origin`, or a borrowed
   patch whose attribution is incomplete or missing from `THIRD_PARTY.md`.
 
-## Performance note (Windows / Docker Desktop)
+## Where the trees live
 
-The fetched tree has about 7,300 files. Reading or writing them through the Windows bind mount
-is slow: applying the series to `cache/src/18.6` took about 2 minutes per run even with the
-output on the container's own filesystem, and writing the copy to `build/` on the bind mount
-took over 15 minutes. For repeated builds keep the working tree on a Docker volume or inside
-the container (`--out /tmp/...`) instead of `build/`. Moving cache and build to a named volume is
-tracked as a follow-up for the builder-image and build-command items.
+`cache/` (fetched upstream) and `build/` (patched copies, build output) are Docker named volumes
+(`compactdb-cache`, `compactdb-build`) that `./dc` mounts over `/w/cache` and `/w/build`. The
+fetched tree has about 7,300 files; through the Windows bind mount a single apply took over 15
+minutes, on the volumes it takes about 10-20 seconds. Nothing in them is committed or visible in
+the host working tree.

@@ -1,29 +1,50 @@
 #!/bin/sh
 # dc - run any command inside the compact.db tools container. The host only runs docker.
 #
-#   ./dc make test-locks
+#   ./dc make selftest
 #   ./dc make fetch                 (network is enabled automatically for 'fetch')
 #   DC_NET=1 ./dc sh -c 'curl -sI https://example.org'
 #   ./dc sh                         (interactive shell)
 #
-# The repo is mounted at /w. Network is OFF unless an argument is exactly 'fetch' or DC_NET=1.
+# The repo is mounted at /w. cache/ (fetched upstream sources) and build/ (patched trees and
+# build output) live on named Docker volumes mounted over /w/cache and /w/build, because
+# thousands of small files are far too slow through a Windows/macOS bind mount. Inspect or
+# reset them with: docker volume ls | grep compactdb ; docker volume rm compactdb-cache compactdb-build
+# Network is OFF unless an argument is exactly 'fetch' or DC_NET=1.
 set -eu
 root=$(cd "$(dirname "$0")" && pwd)
 image="compactdb-tools:local"
+cache_vol="${DC_CACHE_VOLUME:-compactdb-cache}"
+build_vol="${DC_BUILD_VOLUME:-compactdb-build}"
 
 # Build is incremental: layers are cached, so this is fast once the image exists.
 docker build -q -t "$image" "$root/docker/tools" >/dev/null
 
+user=""
+uid_gid=""
+if [ "$(uname -s)" = "Linux" ]; then
+    uid_gid="$(id -u):$(id -g)"
+    user="--user $uid_gid"
+fi
+
+# A new volume is root-owned; hand it to the invoking user on Linux hosts.
+for v in "$cache_vol" "$build_vol"; do
+    if ! docker volume inspect "$v" >/dev/null 2>&1; then
+        docker volume create "$v" >/dev/null
+        if [ -n "$uid_gid" ]; then
+            docker run --rm --user 0 -v "$v:/v" "$image" chown "$uid_gid" /v
+        fi
+    fi
+done
+
 net="--network none"
 [ "${DC_NET:-0}" = "1" ] && net=""
 for a in "$@"; do [ "$a" = "fetch" ] && net=""; done
-
-user=""
-[ "$(uname -s)" = "Linux" ] && user="--user $(id -u):$(id -g)"
 
 tty=""
 [ -t 0 ] && [ -t 1 ] && tty="-it"
 
 # shellcheck disable=SC2086
 MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user \
-    -v "$root:/w" -w /w "$image" "$@"
+    -v "$root:/w" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
+    -w /w "$image" "$@"

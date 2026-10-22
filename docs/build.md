@@ -15,7 +15,11 @@ All `make` targets, scripts and tests run inside the tools container defined in
 ```
 
 - `./dc` builds the image `compactdb-tools:local` (cached after the first run) and mounts the
-  repo at `/w`.
+  repo at `/w`. `cache/` and `build/` are **named Docker volumes** (`compactdb-cache`,
+  `compactdb-build`) mounted over `/w/cache` and `/w/build`: the fetched PostgreSQL tree has
+  ~7,300 files and a bind mount makes it 20-100x slower. The host folders `cache/` and `build/`
+  stay empty. Reset with `docker volume rm compactdb-cache compactdb-build`; override the
+  volume names with `DC_CACHE_VOLUME` / `DC_BUILD_VOLUME`.
 - The container has **no network** except for `fetch` (or `DC_NET=1 ./dc ...`).
 - `make` aborts with an explanatory error when run outside the container (it checks for the
   marker file `/.compactdb-tools` that only the tools image contains).
