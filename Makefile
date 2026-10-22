@@ -19,7 +19,7 @@ NOT_IMPL := scripts/not-implemented.sh
         validate-locks test-locks test-fetch selftest \
         patches-verify patches-apply test-patches \
         builder-check capture-toolchain update-toolchain-lock reference \
-        feature-check feature-matrix test-feature release-index test-release-index \n        resolve resolve-check test-resolve
+        feature-check feature-matrix test-feature release-index test-release-index \n        resolve resolve-check test-resolve probe probe-all test-probe \n        check-static test-check-static check-wasm test-check-wasm
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -82,6 +82,29 @@ capture-toolchain:
 update-toolchain-lock:
 	@node scripts/update-toolchain-lock.js
 
+# Output checks (docs/checks.md). check-static needs readelf: ./dcb musl make check-static DIR=<path>
+check-static:
+	@$(if $(DIR),,$(error DIR=<path> is required))scripts/check-static.sh $(CHECK_OPTS) $(DIR)
+
+test-check-static:
+	@tests/checks/test-static.sh
+
+check-wasm:
+	@$(if $(DIR),,$(error DIR=<path> is required))node scripts/check-wasm.js $(CHECK_OPTS) $(DIR)
+
+test-check-wasm:
+	@node tests/checks/run.js
+
+# Configure probing (docs/probe.md): ./dc make probe VERSION=18.6; probe-all needs network the first time.
+probe:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/probe.js $(VERSION)
+
+probe-all:
+	@node scripts/probe.js --all
+
+test-probe:
+	@node tests/probe/run.js
+
 # Version-range model (docs/ranges.md): ./dc make resolve VERSION=13.4 [RESOLVE_OPTS=--allow-missing-builder]
 resolve:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/resolve.js $(VERSION) $(RESOLVE_OPTS)
@@ -128,7 +151,7 @@ test-patches:
 	@node tests/patches/run.js
 
 # All repo self-tests that need no network.
-selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index test-resolve resolve-check
+selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index test-resolve resolve-check test-probe test-check-wasm
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:
