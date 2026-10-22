@@ -1,5 +1,5 @@
 #!/bin/sh
-# Runs INSIDE a container (needs sh, curl, sha256sum, tar+bzip2, git).
+# Runs inside the tools container (needs sh, curl, sha256sum, tar+bzip2, git).
 # Env: VERSION TAG COMMIT GIT_URL ARCHIVE_URL SHA256 CACHE(default /cache) OFFLINE(0|1)
 # Result: verified source tree in $CACHE/src/$VERSION. Exit 0 ok, 1 verification failure,
 # 2 cannot proceed (offline and archive not cached).

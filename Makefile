@@ -4,21 +4,26 @@
 # backlog item has not landed fails loudly through scripts/not-implemented.sh
 # instead of passing silently; the owning story fills it in.
 #
-# Run with GNU make (Linux, WSL, or `docker run --rm -v "$PWD:/w" -w /w <image> make ...`).
+# Run it as ./dc make <target>: dc starts the tools container and runs make in it.
+
+# Nothing builds or runs on the host. Use: ./dc make <target>   (see docker/tools/Dockerfile).
+ifeq ($(wildcard /.compactdb-tools),)
+$(error Not inside the tools container. Run: ./dc make $(MAKECMDGOALS))
+endif
 
 SHELL := /bin/sh
 NOT_IMPL := scripts/not-implemented.sh
 
 .PHONY: help fetch native wasm verify-static test-native test-wasm \
         test-portability size-report verify release check-repo test-repo \
-        validate-locks test-locks test-fetch
+        validate-locks test-locks test-fetch selftest
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
 	@echo "         test-portability size-report verify release"
 	@echo "Repo hygiene: check-repo (no PostgreSQL source committed), test-repo"
 
-# make fetch [VERSION=18.6]  - needs docker; downloads only the release pinned in sources.lock.json.
+# ./dc make fetch [VERSION=18.6]  - downloads only the release pinned in sources.lock.json.
 fetch:
 	@scripts/fetch.sh "$(VERSION)"
 
@@ -57,12 +62,15 @@ check-repo:
 test-repo:
 	@tests/repo/test-check-no-pg-source.sh
 
-# Lock files (schemas in schemas/, validator in scripts/validate-locks.js; needs node or docker).
+# Lock files (schemas in schemas/, validator in scripts/validate-locks.js).
 validate-locks:
-	@scripts/run-node.sh scripts/validate-locks.js
+	@node scripts/validate-locks.js
 
 test-locks:
-	@scripts/run-node.sh tests/lock/run.js
+	@node tests/lock/run.js
+
+# All repo self-tests that need no network.
+selftest: check-repo test-repo test-locks test-fetch validate-locks
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:
