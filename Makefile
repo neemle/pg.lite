@@ -7,8 +7,8 @@
 # Run it as ./dc make <target>: dc starts the tools container and runs make in it.
 
 # Nothing builds or runs on the host. Use: ./dc make <target>   (see docker/tools/Dockerfile).
-ifeq ($(wildcard /.compactdb-tools),)
-$(error Not inside the tools container. Run: ./dc make $(MAKECMDGOALS))
+ifeq ($(wildcard /.compactdb-tools /.compactdb-builder),)
+$(error Not inside a project container. Run: ./dc make $(MAKECMDGOALS)   (builders: ./dcb musl|wasm make ...))
 endif
 
 SHELL := /bin/sh
@@ -17,7 +17,8 @@ NOT_IMPL := scripts/not-implemented.sh
 .PHONY: help fetch native wasm verify-static test-native test-wasm \
         test-portability size-report verify release check-repo test-repo \
         validate-locks test-locks test-fetch selftest \
-        patches-verify patches-apply test-patches
+        patches-verify patches-apply test-patches \
+        builder-check capture-toolchain update-toolchain-lock
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -69,6 +70,16 @@ validate-locks:
 
 test-locks:
 	@node tests/lock/run.js
+
+# Builder images (docs/builders.md). Run inside a builder: ./dcb musl make builder-check
+builder-check:
+	@scripts/check-builder.sh
+
+capture-toolchain:
+	@scripts/capture-toolchain.sh
+
+update-toolchain-lock:
+	@node scripts/update-toolchain-lock.js
 
 # Patch series (docs/patches.md). VERSION defaults to the baseline in sources.lock.json.
 TARGETS ?= common,native

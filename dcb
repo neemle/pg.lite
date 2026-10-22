@@ -1,0 +1,14 @@
+#!/bin/sh
+# dcb - run a command inside a builder container. The host only runs docker.
+#
+#   ./dcb musl make builder-check
+#   ./dcb wasm sh -c 'emcc --version'
+#
+# Builders live in docker/builders/<name>/Dockerfile (musl = static native, wasm = Emscripten).
+# Same mounts and network rules as ./dc (cache/ and build/ are shared named volumes).
+set -eu
+root=$(cd "$(dirname "$0")" && pwd)
+name="${1:?usage: ./dcb <musl|wasm> <command...>}"
+shift
+[ -d "$root/docker/builders/$name" ] || { echo "dcb: no builder '$name' (see docker/builders/)" >&2; exit 2; }
+DC_IMAGE="compactdb-builder-$name:local" DC_CONTEXT="$root/docker/builders/$name" exec "$root/dc" "$@"

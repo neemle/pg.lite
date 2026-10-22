@@ -13,12 +13,13 @@
 # Network is OFF unless an argument is exactly 'fetch' or DC_NET=1.
 set -eu
 root=$(cd "$(dirname "$0")" && pwd)
-image="compactdb-tools:local"
+image="${DC_IMAGE:-compactdb-tools:local}"
+context="${DC_CONTEXT:-$root/docker/tools}"
 cache_vol="${DC_CACHE_VOLUME:-compactdb-cache}"
 build_vol="${DC_BUILD_VOLUME:-compactdb-build}"
 
 # Build is incremental: layers are cached, so this is fast once the image exists.
-docker build -q -t "$image" "$root/docker/tools" >/dev/null
+docker build -q -t "$image" "$context" >/dev/null
 
 user=""
 uid_gid=""

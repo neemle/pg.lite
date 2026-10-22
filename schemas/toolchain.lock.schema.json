@@ -23,6 +23,7 @@
             "additionalProperties": { "type": "string", "minLength": 1 },
             "description": "Tool name to exact version (compiler, musl, linker, emscripten, binaryen, node, ...)."
           },
+          "dockerfile": { "type": "string", "pattern": "^docker/[A-Za-z0-9._/-]+$", "description": "Repo path of the Dockerfile whose FROM line carries the digest." },
           "rationale": { "type": "string" }
         }
       }
