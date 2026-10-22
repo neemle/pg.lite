@@ -9,6 +9,7 @@ volumes (see `docs/build.md`), and has no network.
 | --- | --- | --- | --- |
 | `musl` | `docker/builders/musl/Dockerfile` | `alpine:3.24.3` | fully static x86_64 ELF against musl |
 | `wasm` | `docker/builders/wasm/Dockerfile` | `emscripten/emsdk:6.0.13` | wasm32 via Emscripten |
+| `ref` | `docker/builders/ref/Dockerfile` | `debian:bookworm-slim` | unmodified upstream, dynamic glibc, for the reference build (`docs/reference.md`) |
 
 The digests and the exact tool versions that were built are in `toolchain.lock.json`
 (gcc 15.2.0 / musl 1.2.6-r3 / binutils 2.45.1 for `musl`; Emscripten 6.0.13 / clang 24.0.0 /

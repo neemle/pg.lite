@@ -38,6 +38,17 @@ musl)
         bad "negative control failed: dynamic binary not detected"
     fi
     ;;
+ref)
+    # The reference builder is the ordinary dynamic glibc toolchain: a hello-world must build,
+    # run and be dynamically linked (this is the opposite of the musl static requirement).
+    gcc -O2 "$tmp/hello.c" -o "$tmp/hello"
+    [ "$("$tmp/hello")" = "hello from compactdb" ] && pass "reference toolchain builds and runs hello" || bad "hello output wrong"
+    if readelf -lW "$tmp/hello" | grep -q INTERP && readelf -dW "$tmp/hello" | grep -q NEEDED; then
+        pass "binary is dynamic, as the reference build must be"
+    else
+        bad "reference toolchain produced a static binary"
+    fi
+    ;;
 wasm)
     emcc -O2 "$tmp/hello.c" -o "$tmp/hello.js"
     [ -f "$tmp/hello.wasm" ] && pass "emcc produced hello.wasm ($(wc -c < "$tmp/hello.wasm") bytes)" || bad "no hello.wasm produced"

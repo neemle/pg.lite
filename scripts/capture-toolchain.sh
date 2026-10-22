@@ -28,6 +28,19 @@ musl)
     add perl "$(perl -e 'print substr($^V,1)')"
     add zlib "$(apk list --installed zlib-dev 2>/dev/null | awk 'NR==1{print $1}' | sed 's/^zlib-dev-//')"
     ;;
+ref)
+    add debian "$(cat /etc/debian_version)"
+    add gcc "$(gcc -dumpfullversion)"
+    add glibc "$(dpkg-query -W -f='${Version}' libc6)"
+    add binutils-ld "$(ver ld --version)"
+    add make "$(ver make --version)"
+    add bison "$(ver bison --version)"
+    add flex "$(ver flex --version)"
+    add perl "$(perl -e 'print substr($^V,1)')"
+    add icu "$(dpkg-query -W -f='${Version}' libicu-dev)"
+    add readline "$(dpkg-query -W -f='${Version}' libreadline-dev)"
+    add zlib "$(dpkg-query -W -f='${Version}' zlib1g-dev)"
+    ;;
 wasm)
     # clang, wasm-ld and the Binaryen tools sit in the SDK's own bin directory, not on PATH.
     PATH="${EMSDK:-/emsdk}/upstream/bin:$PATH"

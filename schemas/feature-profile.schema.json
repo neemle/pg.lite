@@ -18,7 +18,14 @@
           "name": { "type": "string", "minLength": 1 },
           "state": { "type": "string", "enum": ["included", "excluded"] },
           "reason": { "type": "string", "minLength": 1 },
-          "configureFlag": { "type": "string", "pattern": "^--(with|without|enable|disable)-[a-z0-9-]+$" },
+          "configureFlag": { "type": "string", "pattern": "^--(with|without|enable|disable)-[a-z0-9-]+(=.+)?$", "description": "The flag actually passed to configure for this decision; omit when the default already gives the wanted result." },
+          "upstreamOptions": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^--(with|without|enable|disable)-[a-z0-9-]+(=.+)?$" },
+            "description": "Upstream configure options this entry is about; each must exist in that release's configure --help."
+          },
+          "sizeImpact": { "type": "string", "minLength": 1, "description": "Measured effect on size, or the literal 'pending measurement (<item>)'." },
           "behaviorImpact": { "type": "string" },
           "bootstrapImpact": { "type": "string" },
           "appliesFrom": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },

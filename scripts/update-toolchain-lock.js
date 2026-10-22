@@ -13,6 +13,7 @@ const { spawnSync } = require('child_process');
 const root = path.resolve(__dirname, '..');
 const builders = [
   { key: 'musl-18', kind: 'musl', rationale: 'Alpine is musl-native: gcc, headers and archives are all musl, so -static yields a fully static ELF. Baseline (18.x) native builder.' },
+  { key: 'ref-18', kind: 'ref', rationale: 'Ordinary dynamic glibc toolchain with readline, zlib and ICU: builds unmodified upstream with default options as the behavior and size reference. Not used for any version range.' },
   { key: 'wasm-18', kind: 'wasm', rationale: 'Official Emscripten SDK image (emcc, clang, wasm-ld, Binaryen, node). Baseline (18.x) WASM builder.' },
 ];
 

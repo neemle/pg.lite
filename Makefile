@@ -18,7 +18,8 @@ NOT_IMPL := scripts/not-implemented.sh
         test-portability size-report verify release check-repo test-repo \
         validate-locks test-locks test-fetch selftest \
         patches-verify patches-apply test-patches \
-        builder-check capture-toolchain update-toolchain-lock
+        builder-check capture-toolchain update-toolchain-lock reference \
+        feature-check feature-matrix test-feature
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -81,6 +82,21 @@ capture-toolchain:
 update-toolchain-lock:
 	@node scripts/update-toolchain-lock.js
 
+# Feature profile (docs/feature-matrix.md is generated from feature-profile.json).
+# feature-check needs the fetched tree (./dc make fetch); the others do not.
+feature-check:
+	@node scripts/feature-profile.js check $(if $(VERSION),--version $(VERSION))
+
+feature-matrix:
+	@node scripts/feature-profile.js matrix
+
+test-feature:
+	@node tests/feature/run.js
+
+# Unmodified upstream reference build (docs/reference.md): ./dcb ref make reference VERSION=18.6
+reference:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required, e.g. ./dcb ref make reference VERSION=18.6))scripts/build-reference.sh $(VERSION)
+
 # Patch series (docs/patches.md). VERSION defaults to the baseline in sources.lock.json.
 TARGETS ?= common,native
 
@@ -94,7 +110,7 @@ test-patches:
 	@node tests/patches/run.js
 
 # All repo self-tests that need no network.
-selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks
+selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:
