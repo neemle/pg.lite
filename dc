@@ -46,6 +46,8 @@ tty=""
 [ -t 0 ] && [ -t 1 ] && tty="-it"
 
 # shellcheck disable=SC2086
+# Build options reach the container only when they are set on the host (docker -e NAME passes it through).
 MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user \
+    -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e SRC \
     -v "$root:/w" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
     -w /w "$image" "$@"

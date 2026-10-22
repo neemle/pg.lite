@@ -12,7 +12,7 @@
 set -eu
 ver="${1:-18.6}"
 official="postgres:18-alpine"
-static_img="compactdb-native:$ver"
+static_img="compactdb-native:$ver${VARIANT:+-$VARIANT}"
 client_img="compactdb-reference:$ver"
 net="compactdb-ref-net"
 vol="compactdb-compat-data"

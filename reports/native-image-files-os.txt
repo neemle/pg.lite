@@ -1,0 +1,700 @@
+-rwxr-xr-x 0/0               0 2026-10-22 20:55 .dockerenv
+drwxr-xr-x 0/0               0 2026-10-22 20:55 dev/
+-rwxr-xr-x 0/0               0 2026-10-22 20:55 dev/console
+drwxr-xr-x 0/0               0 2026-10-22 20:55 dev/pts/
+drwxr-xr-x 0/0               0 2026-10-22 20:55 dev/shm/
+drwxr-xr-x 0/0               0 2026-10-22 20:55 etc/
+-rw-r--r-- 0/0              15 2026-10-22 16:50 etc/group
+-rwxr-xr-x 0/0               0 2026-10-22 20:55 etc/hostname
+-rwxr-xr-x 0/0               0 2026-10-22 20:55 etc/hosts
+lrwxrwxrwx 0/0               0 2026-10-22 20:55 etc/mtab -> /proc/mounts
+-rw-r--r-- 0/0              60 2026-10-22 16:50 etc/passwd
+-rwxr-xr-x 0/0               0 2026-10-22 20:55 etc/resolv.conf
+drwxr-xr-x 0/0               0 2026-10-22 20:55 proc/
+drwxr-xr-x 0/0               0 2026-10-22 20:55 sys/
+drwxrwxrwt 0/0               0 2026-10-22 16:50 tmp/
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/bin/
+-rwxr-xr-x 0/0          171288 2026-10-22 16:50 usr/local/pgsql/bin/initdb
+-rwxr-xr-x 0/0           51072 2026-10-22 16:50 usr/local/pgsql/bin/pg-launcher
+-rwxr-xr-x 0/0         7759512 2026-10-22 16:50 usr/local/pgsql/bin/postgres
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/lib/
+-rw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/lib/.keep
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/extension/
+-rw-r--r-- 0/0             658 2026-10-22 16:50 usr/local/pgsql/share/extension/plpgsql--1.0.sql
+-rw-r--r-- 0/0             193 2026-10-22 16:50 usr/local/pgsql/share/extension/plpgsql.control
+-rw-r--r-- 0/0          113997 2026-10-22 16:50 usr/local/pgsql/share/information_schema.sql
+-rw-r--r-- 0/0            5635 2026-10-22 16:50 usr/local/pgsql/share/pg_hba.conf.sample
+-rw-r--r-- 0/0            2681 2026-10-22 16:50 usr/local/pgsql/share/pg_ident.conf.sample
+-rw-r--r-- 0/0          973769 2026-10-22 16:50 usr/local/pgsql/share/postgres.bki
+-rw-r--r-- 0/0           32652 2026-10-22 16:50 usr/local/pgsql/share/postgresql.conf.sample
+-rw-r--r-- 0/0           45710 2026-10-22 16:50 usr/local/pgsql/share/snowball_create.sql
+-rw-r--r-- 0/0           35761 2026-10-22 16:50 usr/local/pgsql/share/sql_features.txt
+-rw-r--r-- 0/0            8895 2026-10-22 16:50 usr/local/pgsql/share/system_constraints.sql
+-rw-r--r-- 0/0           24879 2026-10-22 16:50 usr/local/pgsql/share/system_functions.sql
+-rw-r--r-- 0/0           53364 2026-10-22 16:50 usr/local/pgsql/share/system_views.sql
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/
+-rw-r--r-- 0/0             130 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Accra link to usr/local/pgsql/share/timezone/Africa/Abidjan
+-rw-r--r-- 0/0             191 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+-rw-r--r-- 0/0             470 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Algiers
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Asmara link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Asmera link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Bamako link to usr/local/pgsql/share/timezone/Africa/Abidjan
+-rw-r--r-- 0/0             180 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Banjul link to usr/local/pgsql/share/timezone/Africa/Abidjan
+-rw-r--r-- 0/0             149 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Bissau
+-rw-r--r-- 0/0             131 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Blantyre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Brazzaville link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Bujumbura link to usr/local/pgsql/share/timezone/Africa/Blantyre
+-rw-r--r-- 0/0            1309 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Cairo
+-rw-r--r-- 0/0             793 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Casablanca
+-rw-r--r-- 0/0             562 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Ceuta
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Conakry link to usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Dakar link to usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Dar_es_Salaam link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Djibouti link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Douala link to usr/local/pgsql/share/timezone/Africa/Bangui
+-rw-r--r-- 0/0             704 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/El_Aaiun
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Freetown link to usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Gaborone link to usr/local/pgsql/share/timezone/Africa/Blantyre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Harare link to usr/local/pgsql/share/timezone/Africa/Blantyre
+-rw-r--r-- 0/0             190 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Johannesburg
+-rw-r--r-- 0/0             458 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Juba
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Kampala link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+-rw-r--r-- 0/0             458 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Khartoum
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Kigali link to usr/local/pgsql/share/timezone/Africa/Blantyre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Kinshasa link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Lagos link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Libreville link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Lome link to usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Luanda link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Lubumbashi link to usr/local/pgsql/share/timezone/Africa/Blantyre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Lusaka link to usr/local/pgsql/share/timezone/Africa/Blantyre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Malabo link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Maputo link to usr/local/pgsql/share/timezone/Africa/Blantyre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Maseru link to usr/local/pgsql/share/timezone/Africa/Johannesburg
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Mbabane link to usr/local/pgsql/share/timezone/Africa/Johannesburg
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Mogadishu link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+-rw-r--r-- 0/0             164 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Monrovia
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Nairobi link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+-rw-r--r-- 0/0             160 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Ndjamena
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Niamey link to usr/local/pgsql/share/timezone/Africa/Bangui
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Nouakchott link to usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Ouagadougou link to usr/local/pgsql/share/timezone/Africa/Abidjan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Porto-Novo link to usr/local/pgsql/share/timezone/Africa/Bangui
+-rw-r--r-- 0/0             173 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Sao_Tome
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Timbuktu link to usr/local/pgsql/share/timezone/Africa/Abidjan
+-rw-r--r-- 0/0             431 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Tripoli
+-rw-r--r-- 0/0             449 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Tunis
+-rw-r--r-- 0/0             638 2026-10-22 16:50 usr/local/pgsql/share/timezone/Africa/Windhoek
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/
+-rw-r--r-- 0/0             969 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Adak
+-rw-r--r-- 0/0             977 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Anchorage
+-rw-r--r-- 0/0             177 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Anguilla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Antigua link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             592 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Araguaina
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Buenos_Aires
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Catamarca
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/ComodRivadavia link to usr/local/pgsql/share/timezone/America/Argentina/Catamarca
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Cordoba
+-rw-r--r-- 0/0             690 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Jujuy
+-rw-r--r-- 0/0             717 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/La_Rioja
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Mendoza
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Rio_Gallegos
+-rw-r--r-- 0/0             690 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Salta
+-rw-r--r-- 0/0             717 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/San_Juan
+-rw-r--r-- 0/0             717 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/San_Luis
+-rw-r--r-- 0/0             726 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Tucuman
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Argentina/Ushuaia
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Aruba link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0            1085 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Asuncion
+-rw-r--r-- 0/0             149 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Atikokan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Atka link to usr/local/pgsql/share/timezone/America/Adak
+-rw-r--r-- 0/0             682 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Bahia
+-rw-r--r-- 0/0             700 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Bahia_Banderas
+-rw-r--r-- 0/0             278 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Barbados
+-rw-r--r-- 0/0             394 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Belem
+-rw-r--r-- 0/0            1045 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Belize
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Blanc-Sablon link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             430 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Boa_Vista
+-rw-r--r-- 0/0             179 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Bogota
+-rw-r--r-- 0/0             999 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Boise
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Buenos_Aires link to usr/local/pgsql/share/timezone/America/Argentina/Buenos_Aires
+-rw-r--r-- 0/0             883 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Cambridge_Bay
+-rw-r--r-- 0/0             952 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Campo_Grande
+-rw-r--r-- 0/0             538 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Cancun
+-rw-r--r-- 0/0             190 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Caracas
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Catamarca link to usr/local/pgsql/share/timezone/America/Argentina/Catamarca
+-rw-r--r-- 0/0             151 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Cayenne
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Cayman link to usr/local/pgsql/share/timezone/America/Atikokan
+-rw-r--r-- 0/0            1754 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Chicago
+-rw-r--r-- 0/0             691 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Chihuahua
+-rw-r--r-- 0/0             718 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Ciudad_Juarez
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Coral_Harbour link to usr/local/pgsql/share/timezone/America/Atikokan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Cordoba link to usr/local/pgsql/share/timezone/America/Argentina/Cordoba
+-rw-r--r-- 0/0             232 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Costa_Rica
+-rw-r--r-- 0/0            1362 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Coyhaique
+-rw-r--r-- 0/0             240 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Creston
+-rw-r--r-- 0/0             934 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Cuiaba
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Curacao link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             447 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Danmarkshavn
+-rw-r--r-- 0/0            1029 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Dawson
+-rw-r--r-- 0/0             683 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Dawson_Creek
+-rw-r--r-- 0/0            1042 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Denver
+-rw-r--r-- 0/0             899 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Detroit
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Dominica link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0            1313 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Edmonton
+-rw-r--r-- 0/0             436 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Eirunepe
+-rw-r--r-- 0/0             176 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/El_Salvador
+-rw-r--r-- 0/0            1367 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Ensenada
+-rw-r--r-- 0/0            1448 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Fort_Nelson
+-rw-r--r-- 0/0             531 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Fort_Wayne
+-rw-r--r-- 0/0             484 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Fortaleza
+-rw-r--r-- 0/0             880 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Glace_Bay
+-rw-r--r-- 0/0             965 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Godthab
+-rw-r--r-- 0/0            1580 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Goose_Bay
+-rw-r--r-- 0/0             853 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Grand_Turk
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Grenada link to usr/local/pgsql/share/timezone/America/Anguilla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Guadeloupe link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             212 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Guatemala
+-rw-r--r-- 0/0             179 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Guayaquil
+-rw-r--r-- 0/0             181 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Guyana
+-rw-r--r-- 0/0            1672 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Halifax
+-rw-r--r-- 0/0            1117 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Havana
+-rw-r--r-- 0/0             258 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Hermosillo
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Indianapolis link to usr/local/pgsql/share/timezone/America/Fort_Wayne
+-rw-r--r-- 0/0            1016 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Knox
+-rw-r--r-- 0/0             567 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Marengo
+-rw-r--r-- 0/0             683 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Petersburg
+-rw-r--r-- 0/0             522 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Tell_City
+-rw-r--r-- 0/0             369 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Vevay
+-rw-r--r-- 0/0             558 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Vincennes
+-rw-r--r-- 0/0             612 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indiana/Winamac
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Indianapolis link to usr/local/pgsql/share/timezone/America/Fort_Wayne
+-rw-r--r-- 0/0             817 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Inuvik
+-rw-r--r-- 0/0             855 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Iqaluit
+-rw-r--r-- 0/0             339 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Jamaica
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Jujuy link to usr/local/pgsql/share/timezone/America/Argentina/Jujuy
+-rw-r--r-- 0/0             966 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Juneau
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Kentucky/
+-rw-r--r-- 0/0            1242 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Kentucky/Louisville
+-rw-r--r-- 0/0             972 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Kentucky/Monticello
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Knox_IN link to usr/local/pgsql/share/timezone/America/Indiana/Knox
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Kralendijk link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             170 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/La_Paz
+-rw-r--r-- 0/0             283 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Lima
+-rw-r--r-- 0/0            1294 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Los_Angeles
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Louisville link to usr/local/pgsql/share/timezone/America/Kentucky/Louisville
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Lower_Princes link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             502 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Maceio
+-rw-r--r-- 0/0             295 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Managua
+-rw-r--r-- 0/0             412 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Manaus
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Marigot link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             178 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Martinique
+-rw-r--r-- 0/0             437 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Matamoros
+-rw-r--r-- 0/0             690 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Mazatlan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Mendoza link to usr/local/pgsql/share/timezone/America/Argentina/Mendoza
+-rw-r--r-- 0/0             917 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Menominee
+-rw-r--r-- 0/0             654 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Merida
+-rw-r--r-- 0/0             595 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Metlakatla
+-rw-r--r-- 0/0             773 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Mexico_City
+-rw-r--r-- 0/0             550 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Miquelon
+-rw-r--r-- 0/0            1493 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Moncton
+-rw-r--r-- 0/0             709 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Monterrey
+-rw-r--r-- 0/0             969 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Montevideo
+-rw-r--r-- 0/0            1717 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Montreal
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Montserrat link to usr/local/pgsql/share/timezone/America/Anguilla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Nassau link to usr/local/pgsql/share/timezone/America/Montreal
+-rw-r--r-- 0/0            1744 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/New_York
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Nipigon link to usr/local/pgsql/share/timezone/America/Montreal
+-rw-r--r-- 0/0             975 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Nome
+-rw-r--r-- 0/0             484 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Noronha
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/North_Dakota/
+-rw-r--r-- 0/0            1043 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/North_Dakota/Beulah
+-rw-r--r-- 0/0             990 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/North_Dakota/Center
+-rw-r--r-- 0/0             990 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/North_Dakota/New_Salem
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Nuuk link to usr/local/pgsql/share/timezone/America/Godthab
+-rw-r--r-- 0/0             709 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Ojinaga
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Panama link to usr/local/pgsql/share/timezone/America/Atikokan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Pangnirtung link to usr/local/pgsql/share/timezone/America/Iqaluit
+-rw-r--r-- 0/0             187 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Paramaribo
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Phoenix link to usr/local/pgsql/share/timezone/America/Creston
+-rw-r--r-- 0/0             565 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Port-au-Prince
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Port_of_Spain link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             418 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Porto_Acre
+-rw-r--r-- 0/0             394 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Porto_Velho
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Puerto_Rico link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0            1218 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Punta_Arenas
+-rw-r--r-- 0/0            1294 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Rainy_River
+-rw-r--r-- 0/0             807 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Rankin_Inlet
+-rw-r--r-- 0/0             484 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Recife
+-rw-r--r-- 0/0             638 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Regina
+-rw-r--r-- 0/0             807 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Resolute
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Rio_Branco link to usr/local/pgsql/share/timezone/America/Porto_Acre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Rosario link to usr/local/pgsql/share/timezone/America/Argentina/Cordoba
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Santa_Isabel link to usr/local/pgsql/share/timezone/America/Ensenada
+-rw-r--r-- 0/0             409 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Santarem
+-rw-r--r-- 0/0            1354 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Santiago
+-rw-r--r-- 0/0             317 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Santo_Domingo
+-rw-r--r-- 0/0             952 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Sao_Paulo
+-rw-r--r-- 0/0             984 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Scoresbysund
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Shiprock link to usr/local/pgsql/share/timezone/America/Denver
+-rw-r--r-- 0/0             956 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Sitka
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/St_Barthelemy link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0            1878 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/St_Johns
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/St_Kitts link to usr/local/pgsql/share/timezone/America/Anguilla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/St_Lucia link to usr/local/pgsql/share/timezone/America/Anguilla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/St_Thomas link to usr/local/pgsql/share/timezone/America/Anguilla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/St_Vincent link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0             368 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Swift_Current
+-rw-r--r-- 0/0             194 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Tegucigalpa
+-rw-r--r-- 0/0             455 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Thule
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Thunder_Bay link to usr/local/pgsql/share/timezone/America/Montreal
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Tijuana link to usr/local/pgsql/share/timezone/America/Ensenada
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Toronto link to usr/local/pgsql/share/timezone/America/Montreal
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Tortola link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0            1673 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Vancouver
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Virgin link to usr/local/pgsql/share/timezone/America/Anguilla
+-rw-r--r-- 0/0            1029 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Whitehorse
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Winnipeg link to usr/local/pgsql/share/timezone/America/Rainy_River
+-rw-r--r-- 0/0             946 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Yakutat
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/America/Yellowknife link to usr/local/pgsql/share/timezone/America/Edmonton
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/
+-rw-r--r-- 0/0             287 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Casey
+-rw-r--r-- 0/0             197 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Davis
+-rw-r--r-- 0/0             154 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/DumontDUrville
+-rw-r--r-- 0/0             976 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Macquarie
+-rw-r--r-- 0/0             152 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Mawson
+-rw-r--r-- 0/0            1043 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/McMurdo
+-rw-r--r-- 0/0             887 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Palmer
+-rw-r--r-- 0/0             132 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Rothera
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/South_Pole link to usr/local/pgsql/share/timezone/Antarctica/McMurdo
+-rw-r--r-- 0/0             133 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Syowa
+-rw-r--r-- 0/0             177 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Troll
+-rw-r--r-- 0/0             170 2026-10-22 16:50 usr/local/pgsql/share/timezone/Antarctica/Vostok
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Arctic/
+-rw-r--r-- 0/0             705 2026-10-22 16:50 usr/local/pgsql/share/timezone/Arctic/Longyearbyen
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Aden link to usr/local/pgsql/share/timezone/Antarctica/Syowa
+-rw-r--r-- 0/0             618 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Almaty
+-rw-r--r-- 0/0             928 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Amman
+-rw-r--r-- 0/0             743 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Anadyr
+-rw-r--r-- 0/0             606 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Aqtau
+-rw-r--r-- 0/0             615 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Aqtobe
+-rw-r--r-- 0/0             375 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ashgabat
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ashkhabad link to usr/local/pgsql/share/timezone/Asia/Ashgabat
+-rw-r--r-- 0/0             616 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Atyrau
+-rw-r--r-- 0/0             630 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Baghdad
+-rw-r--r-- 0/0             152 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Bahrain
+-rw-r--r-- 0/0             744 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Baku
+-rw-r--r-- 0/0             152 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Bangkok
+-rw-r--r-- 0/0             753 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Barnaul
+-rw-r--r-- 0/0             732 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Beirut
+-rw-r--r-- 0/0             618 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Bishkek
+-rw-r--r-- 0/0             320 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Brunei
+-rw-r--r-- 0/0             220 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Calcutta
+-rw-r--r-- 0/0             750 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Chita
+-rw-r--r-- 0/0             594 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Choibalsan
+-rw-r--r-- 0/0             393 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Chongqing
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Chungking link to usr/local/pgsql/share/timezone/Asia/Chongqing
+-rw-r--r-- 0/0             247 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Colombo
+-rw-r--r-- 0/0             231 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Dacca
+-rw-r--r-- 0/0            1234 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Damascus
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Dhaka link to usr/local/pgsql/share/timezone/Asia/Dacca
+-rw-r--r-- 0/0             170 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Dili
+-rw-r--r-- 0/0             133 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Dubai
+-rw-r--r-- 0/0             366 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Dushanbe
+-rw-r--r-- 0/0             940 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Famagusta
+-rw-r--r-- 0/0            2446 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Gaza
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Harbin link to usr/local/pgsql/share/timezone/Asia/Chongqing
+-rw-r--r-- 0/0            2464 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Hebron
+-rw-r--r-- 0/0             236 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ho_Chi_Minh
+-rw-r--r-- 0/0             775 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Hong_Kong
+-rw-r--r-- 0/0             594 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Hovd
+-rw-r--r-- 0/0             760 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Irkutsk
+-rw-r--r-- 0/0            1200 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Istanbul
+-rw-r--r-- 0/0             248 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Jakarta
+-rw-r--r-- 0/0             171 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Jayapura
+-rw-r--r-- 0/0            1074 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Jerusalem
+-rw-r--r-- 0/0             159 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kabul
+-rw-r--r-- 0/0             727 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kamchatka
+-rw-r--r-- 0/0             266 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Karachi
+-rw-r--r-- 0/0             133 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kashgar
+-rw-r--r-- 0/0             161 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kathmandu
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Katmandu link to usr/local/pgsql/share/timezone/Asia/Kathmandu
+-rw-r--r-- 0/0             775 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Khandyga
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kolkata link to usr/local/pgsql/share/timezone/Asia/Calcutta
+-rw-r--r-- 0/0             741 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Krasnoyarsk
+-rw-r--r-- 0/0             256 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kuala_Lumpur
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kuching link to usr/local/pgsql/share/timezone/Asia/Brunei
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Kuwait link to usr/local/pgsql/share/timezone/Antarctica/Syowa
+-rw-r--r-- 0/0             791 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Macao
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Macau link to usr/local/pgsql/share/timezone/Asia/Macao
+-rw-r--r-- 0/0             751 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Magadan
+-rw-r--r-- 0/0             190 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Makassar
+-rw-r--r-- 0/0             274 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Manila
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Muscat link to usr/local/pgsql/share/timezone/Asia/Dubai
+-rw-r--r-- 0/0             597 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Nicosia
+-rw-r--r-- 0/0             726 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Novokuznetsk
+-rw-r--r-- 0/0             753 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Novosibirsk
+-rw-r--r-- 0/0             741 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Omsk
+-rw-r--r-- 0/0             625 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Oral
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Phnom_Penh link to usr/local/pgsql/share/timezone/Asia/Bangkok
+-rw-r--r-- 0/0             247 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Pontianak
+-rw-r--r-- 0/0             183 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Pyongyang
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Qatar link to usr/local/pgsql/share/timezone/Asia/Bahrain
+-rw-r--r-- 0/0             624 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Qostanay
+-rw-r--r-- 0/0             624 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Qyzylorda
+-rw-r--r-- 0/0             187 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Rangoon
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Riyadh link to usr/local/pgsql/share/timezone/Antarctica/Syowa
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Saigon link to usr/local/pgsql/share/timezone/Asia/Ho_Chi_Minh
+-rw-r--r-- 0/0             755 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Sakhalin
+-rw-r--r-- 0/0             366 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Samarkand
+-rw-r--r-- 0/0             415 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Seoul
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Shanghai link to usr/local/pgsql/share/timezone/Asia/Chongqing
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Singapore link to usr/local/pgsql/share/timezone/Asia/Kuala_Lumpur
+-rw-r--r-- 0/0             742 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Srednekolymsk
+-rw-r--r-- 0/0             511 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Taipei
+-rw-r--r-- 0/0             366 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Tashkent
+-rw-r--r-- 0/0             629 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Tbilisi
+-rw-r--r-- 0/0             812 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Tehran
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Tel_Aviv link to usr/local/pgsql/share/timezone/Asia/Jerusalem
+-rw-r--r-- 0/0             154 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Thimbu
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Thimphu link to usr/local/pgsql/share/timezone/Asia/Thimbu
+-rw-r--r-- 0/0             213 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Tokyo
+-rw-r--r-- 0/0             753 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Tomsk
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ujung_Pandang link to usr/local/pgsql/share/timezone/Asia/Makassar
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ulaanbaatar link to usr/local/pgsql/share/timezone/Asia/Choibalsan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ulan_Bator link to usr/local/pgsql/share/timezone/Asia/Choibalsan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Urumqi link to usr/local/pgsql/share/timezone/Asia/Kashgar
+-rw-r--r-- 0/0             771 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Ust-Nera
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Vientiane link to usr/local/pgsql/share/timezone/Asia/Bangkok
+-rw-r--r-- 0/0             742 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Vladivostok
+-rw-r--r-- 0/0             741 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Yakutsk
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Yangon link to usr/local/pgsql/share/timezone/Asia/Rangoon
+-rw-r--r-- 0/0             760 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Yekaterinburg
+-rw-r--r-- 0/0             708 2026-10-22 16:50 usr/local/pgsql/share/timezone/Asia/Yerevan
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/
+-rw-r--r-- 0/0            1401 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Azores
+-rw-r--r-- 0/0            1024 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Bermuda
+-rw-r--r-- 0/0             478 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Canary
+-rw-r--r-- 0/0             175 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Cape_Verde
+-rw-r--r-- 0/0             441 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Faeroe
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Faroe link to usr/local/pgsql/share/timezone/Atlantic/Faeroe
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Jan_Mayen link to usr/local/pgsql/share/timezone/Arctic/Longyearbyen
+-rw-r--r-- 0/0            1372 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Madeira
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Reykjavik link to usr/local/pgsql/share/timezone/Africa/Abidjan
+-rw-r--r-- 0/0             132 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/South_Georgia
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/St_Helena link to usr/local/pgsql/share/timezone/Africa/Abidjan
+-rw-r--r-- 0/0             789 2026-10-22 16:50 usr/local/pgsql/share/timezone/Atlantic/Stanley
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/
+-rw-r--r-- 0/0             904 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/ACT
+-rw-r--r-- 0/0             921 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Adelaide
+-rw-r--r-- 0/0             289 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Brisbane
+-rw-r--r-- 0/0             941 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Broken_Hill
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Canberra link to usr/local/pgsql/share/timezone/Australia/ACT
+-rw-r--r-- 0/0            1003 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Currie
+-rw-r--r-- 0/0             234 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Darwin
+-rw-r--r-- 0/0             314 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Eucla
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Hobart link to usr/local/pgsql/share/timezone/Australia/Currie
+-rw-r--r-- 0/0             692 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/LHI
+-rw-r--r-- 0/0             325 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Lindeman
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Lord_Howe link to usr/local/pgsql/share/timezone/Australia/LHI
+-rw-r--r-- 0/0             904 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Melbourne
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/NSW link to usr/local/pgsql/share/timezone/Australia/ACT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/North link to usr/local/pgsql/share/timezone/Australia/Darwin
+-rw-r--r-- 0/0             306 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Perth
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Queensland link to usr/local/pgsql/share/timezone/Australia/Brisbane
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/South link to usr/local/pgsql/share/timezone/Australia/Adelaide
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Sydney link to usr/local/pgsql/share/timezone/Australia/ACT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Tasmania link to usr/local/pgsql/share/timezone/Australia/Currie
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Victoria link to usr/local/pgsql/share/timezone/Australia/Melbourne
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/West link to usr/local/pgsql/share/timezone/Australia/Perth
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Australia/Yancowinna link to usr/local/pgsql/share/timezone/Australia/Broken_Hill
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Brazil/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Brazil/Acre link to usr/local/pgsql/share/timezone/America/Porto_Acre
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Brazil/DeNoronha link to usr/local/pgsql/share/timezone/America/Noronha
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Brazil/East link to usr/local/pgsql/share/timezone/America/Sao_Paulo
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Brazil/West link to usr/local/pgsql/share/timezone/America/Manaus
+-rw-r--r-- 0/0            1103 2026-10-22 16:50 usr/local/pgsql/share/timezone/CET
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/CST6CDT link to usr/local/pgsql/share/timezone/America/Chicago
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Atlantic link to usr/local/pgsql/share/timezone/America/Halifax
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Central link to usr/local/pgsql/share/timezone/America/Rainy_River
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Eastern link to usr/local/pgsql/share/timezone/America/Montreal
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Mountain link to usr/local/pgsql/share/timezone/America/Edmonton
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Newfoundland link to usr/local/pgsql/share/timezone/America/St_Johns
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Pacific link to usr/local/pgsql/share/timezone/America/Vancouver
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Saskatchewan link to usr/local/pgsql/share/timezone/America/Regina
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Canada/Yukon link to usr/local/pgsql/share/timezone/America/Whitehorse
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Chile/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Chile/Continental link to usr/local/pgsql/share/timezone/America/Santiago
+-rw-r--r-- 0/0            1174 2026-10-22 16:50 usr/local/pgsql/share/timezone/Chile/EasterIsland
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Cuba link to usr/local/pgsql/share/timezone/America/Havana
+-rw-r--r-- 0/0             682 2026-10-22 16:50 usr/local/pgsql/share/timezone/EET
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/EST link to usr/local/pgsql/share/timezone/America/Atikokan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/EST5EDT link to usr/local/pgsql/share/timezone/America/New_York
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Egypt link to usr/local/pgsql/share/timezone/Africa/Cairo
+-rw-r--r-- 0/0            1496 2026-10-22 16:50 usr/local/pgsql/share/timezone/Eire
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/
+-rw-r--r-- 0/0             111 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+0 link to usr/local/pgsql/share/timezone/Etc/GMT
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+1
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+10
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+11
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+12
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+2
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+3
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+4
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+5
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+6
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+7
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+8
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT+9
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-0 link to usr/local/pgsql/share/timezone/Etc/GMT
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-1
+-rw-r--r-- 0/0             115 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-10
+-rw-r--r-- 0/0             115 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-11
+-rw-r--r-- 0/0             115 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-12
+-rw-r--r-- 0/0             115 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-13
+-rw-r--r-- 0/0             115 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-14
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-2
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-3
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-4
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-5
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-6
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-7
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-8
+-rw-r--r-- 0/0             114 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT-9
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/GMT0 link to usr/local/pgsql/share/timezone/Etc/GMT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/Greenwich link to usr/local/pgsql/share/timezone/Etc/GMT
+-rw-r--r-- 0/0             111 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/UCT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/UTC link to usr/local/pgsql/share/timezone/Etc/UCT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/Universal link to usr/local/pgsql/share/timezone/Etc/UCT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Etc/Zulu link to usr/local/pgsql/share/timezone/Etc/UCT
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Amsterdam link to usr/local/pgsql/share/timezone/CET
+-rw-r--r-- 0/0             389 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Andorra
+-rw-r--r-- 0/0             726 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Astrakhan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Athens link to usr/local/pgsql/share/timezone/EET
+-rw-r--r-- 0/0            1599 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Belfast
+-rw-r--r-- 0/0             478 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Belgrade
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Berlin link to usr/local/pgsql/share/timezone/Arctic/Longyearbyen
+-rw-r--r-- 0/0             723 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Bratislava
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Brussels link to usr/local/pgsql/share/timezone/CET
+-rw-r--r-- 0/0             661 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Bucharest
+-rw-r--r-- 0/0             766 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Budapest
+-rw-r--r-- 0/0             497 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Busingen
+-rw-r--r-- 0/0            1207 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Chisinau
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Copenhagen link to usr/local/pgsql/share/timezone/Arctic/Longyearbyen
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Dublin link to usr/local/pgsql/share/timezone/Eire
+-rw-r--r-- 0/0            1220 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Gibraltar
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Guernsey link to usr/local/pgsql/share/timezone/Europe/Belfast
+-rw-r--r-- 0/0             481 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Helsinki
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Isle_of_Man link to usr/local/pgsql/share/timezone/Europe/Belfast
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Istanbul link to usr/local/pgsql/share/timezone/Asia/Istanbul
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Jersey link to usr/local/pgsql/share/timezone/Europe/Belfast
+-rw-r--r-- 0/0             904 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Kaliningrad
+-rw-r--r-- 0/0             558 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Kiev
+-rw-r--r-- 0/0             735 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Kirov
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Kyiv link to usr/local/pgsql/share/timezone/Europe/Kiev
+-rw-r--r-- 0/0            1463 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Lisbon
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Ljubljana link to usr/local/pgsql/share/timezone/Europe/Belgrade
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/London link to usr/local/pgsql/share/timezone/Europe/Belfast
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Luxembourg link to usr/local/pgsql/share/timezone/CET
+-rw-r--r-- 0/0             897 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Madrid
+-rw-r--r-- 0/0             928 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Malta
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Mariehamn link to usr/local/pgsql/share/timezone/Europe/Helsinki
+-rw-r--r-- 0/0             808 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Minsk
+-rw-r--r-- 0/0            1105 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Monaco
+-rw-r--r-- 0/0             908 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Moscow
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Nicosia link to usr/local/pgsql/share/timezone/Asia/Nicosia
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Oslo link to usr/local/pgsql/share/timezone/Arctic/Longyearbyen
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Paris link to usr/local/pgsql/share/timezone/Europe/Monaco
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Podgorica link to usr/local/pgsql/share/timezone/Europe/Belgrade
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Prague link to usr/local/pgsql/share/timezone/Europe/Bratislava
+-rw-r--r-- 0/0             694 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Riga
+-rw-r--r-- 0/0             947 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Rome
+-rw-r--r-- 0/0             732 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Samara
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/San_Marino link to usr/local/pgsql/share/timezone/Europe/Rome
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Sarajevo link to usr/local/pgsql/share/timezone/Europe/Belgrade
+-rw-r--r-- 0/0             726 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Saratov
+-rw-r--r-- 0/0             865 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Simferopol
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Skopje link to usr/local/pgsql/share/timezone/Europe/Belgrade
+-rw-r--r-- 0/0             592 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Sofia
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Stockholm link to usr/local/pgsql/share/timezone/Arctic/Longyearbyen
+-rw-r--r-- 0/0             675 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Tallinn
+-rw-r--r-- 0/0             604 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Tirane
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Tiraspol link to usr/local/pgsql/share/timezone/Europe/Chisinau
+-rw-r--r-- 0/0             760 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Ulyanovsk
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Uzhgorod link to usr/local/pgsql/share/timezone/Europe/Kiev
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Vaduz link to usr/local/pgsql/share/timezone/Europe/Busingen
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Vatican link to usr/local/pgsql/share/timezone/Europe/Rome
+-rw-r--r-- 0/0             658 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Vienna
+-rw-r--r-- 0/0             676 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Vilnius
+-rw-r--r-- 0/0             753 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Volgograd
+-rw-r--r-- 0/0             923 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Warsaw
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Zagreb link to usr/local/pgsql/share/timezone/Europe/Belgrade
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Zaporozhye link to usr/local/pgsql/share/timezone/Europe/Kiev
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Europe/Zurich link to usr/local/pgsql/share/timezone/Europe/Busingen
+-rw-r--r-- 0/0             113 2026-10-22 16:50 usr/local/pgsql/share/timezone/Factory
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/GB link to usr/local/pgsql/share/timezone/Europe/Belfast
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/GB-Eire link to usr/local/pgsql/share/timezone/Europe/Belfast
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/GMT link to usr/local/pgsql/share/timezone/Etc/GMT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/GMT+0 link to usr/local/pgsql/share/timezone/Etc/GMT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/GMT-0 link to usr/local/pgsql/share/timezone/Etc/GMT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/GMT0 link to usr/local/pgsql/share/timezone/Etc/GMT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Greenwich link to usr/local/pgsql/share/timezone/Etc/GMT
+-rw-r--r-- 0/0             221 2026-10-22 16:50 usr/local/pgsql/share/timezone/HST
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Hongkong link to usr/local/pgsql/share/timezone/Asia/Hong_Kong
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Iceland link to usr/local/pgsql/share/timezone/Africa/Abidjan
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Antananarivo link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+-rw-r--r-- 0/0             152 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Chagos
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Christmas link to usr/local/pgsql/share/timezone/Asia/Bangkok
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Cocos link to usr/local/pgsql/share/timezone/Asia/Rangoon
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Comoro link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+-rw-r--r-- 0/0             152 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Kerguelen
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Mahe link to usr/local/pgsql/share/timezone/Asia/Dubai
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Maldives link to usr/local/pgsql/share/timezone/Indian/Kerguelen
+-rw-r--r-- 0/0             179 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Mauritius
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Mayotte link to usr/local/pgsql/share/timezone/Africa/Addis_Ababa
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Indian/Reunion link to usr/local/pgsql/share/timezone/Asia/Dubai
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Iran link to usr/local/pgsql/share/timezone/Asia/Tehran
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Israel link to usr/local/pgsql/share/timezone/Asia/Jerusalem
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Jamaica link to usr/local/pgsql/share/timezone/America/Jamaica
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Japan link to usr/local/pgsql/share/timezone/Asia/Tokyo
+-rw-r--r-- 0/0             219 2026-10-22 16:50 usr/local/pgsql/share/timezone/Kwajalein
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Libya link to usr/local/pgsql/share/timezone/Africa/Tripoli
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/MET link to usr/local/pgsql/share/timezone/CET
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/MST link to usr/local/pgsql/share/timezone/America/Creston
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/MST7MDT link to usr/local/pgsql/share/timezone/America/Denver
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Mexico/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Mexico/BajaNorte link to usr/local/pgsql/share/timezone/America/Ensenada
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Mexico/BajaSur link to usr/local/pgsql/share/timezone/America/Mazatlan
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Mexico/General link to usr/local/pgsql/share/timezone/America/Mexico_City
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/NZ link to usr/local/pgsql/share/timezone/Antarctica/McMurdo
+-rw-r--r-- 0/0             808 2026-10-22 16:50 usr/local/pgsql/share/timezone/NZ-CHAT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Navajo link to usr/local/pgsql/share/timezone/America/Denver
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/PRC link to usr/local/pgsql/share/timezone/Asia/Chongqing
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/PST8PDT link to usr/local/pgsql/share/timezone/America/Los_Angeles
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/
+-rw-r--r-- 0/0             407 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Apia
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Auckland link to usr/local/pgsql/share/timezone/Antarctica/McMurdo
+-rw-r--r-- 0/0             201 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Bougainville
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Chatham link to usr/local/pgsql/share/timezone/NZ-CHAT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Chuuk link to usr/local/pgsql/share/timezone/Antarctica/DumontDUrville
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Easter link to usr/local/pgsql/share/timezone/Chile/EasterIsland
+-rw-r--r-- 0/0             342 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Efate
+-rw-r--r-- 0/0             172 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Enderbury
+-rw-r--r-- 0/0             153 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Fakaofo
+-rw-r--r-- 0/0             396 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Fiji
+-rw-r--r-- 0/0             134 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Funafuti
+-rw-r--r-- 0/0             175 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Galapagos
+-rw-r--r-- 0/0             132 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Gambier
+-rw-r--r-- 0/0             134 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Guadalcanal
+-rw-r--r-- 0/0             350 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Guam
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Honolulu link to usr/local/pgsql/share/timezone/HST
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Johnston link to usr/local/pgsql/share/timezone/HST
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Kanton link to usr/local/pgsql/share/timezone/Pacific/Enderbury
+-rw-r--r-- 0/0             174 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Kiritimati
+-rw-r--r-- 0/0             242 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Kosrae
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Kwajalein link to usr/local/pgsql/share/timezone/Kwajalein
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Majuro link to usr/local/pgsql/share/timezone/Pacific/Funafuti
+-rw-r--r-- 0/0             139 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Marquesas
+-rw-r--r-- 0/0             146 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Midway
+-rw-r--r-- 0/0             183 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Nauru
+-rw-r--r-- 0/0             154 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Niue
+-rw-r--r-- 0/0             247 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Norfolk
+-rw-r--r-- 0/0             198 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Noumea
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Pago_Pago link to usr/local/pgsql/share/timezone/Pacific/Midway
+-rw-r--r-- 0/0             148 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Palau
+-rw-r--r-- 0/0             153 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Pitcairn
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Pohnpei link to usr/local/pgsql/share/timezone/Pacific/Guadalcanal
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Ponape link to usr/local/pgsql/share/timezone/Pacific/Guadalcanal
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Port_Moresby link to usr/local/pgsql/share/timezone/Antarctica/DumontDUrville
+-rw-r--r-- 0/0             406 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Rarotonga
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Saipan link to usr/local/pgsql/share/timezone/Pacific/Guam
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Samoa link to usr/local/pgsql/share/timezone/Pacific/Midway
+-rw-r--r-- 0/0             133 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Tahiti
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Tarawa link to usr/local/pgsql/share/timezone/Pacific/Funafuti
+-rw-r--r-- 0/0             237 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Tongatapu
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Truk link to usr/local/pgsql/share/timezone/Antarctica/DumontDUrville
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Wake link to usr/local/pgsql/share/timezone/Pacific/Funafuti
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Wallis link to usr/local/pgsql/share/timezone/Pacific/Funafuti
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Pacific/Yap link to usr/local/pgsql/share/timezone/Antarctica/DumontDUrville
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Poland link to usr/local/pgsql/share/timezone/Europe/Warsaw
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Portugal link to usr/local/pgsql/share/timezone/Europe/Lisbon
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/ROC link to usr/local/pgsql/share/timezone/Asia/Taipei
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/ROK link to usr/local/pgsql/share/timezone/Asia/Seoul
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Singapore link to usr/local/pgsql/share/timezone/Asia/Kuala_Lumpur
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Turkey link to usr/local/pgsql/share/timezone/Asia/Istanbul
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/UCT link to usr/local/pgsql/share/timezone/Etc/UCT
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Alaska link to usr/local/pgsql/share/timezone/America/Anchorage
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Aleutian link to usr/local/pgsql/share/timezone/America/Adak
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Arizona link to usr/local/pgsql/share/timezone/America/Creston
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Central link to usr/local/pgsql/share/timezone/America/Chicago
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/East-Indiana link to usr/local/pgsql/share/timezone/America/Fort_Wayne
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Eastern link to usr/local/pgsql/share/timezone/America/New_York
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Hawaii link to usr/local/pgsql/share/timezone/HST
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Indiana-Starke link to usr/local/pgsql/share/timezone/America/Indiana/Knox
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Michigan link to usr/local/pgsql/share/timezone/America/Detroit
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Mountain link to usr/local/pgsql/share/timezone/America/Denver
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Pacific link to usr/local/pgsql/share/timezone/America/Los_Angeles
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/US/Samoa link to usr/local/pgsql/share/timezone/Pacific/Midway
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/UTC link to usr/local/pgsql/share/timezone/Etc/UCT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Universal link to usr/local/pgsql/share/timezone/Etc/UCT
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/W-SU link to usr/local/pgsql/share/timezone/Europe/Moscow
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/WET link to usr/local/pgsql/share/timezone/Europe/Lisbon
+hrw-r--r-- 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezone/Zulu link to usr/local/pgsql/share/timezone/Etc/UCT
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/
+-rw-r--r-- 0/0            6973 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Africa.txt
+-rw-r--r-- 0/0           11007 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/America.txt
+-rw-r--r-- 0/0            1134 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Antarctica.txt
+-rw-r--r-- 0/0            8311 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Asia.txt
+-rw-r--r-- 0/0            3533 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Atlantic.txt
+-rw-r--r-- 0/0            1135 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Australia
+-rw-r--r-- 0/0            3384 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Australia.txt
+-rw-r--r-- 0/0           27214 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Default
+-rw-r--r-- 0/0            1250 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Etc.txt
+-rw-r--r-- 0/0            8746 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Europe.txt
+-rw-r--r-- 0/0             593 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/India
+-rw-r--r-- 0/0            1261 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Indian.txt
+-rw-r--r-- 0/0            3768 2026-10-22 16:50 usr/local/pgsql/share/timezonesets/Pacific.txt
+drwxr-xr-x 0/0               0 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/
+-rw-r--r-- 0/0             424 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/danish.stop
+-rw-r--r-- 0/0             453 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/dutch.stop
+-rw-r--r-- 0/0             622 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/english.stop
+-rw-r--r-- 0/0            1579 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/finnish.stop
+-rw-r--r-- 0/0             805 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/french.stop
+-rw-r--r-- 0/0            1349 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/german.stop
+-rw-r--r-- 0/0            1227 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/hungarian.stop
+-rw-r--r-- 0/0             243 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/hunspell_sample.affix
+-rw-r--r-- 0/0             633 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/hunspell_sample_long.affix
+-rw-r--r-- 0/0              98 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/hunspell_sample_long.dict
+-rw-r--r-- 0/0             462 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/hunspell_sample_num.affix
+-rw-r--r-- 0/0             129 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/hunspell_sample_num.dict
+-rw-r--r-- 0/0             465 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/ispell_sample.affix
+-rw-r--r-- 0/0              81 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/ispell_sample.dict
+-rw-r--r-- 0/0            1654 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/italian.stop
+-rw-r--r-- 0/0            4261 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/nepali.stop
+-rw-r--r-- 0/0             851 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/norwegian.stop
+-rw-r--r-- 0/0            1267 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/portuguese.stop
+-rw-r--r-- 0/0            1235 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/russian.stop
+-rw-r--r-- 0/0            2178 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/spanish.stop
+-rw-r--r-- 0/0             559 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/swedish.stop
+-rw-r--r-- 0/0              73 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/synonym_sample.syn
+-rw-r--r-- 0/0             473 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/thesaurus_sample.ths
+-rw-r--r-- 0/0             260 2026-10-22 16:50 usr/local/pgsql/share/tsearch_data/turkish.stop
+drwxr-xr-x 70/70             0 2026-10-22 16:51 var/
+drwxr-xr-x 70/70             0 2026-10-22 16:51 var/lib/
+drwxr-xr-x 70/70             0 2026-10-22 16:51 var/lib/postgresql/
+drwxr-xr-x 70/70             0 2026-10-22 16:50 var/lib/postgresql/data/

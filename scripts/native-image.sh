@@ -11,11 +11,12 @@ set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 cmd="${1:?usage: native-image.sh image|up|psql|down|test [version]}"; shift
 ver="${1:-18.6}"; [ $# -gt 0 ] && shift || true
-img="compactdb-native:$ver"
+vs="${VARIANT:+-$VARIANT}"   # size/compiler variant (build/native/<ver>-<variant>), see build-native.sh
+img="compactdb-native:$ver$vs"
 client_img="compactdb-reference:$ver"
 net="compactdb-ref-net"
-name="compactdb-native-$ver"
-vol="compactdb-native-data-$ver"
+name="compactdb-native-$ver$vs"
+vol="compactdb-native-data-$ver$vs"
 builder="compactdb-builder-musl:local"
 # Test credential for a throw-away server on a private docker network; not a secret.
 pw="native-test-only"
@@ -39,7 +40,7 @@ image)
     if [ "${WITH_TOOLS:-0}" = 1 ]; then tools="postgres initdb pg_resetwal pg_controldata"; tag="$img-tools"; fi
     docker run --rm --network none -v compactdb-build:/b:ro -v "$root/docker/native:/n:ro" "$builder" sh -c \
         "set -e
-         inst=/b/native/$ver/install-strip/usr/local/pgsql
+         inst=/b/native/$ver$vs/install-strip/usr/local/pgsql
          test -x \$inst/bin/postgres || { echo 'no static build in build/native/$ver; run ./dcb musl make native-build VERSION=$ver' >&2; exit 1; }
          d=\$(mktemp -d); r=\$d/rootfs
          mkdir -p \$r/usr/local/pgsql/bin \$r/usr/local/pgsql/lib \$r/etc \$r/tmp \$d/pgdata
@@ -71,12 +72,12 @@ psql)
 manifest)
     # Every file in the image with its size, and proof there is no shell, loader or shared object.
     cid=$(docker create "$img" /nonexistent)
-    docker export "$cid" | docker run -i --rm --network none --entrypoint tar "$builder" -tvf - > "$root/reports/native-image-files.txt"
+    docker export "$cid" | docker run -i --rm --network none --entrypoint tar "$builder" -tvf - > "$root/reports/native-image-files$vs.txt"
     docker rm "$cid" >/dev/null
-    files=$(grep -c '^-' "$root/reports/native-image-files.txt" || true)
-    bytes=$(awk '/^-/ {s += $3} END {print s + 0}' "$root/reports/native-image-files.txt")
-    echo "native: $files files, $bytes bytes (reports/native-image-files.txt)"
-    if grep -E ' (usr/)?(local/)?(bin|sbin)/(sh|bash|ash|busybox)$|ld-musl|ld-linux|\.so(\.[0-9]+)*$' "$root/reports/native-image-files.txt"; then
+    files=$(grep -c '^-' "$root/reports/native-image-files$vs.txt" || true)
+    bytes=$(awk '/^-/ {s += $3} END {print s + 0}' "$root/reports/native-image-files$vs.txt")
+    echo "native: $files files, $bytes bytes (reports/native-image-files$vs.txt)"
+    if grep -E ' (usr/)?(local/)?(bin|sbin)/(sh|bash|ash|busybox)$|ld-musl|ld-linux|\.so(\.[0-9]+)*$' "$root/reports/native-image-files$vs.txt"; then
         echo "FAIL: shell, dynamic loader or shared object found in the image"; exit 1
     fi
     echo "PASS: no shell, no dynamic loader, no shared object in the image"
