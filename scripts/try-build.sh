@@ -24,7 +24,7 @@ for std in $stds; do
     cc="gcc"; [ -z "$std" ] || cc="gcc -std=$std"
     opts="--prefix=/usr/local/pgsql"
     ./configure --help | grep -q -- '--without-readline' && opts="$opts --without-readline"
-    ./configure --help | grep -q -- '--with-icu' && opts="$opts --without-icu"
+    ./configure --help | grep -qE -- '--(with|without)-icu' && opts="$opts --without-icu"
     cfg_rc=0; mk_rc=-1
     # shellcheck disable=SC2086
     ./configure $opts CC="$cc" > configure.log 2>&1 || cfg_rc=$?

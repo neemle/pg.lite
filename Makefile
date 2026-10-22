@@ -19,7 +19,10 @@ NOT_IMPL := scripts/not-implemented.sh
         validate-locks test-locks test-fetch selftest \
         patches-verify patches-apply test-patches \
         builder-check capture-toolchain update-toolchain-lock reference \
-        feature-check feature-matrix test-feature release-index test-release-index \n        resolve resolve-check test-resolve probe probe-all test-probe \n        check-static test-check-static check-wasm test-check-wasm
+        feature-check feature-matrix test-feature release-index test-release-index \
+        resolve resolve-check test-resolve probe probe-all test-probe \
+        check-static test-check-static check-wasm test-check-wasm \
+        native-build native-src test-noshell
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -81,6 +84,18 @@ capture-toolchain:
 
 update-toolchain-lock:
 	@node scripts/update-toolchain-lock.js
+
+# Apply the common+native patch series into build/native/<v>/src (tools container):
+native-src:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --targets common,native
+
+# Static musl build of one release (docs/native.md): ./dcb musl make native-build VERSION=18.6
+native-build:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-native.sh $(VERSION)
+
+# No-shell spawn code test (needs the configured tree): ./dcb musl make test-noshell VERSION=18.6
+test-noshell:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))tests/native/test-noshell.sh $(VERSION)
 
 # Output checks (docs/checks.md). check-static needs readelf: ./dcb musl make check-static DIR=<path>
 check-static:
