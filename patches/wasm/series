@@ -1,0 +1,2 @@
+# Ordered patch series for the "wasm" target: one *.patch path per line, relative to this directory.
+# Format and header rules: docs/patches.md. Empty until the first real patch lands.

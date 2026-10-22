@@ -16,7 +16,8 @@ NOT_IMPL := scripts/not-implemented.sh
 
 .PHONY: help fetch native wasm verify-static test-native test-wasm \
         test-portability size-report verify release check-repo test-repo \
-        validate-locks test-locks test-fetch selftest
+        validate-locks test-locks test-fetch selftest \
+        patches-verify patches-apply test-patches
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -69,8 +70,20 @@ validate-locks:
 test-locks:
 	@node tests/lock/run.js
 
+# Patch series (docs/patches.md). VERSION defaults to the baseline in sources.lock.json.
+TARGETS ?= common,native
+
+patches-verify:
+	@node scripts/patches.js verify
+
+patches-apply:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required, e.g. ./dc make patches-apply VERSION=18.6))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/$(VERSION)/src --targets $(TARGETS)
+
+test-patches:
+	@node tests/patches/run.js
+
 # All repo self-tests that need no network.
-selftest: check-repo test-repo test-locks test-fetch validate-locks
+selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:
