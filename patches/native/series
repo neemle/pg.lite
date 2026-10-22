@@ -3,3 +3,4 @@
 0001-static-modules.patch
 0002-no-shell-spawn.patch
 0003-no-locale-a.patch
+0004-snowball-english-only.patch

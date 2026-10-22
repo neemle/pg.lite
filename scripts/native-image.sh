@@ -104,6 +104,9 @@ test)
     out=$(client -At -c "CREATE FUNCTION f(x int) RETURNS int LANGUAGE plpgsql AS \$\$ BEGIN RETURN x + 1; END \$\$" -c "SELECT f(41)" 2>&1) && [ "$(echo "$out" | tail -1)" = "42" ] && pass "plpgsql function runs" || { bad "plpgsql: $out"; }
     out=$(client -At -c "SELECT to_tsvector('english', 'The quick brown foxes jumped')" 2>&1) && echo "$out" | grep -q "fox" && pass "snowball text search stems (foxes -> fox)" || bad "snowball: $out"
 
+    cfgs=$(client -At -c "SELECT string_agg(cfgname, ',' ORDER BY cfgname) FROM pg_ts_config" 2>&1)
+    case ",$cfgs," in *,english,*) pass "text search configurations: $(echo "$cfgs" | tr ',' '\n' | wc -l) ($cfgs)" ;; *) bad "english text search configuration missing: $cfgs" ;; esac
+
     echo "--- missing module gives a clear error and the server survives"
     out=$(client -At -c "LOAD 'does_not_exist'" 2>&1 || true)
     echo "$out" | grep -q "statically linked" && pass "LOAD of an unknown library: clear error ($out)" || bad "unexpected LOAD result: $out"

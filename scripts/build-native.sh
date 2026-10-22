@@ -33,6 +33,7 @@ cflags="${NATIVE_CFLAGS:-}"
 ldex="${NATIVE_LDEX:--static}"
 ldflags="${NATIVE_LDFLAGS:-}"
 lto="${NATIVE_LTO:-0}"
+extra_opts="${NATIVE_CONFIGURE:-}"
 be_arg=""
 if [ "${NATIVE_BE_LD+set}" = set ]; then be_arg="LDFLAGS_EX_BE=${NATIVE_BE_LD}"; fi
 
@@ -41,7 +42,7 @@ if [ "${NATIVE_BE_LD+set}" = set ]; then be_arg="LDFLAGS_EX_BE=${NATIVE_BE_LD}";
 #   os     the same with -Os                         <- smallest build that stays simple and fast to build
 #   oslto  the same with -Os and link-time optimization
 case "$variant" in
-    gc|os|oslto|ospie)
+    gc|os|oslto|ospie|min1|min2|min3)
         if [ -z "$cflags" ] && [ -z "$ldflags" ] && [ "$ldex" = -static ] && [ -z "$be_arg" ] && [ "$lto" != 1 ]; then
             common="-ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -fno-unwind-tables"
             ldex="-static -no-pie -Wl,--gc-sections"; be_arg="LDFLAGS_EX_BE="
@@ -51,6 +52,12 @@ case "$variant" in
                 oslto) cflags="-Os -flto=auto $common"; ldex="$ldex -flto=auto"; lto=1 ;;
                 # as os, but still position-independent (static-pie): keeps address-space randomization
                 ospie) cflags="-Os $common"; ldex="-static -Wl,--gc-sections" ;;
+                # min1..min3 = ospie on the tree with patch 0004 (English-only snowball), then cumulatively:
+                #   min2 adds -ffile-prefix-map (shorter __FILE__ strings, build paths normalized)
+                #   min3 adds --without-zlib (the server needs zlib only for gzip base backups; pg_dump is not in the image)
+                min1) cflags="-Os $common"; ldex="-static -Wl,--gc-sections" ;;
+                min2) cflags="-Os $common -ffile-prefix-map=$src/= -ffile-prefix-map=$out/obj/="; ldex="-static -Wl,--gc-sections" ;;
+                min3) cflags="-Os $common -ffile-prefix-map=$src/= -ffile-prefix-map=$out/obj/="; ldex="-static -Wl,--gc-sections"; extra_opts="--without-zlib" ;;
             esac
         fi ;;
 esac
@@ -76,6 +83,7 @@ help=$("$src/configure" --help)
 echo "$help" | grep -q -- '--without-readline' && opts="$opts --without-readline"
 echo "$help" | grep -qE -- '--(with|without)-icu' && opts="$opts --without-icu"
 echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
+if [ -n "$extra_opts" ]; then opts="$opts $extra_opts"; fi
 
 # Static frontends need the two encoding functions the shared libpq would export (see the shim).
 step gcc -O2 -c -o "$out/shim.o" /w/docker/native/libpq_static_shim.c

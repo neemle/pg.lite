@@ -80,3 +80,36 @@ Recommendation: `ospie` as the release candidate (28.7% smaller, hardening kept,
 So removing index access methods buys little, while keeping only the English stemmer (about 0.45 MB, needs the snowball Makefile and `snowball_create.sql` generation changed) and cutting
 unused data types from `utils/adt` (geometric, network, XML-adjacent, ranges, ...) are the next real levers; each needs the dependency closure checked (CDB-10). A packer such as xsfx would
 compress the whole 7.8-8.3 MB; not tried yet (see the open request in the conversation: its release host fails certificate verification here, and its command line is not known).
+
+## Second round: the levers beyond compiler flags (all on top of `ospie`, so PIE and its hardening are kept)
+
+| Preset | What it adds | `postgres` (stripped) | vs `ospie` | vs plain | Image content |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `ospie` | (round one) | 8,329,304 | | -28.7% | 10,163,869 (computed) |
+| `min1` | patch 0004: only the English Snowball stemmer, stop-word list and text search configuration | 7,575,640 | -753,664 (-9.0%) | -35.2% | |
+| `min2` | `-ffile-prefix-map` for the source and build directories: shorter `__FILE__` strings in error reports, and the build path no longer ends up in the binary (reproducibility) | 7,559,256 | -16,384 | -35.3% | |
+| `min3` | `--without-zlib` (gzip base backups only; `pg_dump` is not in the image) | **7,514,200** | **-815,104 (-9.8%)** | **-35.7%** | **9,287,834 (387 files, -33.2%, measured)** |
+
+`initdb` is 184,048 bytes in all three. `min3` passes every check: the native image test (now including "text search has exactly `english` and
+`simple`"), the full resilience test (N07 and N08, 14 checks), and the 16-check compatibility test against `postgres:18-alpine`.
+Speed for `min3` (one `pgbench` pass, same host, same noise as above): select-only 14,992 TPS, TPC-B-like 1,276 TPS, start to first SQL 3.2 s; this is
+at the low end of the earlier runs but inside their spread, so no change in speed is claimed or excluded (the repeated-measurement report is CDB-10).
+
+Cost of the second round: text search exists for English only (a text search configuration for another language, and `to_tsvector('german', ...)`,
+no longer exist), and `BASE_BACKUP` cannot use gzip. Neither is in the required SQL profile. The feature profile and `docs/feature-matrix.md` say so.
+
+### Where the floor is
+
+The largest items left in the unstripped `min3` server are the SQL scanner and grammar tables (`yy_transition` 297 KB and 64 KB, `yytable` 248 KB,
+`yycheck` 248 KB, `yypact`, `yydefact`), then `fmgr_builtins` (74 KB), the Unicode normalization tables (about 120 KB) and the GUC tables. Every SQL server needs the
+parser tables. `utils/adt` (1.07 MB) is a long tail with no big target: the biggest object files are `ruleutils` 77 KB, `jsonpath_scan` 72 KB, `numeric` 56 KB,
+`formatting` 43 KB, `timestamp` 42 KB, and the whole geometry code (`geo_ops`) is 29 KB. Removing types would need the dependency closure of catalogs, operators, casts and
+operator classes checked for a gain of tens of kilobytes each, so that is not worth it before compression.
+
+### Compression (the packer)
+
+Compressibility measured with the standard tools on the `os` binary (7,759,512 bytes): gzip -9 44%, bzip2 -9 42%, **xz -9e (LZMA2, the same family as an "ultra" LZMA2 setting) 35%, 2,715,852 bytes**; `initdb` 46%.
+A packer with LZMA2 at its highest level should therefore land near 2.5 MB for `min3`. Two things to weigh: a registry already compresses layers (the gzip-compressed image is
+5.45 MB for the plain image and 3.81 MB for `os`, so the pull size gain of a packer over a plain layer is smaller than the unpacked-size gain), and a self-extracting executable decompresses into memory at
+every start (more start time and about one more binary-sized private memory area per process tree). xsfx has **not** been run: its release download fails certificate verification from the container
+here and its command line is not known to me. Once it is available, the measurement is: pack `postgres` and `initdb`, check they still start (`scripts/native-image.sh test`, the compatibility test), and compare the unpacked image bytes, start time and memory.
