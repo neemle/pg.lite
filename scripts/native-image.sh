@@ -11,7 +11,11 @@ set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 cmd="${1:?usage: native-image.sh image|up|psql|down|test [version]}"; shift
 ver="${1:-18.6}"; [ $# -gt 0 ] && shift || true
-vs="${VARIANT:+-$VARIANT}"   # size/compiler variant (build/native/<ver>-<variant>), see build-native.sh
+bvs="${VARIANT:+-$VARIANT}"   # size/compiler variant (build/native/<ver>-<variant>), see build-native.sh
+# PACK=xsfx compresses postgres with xsfx (LZMA2) when the image is assembled; it gets its own image tag
+pack="${PACK:-}"; case "$pack" in ""|xsfx) ;; *) echo "native: PACK must be empty or xsfx" >&2; exit 2 ;; esac
+vs="$bvs${pack:+-$pack}"
+xsfx_bin=/b/xsfx/v0.2.0/x/xsfx-x86_64-unknown-linux-musl
 img="compactdb-native:$ver$vs"
 client_img="compactdb-reference:$ver"
 net="compactdb-ref-net"
@@ -40,13 +44,17 @@ image)
     if [ "${WITH_TOOLS:-0}" = 1 ]; then tools="postgres initdb pg_resetwal pg_controldata"; tag="$img-tools"; fi
     docker run --rm --network none -v compactdb-build:/b:ro -v "$root/docker/native:/n:ro" "$builder" sh -c \
         "set -e
-         inst=/b/native/$ver$vs/install-strip/usr/local/pgsql
+         inst=/b/native/$ver$bvs/install-strip/usr/local/pgsql
          test -x \$inst/bin/postgres || { echo 'no static build in build/native/$ver; run ./dcb musl make native-build VERSION=$ver' >&2; exit 1; }
          d=\$(mktemp -d); r=\$d/rootfs
          mkdir -p \$r/usr/local/pgsql/bin \$r/usr/local/pgsql/lib \$r/etc \$r/tmp \$d/pgdata
          chmod 1777 \$r/tmp
          : > \$r/usr/local/pgsql/lib/.keep   # the server requires this directory; an empty one does not survive COPY
          for b in $tools; do cp \$inst/bin/\$b \$r/usr/local/pgsql/bin/; done
+         if [ '$pack' = xsfx ]; then   # only postgres is worth packing: initdb would save 12 KB, the launcher is tiny
+             cp $xsfx_bin /tmp/xsfx; chmod +x /tmp/xsfx
+             /tmp/xsfx \$inst/bin/postgres \$r/usr/local/pgsql/bin/postgres
+         fi
          cp -a \$inst/share \$r/usr/local/pgsql/share
          rm -f \$r/usr/local/pgsql/share/errcodes.txt   # build-time input only; nothing reads it at run time
          gcc -O2 -static -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c

@@ -13,3 +13,4 @@ node_modules/
 *.a
 *.log
 .DS_Store
+/xsfx-*.tar.gz

@@ -78,8 +78,8 @@ Recommendation: `ospie` as the release candidate (28.7% smaller, hardening kept,
 | GIN, GiST, SP-GiST access methods | 63, 50, 48 KB |
 
 So removing index access methods buys little, while keeping only the English stemmer (about 0.45 MB, needs the snowball Makefile and `snowball_create.sql` generation changed) and cutting
-unused data types from `utils/adt` (geometric, network, XML-adjacent, ranges, ...) are the next real levers; each needs the dependency closure checked (CDB-10). A packer such as xsfx would
-compress the whole 7.8-8.3 MB; not tried yet (see the open request in the conversation: its release host fails certificate verification here, and its command line is not known).
+unused data types from `utils/adt` (geometric, network, XML-adjacent, ranges, ...) are the next real levers; each needs the dependency closure checked (CDB-10). A packer such as xsfx (measured below) would
+compress the whole 7.8-8.3 MB.
 
 ## Second round: the levers beyond compiler flags (all on top of `ospie`, so PIE and its hardening are kept)
 
@@ -106,10 +106,34 @@ parser tables. `utils/adt` (1.07 MB) is a long tail with no big target: the bigg
 `formatting` 43 KB, `timestamp` 42 KB, and the whole geometry code (`geo_ops`) is 29 KB. Removing types would need the dependency closure of catalogs, operators, casts and
 operator classes checked for a gain of tens of kilobytes each, so that is not worth it before compression.
 
-### Compression (the packer)
+### Compression with xsfx (measured)
 
-Compressibility measured with the standard tools on the `os` binary (7,759,512 bytes): gzip -9 44%, bzip2 -9 42%, **xz -9e (LZMA2, the same family as an "ultra" LZMA2 setting) 35%, 2,715,852 bytes**; `initdb` 46%.
-A packer with LZMA2 at its highest level should therefore land near 2.5 MB for `min3`. Two things to weigh: a registry already compresses layers (the gzip-compressed image is
-5.45 MB for the plain image and 3.81 MB for `os`, so the pull size gain of a packer over a plain layer is smaller than the unpacked-size gain), and a self-extracting executable decompresses into memory at
-every start (more start time and about one more binary-sized private memory area per process tree). xsfx has **not** been run: its release download fails certificate verification from the container
-here and its command line is not known to me. Once it is available, the measurement is: pack `postgres` and `initdb`, check they still start (`scripts/native-image.sh test`, the compatibility test), and compare the unpacked image bytes, start time and memory.
+[xsfx](https://github.com/ratushnyi-labs/xsfx) v0.2.0 (static x86-64 musl executable, 517,824 bytes; the release tarball has SHA-256 `cfb0545571e2bcdded6df804333539e7af7fc2c41cf071195e95f55769d09592`)
+turns an executable into a self-extracting one: `xsfx <input> <output>`. The result is a 90,152-byte stub plus the LZMA2 payload; at run time the stub decompresses
+the program into an anonymous memory file (`memfd`) and executes it from there. Built with `PACK=xsfx VARIANT=min3 scripts/native-image.sh image 18.6` (image tag `compactdb-native:18.6-min3-xsfx`);
+only `postgres` is packed (`initdb` shrinks by 12 KB, which is not worth a decompression at every `initdb` run, and the launcher is tiny).
+
+| | `min3` | `min3` + xsfx |
+| --- | ---: | ---: |
+| `postgres` | 7,514,200 | **2,743,400 (-63.5%)** |
+| image content (387 files) | 9,287,834 | **4,517,034 (-51.4%)** |
+| exported image, gzip -9 (what a registry transfers, roughly) | 3,829,191 | 3,095,736 (-19.2%) |
+| cost per start of `postgres` | about 0 ms | **about 330 ms** (20 starts of `postgres --version`: 6.3-6.7 s) |
+| container memory after start (`docker stats`) | 30.3 MiB | 37.6 MiB (+7.3 MiB: one shared in-memory copy of the executable) |
+
+All of it passes on the packed image: `scripts/native-image.sh test` (cold init as uid 70 in `FROM scratch`, SCRAM, modules, restart, non-empty PGDATA refusal), `scripts/native-resilience-test.sh`
+(N07, N08: the `kill -9` recovery) and the 16-check compatibility test against `postgres:18-alpine` (`PACK=xsfx` is honoured by all three scripts).
+
+What it costs, honestly:
+
+- **Start time**: the executable is decompressed once per `exec`. PostgreSQL forks its backends (no re-exec), so a running server pays 330 ms once at start. `initdb` runs `postgres` several times (bootstrap, single-user steps), so a cold init is correspondingly longer; start-to-first-SQL stayed at about 7 s in two runs of each image, inside the noise of this host, because that figure is dominated by `initdb` work and `fsync`.
+- **Memory**: the decompressed program lives in memory (`memfd`, shown as shared memory, counted once for all processes), not in the page cache of a file; a server container needs about 7.5 MB more.
+- **Operations**: `ps` and `/proc/<pid>/comm` show `memfd:rsfx` instead of `postgres`, and `/proc/<pid>/exe` does not point to a file, so process-name based tools (some monitors, `pkill postgres`) will not find it. The image also loses the property that the file on disk is the program that runs; scanners see the packed blob.
+- **Speed of SQL**: unchanged by construction (the same machine code runs), and not re-measured.
+- **Transfer**: a registry compresses layers anyway, so the pull-size gain is 19%, not 51%.
+
+Recommendation: ship `min3` as the default image (smallest honest unpacked build, normal process names, no start cost) and `min3-xsfx` as the "smallest at rest" variant for cases where disk
+size matters more than 0.3 s and 7 MB of memory. The pre-pack estimate above (xz -9e, 2,715,852 for `os`) matched: the real payload for `min3` is 2,653,232 bytes.
+
+Where the packer comes from: the release tarball is not committed (`/xsfx-*.tar.gz` is ignored). `scripts/native-image.sh` reads the extracted executable from the build volume at
+`build/xsfx/v0.2.0/x/xsfx-x86_64-unknown-linux-musl`; to place it, extract the tarball there from inside a container (for example `./dcb musl sh -c 'mkdir -p build/xsfx/v0.2.0/x && tar -xzf xsfx-x86_64-unknown-linux-musl.tar.gz -C build/xsfx/v0.2.0/x'`, with the tarball in the repository root) and compare its SHA-256 with the value above.

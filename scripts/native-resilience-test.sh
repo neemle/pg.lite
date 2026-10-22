@@ -9,7 +9,7 @@
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 ver="${1:-18.6}"
-vs="${VARIANT:+-$VARIANT}"
+vs="${VARIANT:+-$VARIANT}${PACK:+-$PACK}"
 img="compactdb-native:$ver$vs"
 client_img="compactdb-reference:$ver"
 net="compactdb-ref-net"
