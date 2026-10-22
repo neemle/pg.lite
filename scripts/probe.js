@@ -154,13 +154,55 @@ async function fetchRaw(commit, rel) {
   throw new Error(`fetch ${rel} @ ${commit}: ${last.message}`);
 }
 
+// Fallback when the GitHub raw host is unreachable: the official release archive. It is downloaded,
+// checked against the SHA-256 in sources.lock.json, and only the files the probe reads are extracted.
+const { execFile } = require('child_process');
+const execFileP = (cmd, args) => new Promise((res, rej) => execFile(cmd, args, { maxBuffer: 1 << 26 }, (e, out, err) => (e ? rej(Object.assign(e, { stderr: err })) : res(out))));
+async function fetchViaArchive(rel) {
+  const crypto = require('crypto');
+  const os = require('os');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'probe-'));
+  try {
+    const arc = path.join(tmp, 'a.tar.bz2');
+    await execFileP('curl', ['-fsSL', '--retry', '3', '--proto', '=https', '--tlsv1.2', '-o', arc, rel.archiveUrl]);
+    const sha = crypto.createHash('sha256').update(fs.readFileSync(arc)).digest('hex');
+    if (sha !== rel.archiveSha256) throw new Error(`archive sha256 ${sha} does not match the lock ${rel.archiveSha256}`);
+    const dest = path.join(opt.cache, 'probe', rel.commit);
+    fs.mkdirSync(dest, { recursive: true });
+    const files = ['configure', ...wanted];
+    const top = `postgresql-${rel.version}`;
+    // tar exits 2 when a requested member does not exist in this release; the others are still extracted.
+    try { await execFileP('tar', ['-xjf', arc, '-C', dest, '--strip-components=1', ...files.map((f) => `${top}/${f}`)]); }
+    catch (e) { if (e.code !== 2) throw e; }
+    for (const f of files) {
+      const d = path.join(dest, f);
+      if (!fs.existsSync(d)) { fs.mkdirSync(path.dirname(d), { recursive: true }); fs.writeFileSync(`${d}.missing`, ''); }
+    }
+    if (!fs.existsSync(path.join(dest, 'configure'))) throw new Error(`no configure script in the ${rel.version} archive`);
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+}
+
+let rawDown = false; // once GitHub raw fails, the rest of the run goes straight to the archive
 async function providerFor(rel) {
   if (opt.tree) return { p: new TreeProvider(opt.tree), source: `tree ${opt.tree}` };
   const local = path.join(opt.cache, 'src', rel.version);
   if (fs.existsSync(path.join(local, 'configure'))) return { p: new TreeProvider(local), source: `fetched tree cache/src/${rel.version}` };
-  for (const f of ['configure', ...wanted]) await fetchRaw(rel.commit, f);
+  const have = (f) => { const d = path.join(opt.cache, 'probe', rel.commit, f); return fs.existsSync(d) || fs.existsSync(`${d}.missing`); };
+  if (['configure', ...wanted].every(have) && fs.existsSync(path.join(opt.cache, 'probe', rel.commit, 'configure'))) {
+    return { p: new TreeProvider(path.join(opt.cache, 'probe', rel.commit)), source: `cached files of commit ${rel.commit}` };
+  }
+  let source = `files of commit ${rel.commit} from the GitHub mirror`;
+  try {
+    if (rawDown) throw new Error('GitHub raw already failed in this run');
+    for (const f of ['configure', ...wanted]) await fetchRaw(rel.commit, f);
+  } catch (e) {
+    if (!rawDown) console.error(`${rel.version}: GitHub raw failed (${e.message}); using the official archive for the rest of this run`);
+    rawDown = true;
+    await fetchViaArchive(rel);
+    source = `files of commit ${rel.commit} from the official archive, checked against the locked SHA-256`;
+  }
   const dir = path.join(opt.cache, 'probe', rel.commit);
-  return { p: new TreeProvider(dir), source: `files of commit ${rel.commit} from the GitHub mirror` };
+  return { p: new TreeProvider(dir), source };
 }
 
 async function probeOne(version) {

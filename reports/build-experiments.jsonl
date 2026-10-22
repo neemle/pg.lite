@@ -1,0 +1,3 @@
+{"version":"9.0.23","gcc":"15.2.0","winner":"gnu89","attempts":[{"std":"","configureRc":1,"makeRc":-1,"status":"fail","error":"checking for strerror... yes|checking for strerror_r... yes|"},{"std":"gnu89","configureRc":0,"makeRc":0,"status":"ok","error":""}]}
+{"version":"9.1.24","gcc":"15.2.0","winner":"gnu89","attempts":[{"std":"","configureRc":1,"makeRc":-1,"status":"fail","error":"checking for strerror... yes|checking for strerror_r... yes|"},{"std":"gnu89","configureRc":0,"makeRc":0,"status":"ok","error":""}]}
+{"version":"9.2.24","gcc":"15.2.0","winner":"gnu89","attempts":[{"std":"","configureRc":1,"makeRc":-1,"status":"fail","error":"checking for strerror... yes|checking for strerror_r... yes|"},{"std":"gnu89","configureRc":0,"makeRc":0,"status":"ok","error":""}]}
