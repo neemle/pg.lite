@@ -189,7 +189,10 @@ async function providerFor(rel) {
   if (fs.existsSync(path.join(local, 'configure'))) return { p: new TreeProvider(local), source: `fetched tree cache/src/${rel.version}` };
   const have = (f) => { const d = path.join(opt.cache, 'probe', rel.commit, f); return fs.existsSync(d) || fs.existsSync(`${d}.missing`); };
   if (['configure', ...wanted].every(have) && fs.existsSync(path.join(opt.cache, 'probe', rel.commit, 'configure'))) {
-    return { p: new TreeProvider(path.join(opt.cache, 'probe', rel.commit)), source: `cached files of commit ${rel.commit}` };
+    const cdir = path.join(opt.cache, 'probe', rel.commit);
+    const stand = path.join(cdir, 'src', 'backend', 'access', 'common', 'heaptuple.c');
+    if (!fs.existsSync(stand)) { fs.mkdirSync(path.dirname(stand), { recursive: true }); fs.writeFileSync(stand, ''); }
+    return { p: new TreeProvider(cdir), source: `cached files of commit ${rel.commit}` };
   }
   let source = `files of commit ${rel.commit} from the GitHub mirror`;
   try {
@@ -202,6 +205,9 @@ async function providerFor(rel) {
     source = `files of commit ${rel.commit} from the official archive, checked against the locked SHA-256`;
   }
   const dir = path.join(opt.cache, 'probe', rel.commit);
+  // Newer configure scripts check for their AC_CONFIG_SRCDIR file even for --help; an empty stand-in is enough.
+  const sentinel = path.join(dir, 'src', 'backend', 'access', 'common', 'heaptuple.c');
+  if (!fs.existsSync(sentinel)) { fs.mkdirSync(path.dirname(sentinel), { recursive: true }); fs.writeFileSync(sentinel, ''); }
   return { p: new TreeProvider(dir), source };
 }
 
