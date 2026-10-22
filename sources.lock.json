@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "baseline": "18.6",
+  "releases": [
+    {
+      "version": "18.6",
+      "major": "18",
+      "tag": "REL_18_6",
+      "commit": "724edf9bde9d356724ad384a2e196edc3c9f80f7",
+      "gitUrl": "https://git.postgresql.org/git/postgresql.git",
+      "archiveUrl": "https://ftp.postgresql.org/pub/source/v18.6/postgresql-18.6.tar.bz2",
+      "archiveSha256": "555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f",
+      "checksumSource": "official-sha256-file"
+    }
+  ]
+}

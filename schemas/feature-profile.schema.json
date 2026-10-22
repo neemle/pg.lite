@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "feature-profile.json",
+  "description": "Which PostgreSQL features and dependencies are kept or excluded, and why. Optional ranges narrow an entry to a version span; no entry means it applies to every version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "features"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "enum": [1] },
+    "features": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "state", "reason"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "state": { "type": "string", "enum": ["included", "excluded"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "configureFlag": { "type": "string", "pattern": "^--(with|without|enable|disable)-[a-z0-9-]+$" },
+          "behaviorImpact": { "type": "string" },
+          "bootstrapImpact": { "type": "string" },
+          "appliesFrom": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+          "appliesTo": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+# Fetched upstream sources and build trees: never committed (see scripts/check-no-pg-source.sh).
+/cache/
+/build/
+/.work/
+
+# Build artifacts; the directory stays, the contents do not.
+/dist/*
+!/dist/.gitkeep
+
+# Tooling
+node_modules/
+*.o
+*.a
+*.log
+.DS_Store
