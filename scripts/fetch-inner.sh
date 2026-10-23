@@ -25,7 +25,14 @@ if [ ! -f "$archive" ]; then
     fi
     echo "fetch: downloading $ARCHIVE_URL"
     rm -f "$archive.part"
-    curl -fsSL --retry 3 --proto '=https' --tlsv1.2 -o "$archive.part" "$ARCHIVE_URL"
+    if [ "${FETCH_HTTP_FALLBACK:-0}" = 1 ]; then
+        # Opt-in for networks that intercept TLS with a CA the container does not trust: transport without TLS,
+        # integrity from the SHA-256 pinned in sources.lock.json (checked below; a mismatch rejects the archive).
+        echo "fetch: FETCH_HTTP_FALLBACK=1, downloading over plain http; integrity rests on the pinned SHA-256 only"
+        curl -fsSL --retry 3 --proto '=http' -o "$archive.part" "http://${ARCHIVE_URL#https://}"
+    else
+        curl -fsSL --retry 3 --proto '=https' --tlsv1.2 -o "$archive.part" "$ARCHIVE_URL"
+    fi
     mv "$archive.part" "$archive"
 fi
 
@@ -40,7 +47,7 @@ if [ "$actual" != "$SHA256" ]; then
 fi
 echo "fetch: archive SHA-256 verified ($actual)"
 
-if [ "$OFFLINE" != "1" ]; then
+if [ "$OFFLINE" != "1" ] && [ "${FETCH_HTTP_FALLBACK:-0}" != 1 ]; then
     remote=$(git ls-remote --tags "$GIT_URL" "refs/tags/$TAG" | cut -f1)
     if [ "$remote" != "$COMMIT" ]; then
         echo "fetch: FAIL - tag $TAG resolves to '${remote:-<not found>}' at $GIT_URL, lock expects $COMMIT" >&2
@@ -48,7 +55,7 @@ if [ "$OFFLINE" != "1" ]; then
     fi
     echo "fetch: tag $TAG resolves to the locked commit ($COMMIT)"
 else
-    echo "fetch: offline, tag-to-commit check skipped"
+    echo "fetch: tag-to-commit check skipped (offline mode or http fallback; the pinned SHA-256 above is the check)"
 fi
 
 rm -rf "$src.tmp"

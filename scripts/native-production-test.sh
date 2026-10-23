@@ -69,6 +69,8 @@ bg() { n="$1"; shift; docker run -d --name "$n" --network "$net" -e PGPASSWORD="
 out() { docker wait "$1" >/dev/null; docker logs "$1" 2>&1 | tr -d '\r'; docker rm "$1" >/dev/null; }
 ns() { docker run --rm --network none --pid "container:${2:-$name}" "$builder" sh -c "$1"; }
 slog() { docker logs "${1:-$name}" 2>&1 | tr -d '\r'; }
+# until_sql <sql returning t or f>: wait up to 30 s until the condition holds, i.e. until a background client really is in the state the next step needs
+until_sql() { i=0; until [ "$(q -c "$1" 2>/dev/null)" = t ]; do i=$((i + 1)); [ "$i" -gt 60 ] && { echo "prod: condition never held: $1" >&2; return 1; }; sleep 0.5; done; }
 now_ms() { echo $(( $(date +%s%N) / 1000000 )); }
 num() { sed -n "s/^$1: \([0-9][0-9]*\).*/\1/p" | head -1; }  # num <pgbench line label>
 
@@ -150,8 +152,8 @@ rp=$(echo "$rr" | num "number of transactions actually processed")
 
 echo "=== P05: deadlocks (manual pair, then 16 clients locking 8 rows in random order)"
 reset_bank 8
-bg prod-v -c "BEGIN; UPDATE bank SET bal = bal WHERE id = 1; SELECT pg_sleep(1); UPDATE bank SET bal = bal WHERE id = 2; COMMIT; SELECT 'v ok'"
-bg prod-w -c "BEGIN; UPDATE bank SET bal = bal WHERE id = 2; SELECT pg_sleep(1); UPDATE bank SET bal = bal WHERE id = 1; COMMIT; SELECT 'w ok'"
+bg prod-v -c "BEGIN; UPDATE bank SET bal = bal WHERE id = 1; SELECT pg_sleep(4); UPDATE bank SET bal = bal WHERE id = 2; COMMIT; SELECT 'v ok'"
+bg prod-w -c "BEGIN; UPDATE bank SET bal = bal WHERE id = 2; SELECT pg_sleep(4); UPDATE bank SET bal = bal WHERE id = 1; COMMIT; SELECT 'w ok'"
 ov=$(out prod-v); ow=$(out prod-w)
 dl=$(printf '%s\n%s\n' "$ov" "$ow" | grep -c "deadlock detected" || true); ok=$(printf '%s\n%s\n' "$ov" "$ow" | grep -c " ok$" || true)
 [ "$dl" = 1 ] && [ "$ok" = 1 ] && pass "exactly one of two crossed sessions was chosen as the deadlock victim, the other committed" || bad "deadlock pair: victims=$dl committed=$ok"
@@ -164,12 +166,12 @@ check "balances equal 1000 + credits - debits, total 8000" ledger_ok 8
 
 echo "=== P06: advisory locks and LISTEN/NOTIFY across sessions"
 bg prod-l -c "SELECT pg_advisory_lock(42)" -c "SELECT pg_sleep(4)"
-sleep 1.5
+until_sql "SELECT count(*) > 0 FROM pg_locks WHERE locktype = 'advisory' AND granted"
 [ "$(q -c "SELECT pg_try_advisory_lock(42)")" = f ] && pass "advisory lock held by another session is refused" || bad "advisory lock not exclusive"
 out prod-l >/dev/null
 [ "$(q -c "SELECT pg_try_advisory_lock(42)")" = t ] && pass "advisory lock is free after its session ended" || bad "advisory lock leaked"
 bg prod-l -c "LISTEN chan" -c "SELECT pg_sleep(5)" -c "SELECT 'done'"
-sleep 1.5
+until_sql "SELECT count(*) > 0 FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(5)%' AND pid <> pg_backend_pid()"
 q -c "NOTIFY chan, 'hello'" -c "BEGIN; NOTIFY chan, 'ghost'; ROLLBACK" -c "SELECT pg_notify('chan', 'second')" >/dev/null
 ol=$(out prod-l)
 echo "$ol" | grep -q '"hello"' && echo "$ol" | grep -q '"second"' && pass "listener received both committed notifications" || bad "notifications missing: $ol"
@@ -235,18 +237,18 @@ echo "container memory: idle $mem0, before churn $mem1, after churn $mem2"
 echo "=== P12: cancel, timeouts, terminate"
 r=$(q -c "SET statement_timeout = '1s'" -c "SELECT pg_sleep(5)" 2>&1 || true)
 echo "$r" | grep -q "statement timeout" && pass "statement_timeout cancels a long statement" || bad "statement_timeout: $r"
-bg prod-l -c "BEGIN; LOCK TABLE bank IN ACCESS EXCLUSIVE MODE; SELECT pg_sleep(4); COMMIT"
-sleep 1
+bg prod-l -c "BEGIN; LOCK TABLE bank IN ACCESS EXCLUSIVE MODE; SELECT pg_sleep(8); COMMIT"
+until_sql "SELECT count(*) > 0 FROM pg_locks WHERE locktype = 'relation' AND mode = 'AccessExclusiveLock' AND granted AND relation = 'bank'::regclass"
 r=$(q -c "SET lock_timeout = '500ms'" -c "SELECT count(*) FROM bank" 2>&1 || true)
 echo "$r" | grep -q "lock timeout" && pass "lock_timeout gives up on a blocked statement" || bad "lock_timeout: $r"
 out prod-l >/dev/null
 bg prod-v -c "SELECT pg_sleep(60)"
-sleep 1.5
+until_sql "SELECT count(*) > 0 FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(60)%' AND state = 'active' AND pid <> pg_backend_pid()"
 q -c "SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(60)%' AND pid <> pg_backend_pid()" >/dev/null
 ov=$(out prod-v)
 echo "$ov" | grep -q "canceling statement due to user request" && pass "pg_cancel_backend cancels another session's statement" || bad "cancel: $ov"
 bg prod-v -c "SELECT pg_sleep(60)"
-sleep 1.5
+until_sql "SELECT count(*) > 0 FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(60)%' AND state = 'active' AND pid <> pg_backend_pid()"
 q -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(60)%' AND pid <> pg_backend_pid()" >/dev/null
 ov=$(out prod-v)
 echo "$ov" | grep -qiE "terminating connection due to administrator command|server closed the connection" && pass "pg_terminate_backend ends another session" || bad "terminate: $ov"
@@ -256,7 +258,7 @@ reset_bank 100
 q -c "INSERT INTO ledger (a, b, amt) VALUES (1, 2, 10); UPDATE bank SET bal = bal - 10 WHERE id = 1; UPDATE bank SET bal = bal + 10 WHERE id = 2" >/dev/null
 started=$(docker inspect -f '{{.State.StartedAt}}' "$name")
 bg prod-v -c "SELECT pg_sleep(120)"
-sleep 1.5
+until_sql "SELECT count(*) > 0 FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(120)%' AND state = 'active' AND pid <> pg_backend_pid()"
 vpid=$(q -c "SELECT pid FROM pg_stat_activity WHERE query LIKE 'SELECT pg_sleep(120)%' AND pid <> pg_backend_pid()")
 ns "kill -9 $vpid" >/dev/null
 out prod-v >/dev/null

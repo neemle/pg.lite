@@ -5,7 +5,7 @@ concurrency, failure and load. Host side it only runs docker. Usage:
 
 ```bash
 VARIANT=min3 scripts/native-production-test.sh 18.6               # the recommended image
-VARIANT=min3 PACK=xsfx scripts/native-production-test.sh 18.6     # the same server packed with xsfx
+VARIANT=min3 PACK=xsfx scripts/native-production-test.sh 18.6     # the same server packed with xsfx (the packed image passes the same 85 checks)
 PROD_T=30 VARIANT=min3 scripts/native-production-test.sh 18.6     # longer timed phases (default 10 s)
 ```
 
@@ -59,3 +59,13 @@ crash or interruption `bank.bal = 1000 + sum(ledger credits) - sum(ledger debits
 
 External connection poolers, TLS (excluded from the profile), logical replication end to end (the module it needs is now present; a publication/subscription test is future work),
 disk-full behaviour, and multi-hour soak runs (`PROD_T` lengthens the timed phases only).
+
+## Results (this host, Docker Desktop on Windows)
+
+| Image | Checks | Result |
+| --- | ---: | --- |
+| `compactdb-native:18.6-min3` | 85 | all PASS |
+| `compactdb-native:18.6-min3-xsfx` | 85 | all PASS |
+
+Both also pass the native image test, the N07/N08 resilience test and the 16-check compatibility test against `postgres:18-alpine` after the WAL receiver change.
+The timed steps synchronise on the real state of the server (`pg_locks`, `pg_stat_activity`) instead of fixed sleeps, because client containers start with a jitter of a second or more.

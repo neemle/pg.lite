@@ -111,13 +111,16 @@ operator classes checked for a gain of tens of kilobytes each, so that is not wo
 [xsfx](https://github.com/ratushnyi-labs/xsfx) v0.2.0 (static x86-64 musl executable, 517,824 bytes; the release tarball has SHA-256 `cfb0545571e2bcdded6df804333539e7af7fc2c41cf071195e95f55769d09592`)
 turns an executable into a self-extracting one: `xsfx <input> <output>`. The result is a 90,152-byte stub plus the LZMA2 payload; at run time the stub decompresses
 the program into an anonymous memory file (`memfd`) and executes it from there. Built with `PACK=xsfx VARIANT=min3 scripts/native-image.sh image 18.6` (image tag `compactdb-native:18.6-min3-xsfx`);
-only `postgres` is packed (`initdb` shrinks by 12 KB, which is not worth a decompression at every `initdb` run, and the launcher is tiny).
+every executable in the image is tried and a packed file is kept only if it is smaller: `postgres` and `initdb` shrink; `pg-launcher` (51,072 B; packed 111,884), `pg_resetwal` (105,096; 143,456) and `pg_controldata` (88,304; 137,612) would grow by the 90 KB stub and stay as they are.
+
+Numbers below are for the current `min3`, which includes the WAL receiver for replication (see "Third round" below); the first measurement, before it, was `postgres` 7,514,200 -> 2,743,400 bytes.
 
 | | `min3` | `min3` + xsfx |
 | --- | ---: | ---: |
-| `postgres` | 7,514,200 | **2,743,400 (-63.5%)** |
-| image content (387 files) | 9,287,834 | **4,517,034 (-51.4%)** |
-| exported image, gzip -9 (what a registry transfers, roughly) | 3,829,191 | 3,095,736 (-19.2%) |
+| `postgres` | 7,743,736 | **2,780,752 (-64.1%)** |
+| `initdb` | 184,048 | 172,460 (-6.3%) |
+| image content (387 files) | 9,517,370 | **4,542,798 (-52.3%)** |
+| exported image, gzip -9 (what a registry transfers, roughly) | 3,932,244 | 3,171,572 (-19.3%) |
 | cost per start of `postgres` | about 0 ms | **about 330 ms** (20 starts of `postgres --version`: 6.3-6.7 s) |
 | container memory after start (`docker stats`) | 30.3 MiB | 37.6 MiB (+7.3 MiB: one shared in-memory copy of the executable) |
 
@@ -137,3 +140,10 @@ size matters more than 0.3 s and 7 MB of memory. The pre-pack estimate above (xz
 
 Where the packer comes from: the release tarball is not committed (`/xsfx-*.tar.gz` is ignored). `scripts/native-image.sh` reads the extracted executable from the build volume at
 `build/xsfx/v0.2.0/x/xsfx-x86_64-unknown-linux-musl`; to place it, extract the tarball there from inside a container (for example `./dcb musl sh -c 'mkdir -p build/xsfx/v0.2.0/x && tar -xzf xsfx-x86_64-unknown-linux-musl.tar.gz -C build/xsfx/v0.2.0/x'`, with the tarball in the repository root) and compare its SHA-256 with the value above.
+
+### Third round: replication costs 229 KB (and is worth it)
+
+The first production tests (`docs/production-tests.md`) found that a standby of the static server could not stream, because the WAL receiver loads `libpqwalreceiver` as a module. Linking it in
+(patch 0005 and `scripts/build-native.sh`, with libpq and the frontend flavour of `src/common` and `src/port` inside one object whose symbols are local) grows `postgres` of `min3` from 7,514,200 to
+**7,743,736 bytes (+229,536, +3.1%)**. Against the plain build that is still -33.7% (11,688,312), and the image content is 9,517,370 bytes (-31.6%). The same patch also gives logical replication its apply workers.
+The rebuilt server is byte-identical to the one built before the Docker data was lost (same size, same patched-tree hash), as a reproducibility check.
