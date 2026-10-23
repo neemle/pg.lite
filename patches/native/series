@@ -1,7 +1,4 @@
 # Ordered patch series for the "native" target: one *.patch path per line, relative to this directory.
-# Format and header rules: docs/patches.md. Empty until the first real patch lands.
-0001-static-modules.patch
+# Format and header rules: docs/patches.md. Applied after patches/common.
 0002-no-shell-spawn.patch
-0003-no-locale-a.patch
-0004-snowball-english-only.patch
 0005-static-libpqwalreceiver.patch

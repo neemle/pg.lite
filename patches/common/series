@@ -1,2 +1,5 @@
 # Ordered patch series for the "common" target: one *.patch path per line, relative to this directory.
-# Format and header rules: docs/patches.md. Empty until the first real patch lands.
+# Format and header rules: docs/patches.md. Applied before the native or wasm series, so both targets get these.
+0001-static-modules.patch
+0003-no-locale-a.patch
+0004-snowball-english-only.patch

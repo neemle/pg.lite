@@ -24,14 +24,14 @@ const known9 = P.helpOptions(help9);
 
 t('real 18.6 help: the profile flags all exist, nothing is skipped', () => {
   const r = P.buildArgs({ known: known18, profile, rangeConfigure: [], prefix: '/usr/local/pgsql' });
-  assert.deepStrictEqual(r.args, ['--prefix=/usr/local/pgsql', '--without-icu', '--without-readline']);
+  assert.deepStrictEqual(r.args, ['--prefix=/usr/local/pgsql', '--without-icu', '--without-readline', '--without-zlib']);
   assert.deepStrictEqual(r.skipped, []);
 });
 
 t('older help without ICU: --without-icu is skipped and logged, the rest stays', () => {
   assert.ok(!known9.has('with:icu') && known9.has('with:readline'));
   const r = P.buildArgs({ known: known9, profile, rangeConfigure: [], prefix: '/p' });
-  assert.deepStrictEqual(r.args, ['--prefix=/p', '--without-readline']);
+  assert.deepStrictEqual(r.args, ['--prefix=/p', '--without-readline', '--without-zlib']);
   assert.deepStrictEqual(r.skipped.map((s) => [s.flag, s.source]), [['--without-icu', 'feature:icu']]);
   assert.match(r.skipped[0].reason, /not present/);
 });
@@ -121,7 +121,7 @@ t('CLI on a fixture tree prints args, skipped options and capabilities', () => {
   const out = JSON.parse(r.stdout);
   assert.strictEqual(out.version, '10.5');
   assert.strictEqual(out.range, 'pg10-12');
-  assert.deepStrictEqual(out.args, ['--prefix=/usr/local/pgsql', '--without-readline']);
+  assert.deepStrictEqual(out.args, ['--prefix=/usr/local/pgsql', '--without-readline', '--without-zlib']);
   assert.deepStrictEqual(out.skipped.map((s) => s.flag), ['--without-icu']);
   assert.strictEqual(out.capabilities.savepoint, true);
 });

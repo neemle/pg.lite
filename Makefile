@@ -21,7 +21,7 @@ NOT_IMPL := scripts/not-implemented.sh
         builder-check capture-toolchain update-toolchain-lock reference \
         feature-check feature-matrix test-feature release-index test-release-index \
         resolve resolve-check test-resolve probe probe-all test-probe \
-        check-static test-check-static check-wasm test-check-wasm \
+        check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node \
         native-build native-src test-noshell
 
 help:
@@ -88,6 +88,18 @@ update-toolchain-lock:
 # Apply the common+native patch series into build/native/<v>/src (tools container):
 native-src:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --targets common,native
+
+# Apply the common+wasm patch series into build/wasm/<v>/src (tools container):
+wasm-src:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --targets common,wasm
+
+# WebAssembly build of one release (docs/wasm.md): ./dcb wasm make wasm-build VERSION=18.6
+wasm-build:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-wasm.sh $(VERSION)
+
+# Run SQL in the built wasm server under node: ./dcb wasm make test-wasm-node VERSION=18.6
+test-wasm-node:
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))tests/wasm/test-wasm-node.sh $(VERSION)
 
 # Static musl build of one release (docs/native.md): ./dcb musl make native-build VERSION=18.6
 native-build:

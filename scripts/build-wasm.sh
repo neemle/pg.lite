@@ -1,0 +1,123 @@
+#!/bin/sh
+# WebAssembly build of one PostgreSQL release from a PATCHED tree, run inside the wasm builder (Emscripten):
+#   ./dc make wasm-src VERSION=18.6            # apply the common+wasm series into build/wasm/<v>/src
+#   ./dcb wasm make wasm-build VERSION=18.6    # this script
+#   ./dcb wasm make test-wasm-node VERSION=18.6
+#
+# What it produces (build/wasm/<v>/):
+#   install/bin/postgres[.wasm]  the server, single-user and bootstrap mode, for node (NODERAWFS) - the engine of the browser
+#                                 module is linked from the same objects by the web build (CDB-6), with other link settings
+#   install/bin/initdb[.wasm]    initdb as a WebAssembly program for node (build-time only, never shipped)
+#   install/share/               catalogs, timezones, extension and text-search files from THIS patched upstream
+#   template-pgdata/             a cluster created by that wasm initdb running that wasm postgres: the bootstrap
+#                                 asset a browser copy starts from (raw data directories are not portable between
+#                                 native x86_64 and wasm32, so it must be made here, not by the native build)
+#   obj/, build.log
+#
+# The same SQL profile as the native build: plpgsql and dict_snowball (English only) are linked into the server
+# (patch common/0001, 0004; no dlopen in WebAssembly either), no ICU, readline, zlib, TLS, XML, LLVM.
+#
+# Environment (all optional): WASM_CFLAGS, WASM_LDFLAGS (complete replacements), RESUME=1 (keep a configured tree),
+#   TEMPLATE_ARGS (extra initdb arguments).
+set -eu
+ver="${1:?usage: build-wasm.sh <version>}"
+base="/w/build/wasm/$ver"
+src="${SRC:-$base/src}"
+obj="$base/obj"
+inst="$base/install"
+template="$base/template-pgdata"
+log="$base/build.log"
+prefix=/pgsql
+jobs=$(nproc)
+
+# Exceptions: PostgreSQL's error handling is sigsetjmp/longjmp; with -fwasm-exceptions Emscripten implements it
+# on WebAssembly exception handling instead of the slower, bigger JavaScript emulation.
+cflags="${WASM_CFLAGS:--Os -fwasm-exceptions -sSUPPORT_LONGJMP=wasm -fno-strict-aliasing}"
+# Link settings for the node-hosted programs: the real file system of the build container (NODERAWFS), a growable
+# heap, a stack deep enough for max_stack_depth, and a clean exit so atexit handlers run.
+ldflags="${WASM_LDFLAGS:--fwasm-exceptions -sSUPPORT_LONGJMP=wasm -sENVIRONMENT=node -sNODERAWFS=1 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=268435456 -sMAXIMUM_MEMORY=2147483648 -sSTACK_SIZE=8388608 -sEXIT_RUNTIME=1}"
+
+[ -f "$src/configure" ] || { echo "build-wasm: $src has no configure; run ./dc make wasm-src VERSION=$ver" >&2; exit 2; }
+[ -f "$src/src/backend/port/wasm_shm.c" ] || { echo "build-wasm: $src is not patched for wasm (no wasm_shm.c); run ./dc make wasm-src VERSION=$ver" >&2; exit 2; }
+
+resume=0
+if [ "${RESUME:-0}" = 1 ] && [ -f "$obj/GNUmakefile" ]; then resume=1; fi
+mkdir -p "$base"
+if [ "$resume" = 0 ]; then rm -rf "$obj"; : > "$log"; fi
+rm -rf "$inst" "$template"
+mkdir -p "$obj" "$inst"; cd "$obj"
+step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-wasm: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
+
+export CC=emcc
+# Overrides every make below needs: wasm-ld knows neither -rpath's --enable-new-dtags nor needs --export-dynamic.
+mk() { make -j"$jobs" "$@" rpath= LDFLAGS_EX_BE=; }
+
+if [ "$resume" = 0 ]; then
+    echo "build-wasm: configure (emcc: $(emcc --version | head -1))"
+    opts="--prefix=$prefix --without-readline --without-zlib --without-icu"
+    help=$("$src/configure" --help)
+    echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
+    # emcc writes executable programs, so configure can run its tests under node: no cross-compile cache needed.
+    # shellcheck disable=SC2086
+    step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL"
+    step make -C src/backend generated-headers
+fi
+
+for d in src/port src/common src/timezone; do
+    echo "build-wasm: make $d"; step mk -C "$d"
+done
+# ---- static modules: plain objects with unique entry-point names (wasm objects cannot be renamed with objcopy,
+# so the names are changed at compile time with -D); the backend link takes them through STATIC_MODULE_OBJS
+cppbase=$(sed -n 's/^CPPFLAGS = //p' "$obj/src/Makefile.global")
+compile_module() { # compile_module <dir> <prefix>: the module's objects, entry points renamed <prefix>_...
+    d="$1"; p="$2"
+    objs=$(make -s -C "$d" --eval='print-objs: ; @echo $(OBJS)' print-objs)
+    # shellcheck disable=SC2086
+    step make -j"$jobs" -C "$d" CPPFLAGS="$cppbase -DPg_magic_func=${p}_Pg_magic_func -D_PG_init=${p}_PG_init" $objs
+}
+list_objs() { # list_objs <dir>: absolute paths of the module's objects
+    for o in $(make -s -C "$1" --eval='print-objs: ; @echo $(OBJS)' print-objs); do printf '%s/%s ' "$obj/$1" "$o"; done
+}
+echo "build-wasm: modules plpgsql, dict_snowball"
+compile_module src/pl/plpgsql/src plpgsql
+compile_module src/backend/snowball dict_snowball
+mods="$(list_objs src/pl/plpgsql/src) $(list_objs src/backend/snowball)"
+
+echo "build-wasm: link postgres"
+rm -f src/backend/postgres src/backend/postgres.wasm
+step mk -C src/backend postgres STATIC_MODULE_OBJS="$mods"
+
+# ---- initdb (a wasm program for node): needs libpgcommon/libpgport/libpgfeutils and the objects of libpq it uses
+echo "build-wasm: initdb"
+step mk -C src/interfaces/libpq libpq.a
+step mk -C src/fe_utils
+step mk -o submake-libpq -C src/bin/initdb initdb
+
+# ---- install: server, tools, and the data files initdb needs, all from this tree
+echo "build-wasm: install"
+D="DESTDIR=$inst"
+step make -C src/include install "$D"
+step make -C src/backend install "$D" rpath= LDFLAGS_EX_BE=
+step make -C src/timezone install "$D" rpath= LDFLAGS_EX_BE=
+step make -C src/bin/initdb install "$D" rpath= LDFLAGS_EX_BE= -o submake-libpq
+step make -C src/pl/plpgsql/src install-data "$D"
+# the snowball Makefile installs the data files only after linking a shared library, which a static server has no use for
+printf 'include Makefile\n.PHONY: wasm-install-data\nwasm-install-data: $(SQLSCRIPT)\n\t$(MKDIR_P) "$(DESTDIR)$(datadir)/$(DICTDIR)"\n\t$(INSTALL_DATA) $(SQLSCRIPT) "$(DESTDIR)$(datadir)"\n\t$(INSTALL_DATA) $(addprefix $(srcdir)/stopwords/,$(stop_files)) "$(DESTDIR)$(datadir)/$(DICTDIR)"\n' > "$obj/snowball-install.mk"
+step make -C src/backend/snowball -f "$obj/snowball-install.mk" wasm-install-data "$D"
+# a WebAssembly executable is the .js launcher plus a .wasm next to it; "install" copies only the first
+bin="$inst$prefix/bin"
+cp "$obj/src/backend/postgres.wasm" "$bin/"
+cp "$obj/src/bin/initdb/initdb.wasm" "$bin/"
+rm -f "$inst$prefix/share/errcodes.txt"      # build-time input only
+
+# ---- the bootstrap data directory, made by the wasm initdb running the wasm postgres
+echo "build-wasm: initdb (template data directory)"
+# C.UTF-8 and the builtin provider, as in the native build, so both targets answer the same way; one-megabyte WAL
+# segments keep the template (and what a browser has to persist) small.
+# shellcheck disable=SC2086
+step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=postgres --auth=trust --encoding=UTF8 --locale=C.UTF-8 \
+    --locale-provider=builtin --builtin-locale=C.UTF-8 --wal-segsize=1 --no-sync ${TEMPLATE_ARGS:-}
+
+echo "build-wasm: done ($log)"
+ls -l "$bin" | sed 's/^/  /'
+du -sk "$template" | sed 's/^/  template-pgdata KB: /'
