@@ -4,3 +4,4 @@
 0002-no-shell-spawn.patch
 0003-no-locale-a.patch
 0004-snowball-english-only.patch
+0005-static-libpqwalreceiver.patch

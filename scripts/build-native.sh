@@ -7,7 +7,7 @@
 # The libpq-based clients (psql, pg_dump, pg_ctl) are not linked statically: libpq.a is not
 # self-contained and its common-library flavours clash, and they are admin tools outside the runtime.
 #
-# Static modules: plpgsql and dict_snowball are normal module builds whose objects are combined
+# Static modules: plpgsql, dict_snowball and libpqwalreceiver (with the libpq objects it needs) are normal module builds whose objects are combined
 # with "ld -r", get unique Pg_magic_func/_PG_init names (objcopy), and are linked into postgres
 # through STATIC_MODULE_OBJS (patch 0001).  Shell-free spawning needs PG_NO_SHELL (patch 0002).
 #
@@ -106,7 +106,7 @@ for d in src/port src/common src/timezone; do
     echo "build-native: make $d"; step make -j"$(nproc)" -C "$d"
 done
 echo "build-native: make src/backend"; step make -j"$(nproc)" -C src/backend $be_arg
-for d in src/pl/plpgsql/src src/backend/snowball; do
+for d in src/pl/plpgsql/src src/backend/snowball src/backend/replication/libpqwalreceiver; do
     echo "build-native: make $d (module objects, linked into postgres below)"
     if [ "$lto" = 1 ]; then
         # (LDFLAGS= : the module .so files are never used, only their objects; -no-pie breaks their shared link)
@@ -130,14 +130,23 @@ cd "$out/obj/src/backend/snowball"
 # shellcheck disable=SC2046
 step ld -r -o "$sm/dict_snowball.o" $(ls ./*.o | sort)
 step objcopy --redefine-sym Pg_magic_func=dict_snowball_Pg_magic_func --redefine-sym _PG_init=dict_snowball_PG_init "$sm/dict_snowball.o"
+# libpqwalreceiver: the module object combined with the libpq objects it calls and the FRONTEND flavour of src/common and
+# src/port that libpq is built against (libpq frees what its common functions allocate with free(), so it must not get the
+# server's palloc-based copies). "ld -r" takes only the members that are needed; objcopy then makes every symbol defined in
+# the blob local except the two entry points, so nothing in it can clash with the server's functions of the same names.
+# What the blob leaves undefined (libc, and the server functions libpqwalreceiver itself uses) is resolved by the final link.
+lw="$out/obj/src/backend/replication/libpqwalreceiver"
+step ld -r -o "$sm/libpqwalreceiver.o" "$lw/libpqwalreceiver.o" --start-group "$out/obj/src/interfaces/libpq/libpq.a" "$out/obj/src/common/libpgcommon_shlib.a" "$out/obj/src/port/libpgport_shlib.a" --end-group
+step objcopy --redefine-sym Pg_magic_func=libpqwalreceiver_Pg_magic_func --redefine-sym _PG_init=libpqwalreceiver_PG_init "$sm/libpqwalreceiver.o"
+step objcopy --keep-global-symbol=libpqwalreceiver_Pg_magic_func --keep-global-symbol=libpqwalreceiver_PG_init "$sm/libpqwalreceiver.o"
 
 # ---- relink postgres with the modules inside
 cd "$out/obj"
-mods="$sm/plpgsql.o $sm/dict_snowball.o"
+mods="$sm/plpgsql.o $sm/dict_snowball.o $sm/libpqwalreceiver.o"
 rm -f src/backend/postgres
 echo "build-native: relink postgres with static modules"
 step make -C src/backend STATIC_MODULE_OBJS="$mods" $be_arg
-for sym in plpgsql_call_handler dsnowball_init plpgsql_Pg_magic_func dict_snowball_Pg_magic_func; do
+for sym in plpgsql_call_handler dsnowball_init plpgsql_Pg_magic_func dict_snowball_Pg_magic_func libpqwalreceiver_PG_init; do
     nm src/backend/postgres | grep -q " [TtWw] $sym\$" || { echo "build-native: symbol $sym missing from postgres" >&2; exit 1; }
 done
 

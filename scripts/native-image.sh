@@ -12,7 +12,7 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 cmd="${1:?usage: native-image.sh image|up|psql|down|test [version]}"; shift
 ver="${1:-18.6}"; [ $# -gt 0 ] && shift || true
 bvs="${VARIANT:+-$VARIANT}"   # size/compiler variant (build/native/<ver>-<variant>), see build-native.sh
-# PACK=xsfx compresses postgres with xsfx (LZMA2) when the image is assembled; it gets its own image tag
+# PACK=xsfx compresses every executable with xsfx (LZMA2) when the image is assembled; it gets its own image tag
 pack="${PACK:-}"; case "$pack" in ""|xsfx) ;; *) echo "native: PACK must be empty or xsfx" >&2; exit 2 ;; esac
 vs="$bvs${pack:+-$pack}"
 xsfx_bin=/b/xsfx/v0.2.0/x/xsfx-x86_64-unknown-linux-musl
@@ -51,14 +51,17 @@ image)
          chmod 1777 \$r/tmp
          : > \$r/usr/local/pgsql/lib/.keep   # the server requires this directory; an empty one does not survive COPY
          for b in $tools; do cp \$inst/bin/\$b \$r/usr/local/pgsql/bin/; done
-         if [ '$pack' = xsfx ]; then   # only postgres is worth packing: initdb would save 12 KB, the launcher is tiny
-             cp $xsfx_bin /tmp/xsfx; chmod +x /tmp/xsfx
-             /tmp/xsfx \$inst/bin/postgres \$r/usr/local/pgsql/bin/postgres
-         fi
          cp -a \$inst/share \$r/usr/local/pgsql/share
          rm -f \$r/usr/local/pgsql/share/errcodes.txt   # build-time input only; nothing reads it at run time
          gcc -O2 -static -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c
          strip --strip-all \$r/usr/local/pgsql/bin/pg-launcher
+         if [ '$pack' = xsfx ]; then   # pack every executable; keep a packed file only if it is smaller (the stub is 90 KB)
+             cp $xsfx_bin /tmp/xsfx; chmod +x /tmp/xsfx
+             for f in \$r/usr/local/pgsql/bin/*; do
+                 /tmp/xsfx \$f /tmp/packed >/dev/null; a=\$(stat -c %s \$f); b=\$(stat -c %s /tmp/packed)
+                 if [ \$b -lt \$a ]; then cat /tmp/packed > \$f; echo \"native: packed \$(basename \$f) \$a -> \$b\" >&2; else echo \"native: kept \$(basename \$f) unpacked (\$a; packed would be \$b)\" >&2; fi
+             done
+         fi
          printf 'postgres:x:70:70:postgres:/var/lib/postgresql:/sbin/nologin\n' > \$r/etc/passwd
          printf 'postgres:x:70:\n' > \$r/etc/group
          cp /n/Dockerfile \$d/
