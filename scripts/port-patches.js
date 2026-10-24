@@ -3,7 +3,8 @@
 // Port the patch series of one release to another (maintainer tool, tools container).
 //
 //   port-patches.js --from 18.6 --to 17.11 --range pg17 [--targets common,native,wasm] [--from-series series.pg17]
-//   (--from-series: port from another range's series instead of the baseline one, e.g. 16 to 15 as a neighbour)
+//   (--from-series: port from another range's series instead of the baseline one, e.g. 16 to 15 as a neighbour;
+//    --rename old=new,...: files that moved, e.g. src/common/exec.c=src/port/exec.c)
 //
 // For every patch of the --from series, in order: when it applies to the --to tree as it is (fuzz 0) the series of
 // the range simply lists the same file; when it does not, the patch is re-made by a three-way merge per file
@@ -26,6 +27,9 @@ for (let i = 0; i < args.length; i += 2) {
   if (k === 'targets') opt.targets = args[i + 1].split(','); else opt[k] = args[i + 1];
 }
 for (const k of ['from', 'to', 'range']) if (!opt[k]) { console.error('usage: port-patches.js --from <v> --to <v> --range <name> [--targets a,b]'); process.exit(2); }
+
+// --rename old=new[,old=new]: files of the --from tree that live under another path in the --to tree (src/common/exec.c was src/port/exec.c)
+const renames = Object.fromEntries((opt.rename || '').split(',').filter(Boolean).map((p) => p.split('=')));
 
 const sh = (cmd, argv, o = {}) => spawnSync(cmd, argv, { encoding: 'utf8', maxBuffer: 1 << 28, ...o });
 const must = (r, what) => { if (r.status !== 0) { console.error(`port: ${what} failed\n${r.stdout || ''}${r.stderr || ''}`); process.exit(1); } return r; };
@@ -75,8 +79,9 @@ for (const target of opt.targets) {
     // re-make the patch for the --to tree
     const beforeB = snapshot(B, 'B-before');
     const sections = [];
-    for (const rel of filesOf(text)) {
-      const base = path.join(beforeA, rel); const ours = path.join(A, rel); const theirs = path.join(B, rel);
+    for (const fromRel of filesOf(text)) {
+      const rel = renames[fromRel] || fromRel;            // a file that moved between the releases: the patch is made for the new place
+      const base = path.join(beforeA, fromRel); const ours = path.join(A, fromRel); const theirs = path.join(B, rel);
       if (!fs.existsSync(base)) {                         // a new file: same content for every release
         fs.mkdirSync(path.dirname(theirs), { recursive: true });
         fs.rmSync(theirs, { force: true }); fs.copyFileSync(ours, theirs);

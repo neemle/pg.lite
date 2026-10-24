@@ -30,14 +30,14 @@ check('18.6 plan carries the locked commit and checksum', !!plan && plan.commit 
 check('plan references the series files of its range', !!plan && plan.patches.map((p) => `${p.target}:${p.series}`).join(',') === 'common:series,native:series,wasm:series');
 check('plan is deterministic (two runs are byte-identical)', run(['18.6']).stdout === r.stdout);
 
-r = run(['9.3.25', '--allow-missing-builder']);
+r = run(['9.2.24', '--allow-missing-builder']);
 plan = r.status === 0 ? JSON.parse(r.stdout) : null;
-check('9.3.25 resolves to pg9 with its own series and no builder yet', !!plan && plan.range === 'pg9' && plan.builders === null
+check('9.2.24 resolves to pg9 with its own series and no builder yet', !!plan && plan.range === 'pg9' && plan.builders === null
   && plan.patches[1].series === 'series.pg9', r.stderr);
-r = run(['9.3.25']);
-check('9.3.25 without --allow-missing-builder fails with exit 5', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
+r = run(['9.2.24']);
+check('9.2.24 without --allow-missing-builder fails with exit 5', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
 
-for (const [v, id] of [['9.0.0', 'pg9'], ['9.3.25', 'pg9'], ['9.4.26', 'pg9-4'], ['9.5.25', 'pg9-5'], ['9.6.24', 'pg9-6'], ['10.0', 'pg10'], ['11.22', 'pg11'], ['12.22', 'pg12'], ['13.23', 'pg13'], ['14.24', 'pg14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
+for (const [v, id] of [['9.0.0', 'pg9'], ['9.2.24', 'pg9'], ['9.3.25', 'pg9-3'], ['9.4.26', 'pg9-4'], ['9.5.25', 'pg9-5'], ['9.6.24', 'pg9-6'], ['10.0', 'pg10'], ['11.22', 'pg11'], ['12.22', 'pg12'], ['13.23', 'pg13'], ['14.24', 'pg14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
   r = run([v, '--allow-missing-builder']);
   check(`${v} resolves to ${id}`, r.status === 0 && JSON.parse(r.stdout).range === id, r.stderr);
 }

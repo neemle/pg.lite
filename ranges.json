@@ -4,7 +4,7 @@
     {
       "id": "pg9",
       "from": "9.0.0",
-      "to": "9.3.99",
+      "to": "9.2.99",
       "patches": {
         "common": "series.pg9",
         "native": "series.pg9",
@@ -12,7 +12,30 @@
       },
       "configure": [],
       "omittedFeatures": [],
-      "notes": "PostgreSQL 9.0 to 9.3. Patch series are empty until the ports for this era land (CDB-25, CDB-28): 9.3 keeps exec.c in src/port and has no dynamic shared memory, so the baseline patches need a redesign there."
+      "notes": "PostgreSQL 9.0 to 9.2. Patch series are empty until the ports for this era land."
+    },
+    {
+      "id": "pg9-3",
+      "from": "9.3.0",
+      "to": "9.3.99",
+      "patches": {
+        "common": "series.pg9-3",
+        "native": "series.pg9-3",
+        "wasm": "series.pg9-3"
+      },
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.3: ported from 9.4 by scripts/port-patches.js; no dynamic shared memory in this release, so the DSM patch is skipped."
     },
     {
       "id": "pg9-4",

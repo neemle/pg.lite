@@ -68,7 +68,7 @@ patch, and the target file) and writes the merge result as a plain diff against 
 header line. A conflict stops the run and writes `build/port/<from>-to-<to>-resolved/<patch>-<file>.conflict`; edit
 it, save it without the `.conflict` suffix and run again, and the resolution is used. The result is a normal series:
 `./dc make patches-verify` and `./dc make native-src VERSION=17.11` (fuzz 0) check it, the release builds test it.
-Porting from the neighbouring major (`--from-series series.pg16`, with that release as `--from`) usually conflicts less
+`--rename old=new` follows files that moved between releases (`src/common/exec.c` was `src/port/exec.c` before 9.4). Porting from the neighbouring major (`--from-series series.pg16`, with that release as `--from`) usually conflicts less
 than porting from 18; `scripts/port-resolve.js --auto` resolves the mechanical conflicts. Two things steer a port by
 hand: a patch in `patches/<target>/<range>/` **without** a `Ported-from` line is hand-made and kept as it is (it must
 apply), and one that no baseline patch produced is appended at the end of the series; `<patch>.skip` next to the ported

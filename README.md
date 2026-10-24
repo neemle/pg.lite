@@ -13,13 +13,13 @@ release is fetched at build time and checked against the SHA-256 pinned in [sour
 ## Versions
 
 A git tag is a PostgreSQL version: **`v18.6` is PostgreSQL 18.6**, with this repository's patches and nothing else.
-Every major from `v9.4.x` to `v18.x` is a parallel line of drop-in replacements for the upstream releases of the same number.
+Every major from `v9.3.x` to `v18.x` is a parallel line of drop-in replacements for the upstream releases of the same number.
 
 | Major | Status |
 | --- | --- |
 | 18 | baseline, builds and passes the tests (native image, WebAssembly, browser tests) |
-| 17 down to 9.4 | patch series ported from 18 ([docs/patches.md](docs/patches.md)); built and tested per release by the release workflow. 9.4, 9.5 and 9.6 are one range each (they differ most) |
-| 9.3 and older | no patch series yet; `scripts/release-plan.js` refuses their tags |
+| 17 down to 9.3 | patch series ported from 18 ([docs/patches.md](docs/patches.md)); built and tested per release by the release workflow. 9.3 to 9.6 are one range each (they differ most) |
+| 9.2 and older | no patch series yet; `scripts/release-plan.js` refuses their tags |
 
 Pushing a tag `vX.Y` runs [.github/workflows/release.yml](.github/workflows/release.yml): it builds and tests that exact
 release and publishes the browser module as a GitHub release (`compact-db-wasm-X.Y.tar.gz` with its checksum) and the
