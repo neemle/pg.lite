@@ -41,5 +41,5 @@ The run report (counts, sources, discrepancies) is `reports/release-index.json`.
 - Only the newest-per-major list was compared with the versioning page; the per-release completeness
   rests on git and ftp agreeing, which are both official but not independent of each other beyond
   being different hosts.
-- Releases without a builder range yet make `validate-locks` print a warning (345 of 351);
-  `--strict-coverage` turns that into an error and is for the release gate (CDB-24 supplies the ranges).
+- A release without a builder range makes `validate-locks` print a warning; all 351 are covered now, and
+  `--strict-coverage` turns a future gap into an error (for the release gate).

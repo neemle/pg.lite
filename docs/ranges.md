@@ -8,10 +8,10 @@ Every difference between PostgreSQL versions is **data**, never code. Three file
 | `ranges.json` | per version range: patch series per target, extra configure options, deliberately omitted features |
 | `toolchain.lock.json` | per version range: the builder images (by digest) for the native and WASM builds |
 
-Ranges today: `pg9` (9.0.0 to 9.0.99), `pg9-1`, `pg9-2`, `pg9-3`, `pg9-4`, `pg9-5`, `pg9-6`, `pg10`, `pg11`, `pg12`, `pg13`, `pg14`, `pg15`, `pg16`, `pg17`, `pg18` (the baseline). `to` is
-inclusive, so `9.6.99` covers every 9.6.x. Only `pg9-1` to `pg18` have patch series; a release in another
-range cannot be built or released yet (`scripts/release-plan.js` says so). `make native-src` and `make wasm-src` pick
-the series of the version's range (`scripts/resolve.js <version> --series-args`). The series file names (`series`, `series.pg9`, ...)
+Ranges today: `pg9-0` (9.0.0 to 9.0.99), `pg9-1`, `pg9-2`, `pg9-3`, `pg9-4`, `pg9-5`, `pg9-6`, `pg10`, `pg11`, `pg12`, `pg13`, `pg14`, `pg15`, `pg16`, `pg17`, `pg18` (the baseline). `to` is
+inclusive, so `9.6.99` covers every 9.6.x. Every range has patch series; a release in a range whose series are empty
+cannot be built or released (`scripts/release-plan.js` says so). `make native-src` and `make wasm-src` pick
+the series of the version's range (`scripts/resolve.js <version> --series-args`). The series file names (`series`, `series.pg9-0`, ...)
 select files in `patches/<target>/`; the baseline range uses the default `series` files.
 
 ## Resolve a version
@@ -31,8 +31,8 @@ not in the index, 4 no or overlapping range, 5 no builder range yet, 6 a series 
 
 - `validate-locks` proves `ranges.json` tiles the release index: no overlap, and each of the 351
   releases is in exactly one range (an error, always).
-- Builder coverage in `toolchain.lock.json` is still only 18.x; the other 345 releases get a warning, and
-  `--strict-coverage` turns it into an error for the release gate. CDB-24 supplies those ranges.
+- Builder coverage in `toolchain.lock.json` reaches all 351 releases (9.0.0 to 18.x); `--strict-coverage` turns a gap into an
+  error for the release gate.
 - `tests/resolve/run.js` scans the scripts, Dockerfiles and Makefile for version-conditional logic
   (`if [ "$VERSION" -ge ...`, `case "$ver" in`, `version >= 12`) and fails if it finds any outside the
   files that parse versions generically (`release-index.js`, `validate-locks.js`, `resolve.js`).

@@ -34,6 +34,13 @@ if grep -q '^generated-headers' "$src/src/backend/Makefile"; then
 else    # releases before 9.6: the headers the recursive build depends on
     step make -C src/backend ../../src/include/parser/gram.h ../../src/include/catalog/schemapg.h ../../src/include/utils/fmgroids.h ../../src/include/utils/errcodes.h ../../src/include/utils/probes.h
 fi
+# A header the tarball ships ready-made (schemapg.h in 9.0) is linked to where it would have been generated: point such
+# dangling links at the copy in the source tree (same as scripts/build-native.sh)
+for l in $(find src/include -type l); do
+    [ -e "$l" ] && continue
+    t=$(readlink "$l"); alt="$src/${t#"$PWD"/}"
+    [ -e "$alt" ] && ln -sf "$alt" "$l"
+done
 step make -j"$(nproc)"
 step make install DESTDIR="$out/install"
 step make install-strip DESTDIR="$out/install-strip"

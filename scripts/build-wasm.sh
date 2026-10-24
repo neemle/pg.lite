@@ -162,7 +162,8 @@ step make -C src/include install "$D"
 step make -C src/backend install "$D" rpath= LDFLAGS_EX_BE=
 step make -C src/timezone install "$D" rpath= LDFLAGS_EX_BE=
 step make -C src/bin/initdb install "$D" rpath= LDFLAGS_EX_BE= -o submake-libpq
-step make -C src/pl/plpgsql/src install-data "$D"
+# extension scripts and control files exist from 9.1 on; 9.0 creates the language from initdb
+grep -q "^install-data" "$src/src/pl/plpgsql/src/Makefile" && step make -C src/pl/plpgsql/src install-data "$D"
 # the snowball Makefile installs the data files only after linking a shared library, which a static server has no use for:
 # generate the SQL (a Makefile target in every release) and install it with the stop words of the one language kept
 step make -C src/backend/snowball snowball_create.sql

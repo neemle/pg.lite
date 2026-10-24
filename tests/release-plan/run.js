@@ -31,7 +31,16 @@ r = run(['v18.99']);
 check('a version that is not an upstream release is refused (exit 3)', r.status === 3 && r.stderr.includes('not in sources.lock.json'), `${r.status} ${r.stderr}`);
 
 r = run(['v9.0.23']);
-check('a release whose range has no patch series yet is refused (exit 4)', r.status === 4 && r.stderr.includes('no'), `${r.status} ${r.stderr}`);
+check('v9.0.23 is releasable (the oldest supported release)', r.status === 0 && JSON.parse(r.stdout).range === 'pg9-0', r.stderr);
+
+// a range whose series files are empty cannot be released: the series of pg9-0 emptied in a scratch copy of patches/
+{
+  const fs = require('fs'); const os = require('os');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'release-plan-'));
+  for (const t of ['common', 'native', 'wasm']) { fs.mkdirSync(path.join(dir, t)); fs.writeFileSync(path.join(dir, t, 'series.pg9-0'), ''); }
+  r = run(['v9.0.23', '--patches', dir]);
+  check('a release whose range has no patch series yet is refused (exit 4)', r.status === 4 && r.stderr.includes('no'), `${r.status} ${r.stderr}`);
+}
 
 r = run(['--github', 'v18.6']);
 check('--github prints KEY=value lines', r.status === 0 && /^version=18\.6$/m.test(r.stdout) && /^newestInMajor=true$/m.test(r.stdout), r.stdout);

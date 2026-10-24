@@ -1,0 +1,459 @@
+Subject: Run initdb's helper commands without /bin/sh
+Purpose: initdb starts the bootstrap and single-user server with popen() and system() commands containing quotes and redirections, and find_other_exec() probes versions with popen(). A FROM scratch image has no shell, so with PG_NO_SHELL defined these calls go through a small interpreter (words, quotes, backslash, < > 2> 2>&1) built on posix_spawn; shell syntax it does not implement (pipes, &, ;, $, backquotes, globs) is refused with EINVAL instead of being run wrongly. Without PG_NO_SHELL the code is upstream's.
+Components: src/common/noshell.c (new), src/include/common/noshell.h (new), src/common/exec.c, src/bin/initdb/initdb.c, src/common/Makefile
+Checks: tests/native/noshell-test.c (quotes, redirections, 2>&1, pipes for r and w, exit status, refused syntax) and ./dcb musl make native-test, which runs initdb in a container that has no /bin/sh
+Origin: own
+Ported-from: 18.6 (native/0002-no-shell-spawn.patch) for 16.15 by scripts/port-patches.js
+Ported-from: 16.15 (native/pg16/0002-no-shell-spawn.patch) for 15.19 by scripts/port-patches.js
+Ported-from: 15.19 (native/pg15/0002-no-shell-spawn.patch) for 14.24 by scripts/port-patches.js
+Ported-from: 14.24 (native/pg14/0002-no-shell-spawn.patch) for 13.23 by scripts/port-patches.js
+Ported-from: 13.23 (native/pg13/0002-no-shell-spawn.patch) for 12.22 by scripts/port-patches.js
+Ported-from: 12.22 (native/pg12/0002-no-shell-spawn.patch) for 11.22 by scripts/port-patches.js
+Ported-from: 11.22 (native/pg11/0002-no-shell-spawn.patch) for 10.23 by scripts/port-patches.js
+Ported-from: 10.23 (native/pg10/0002-no-shell-spawn.patch) for 9.6.24 by scripts/port-patches.js
+Ported-from: 9.6.24 (native/pg9-6/0002-no-shell-spawn.patch) for 9.5.25 by scripts/port-patches.js
+Ported-from: 9.5.25 (native/pg9-5/0002-no-shell-spawn.patch) for 9.4.26 by scripts/port-patches.js
+Ported-from: 9.4.26 (native/pg9-4/0002-no-shell-spawn.patch) for 9.3.25 by scripts/port-patches.js
+Ported-from: 9.3.25 (native/pg9-3/0002-no-shell-spawn.patch) for 9.2.24 by scripts/port-patches.js
+Ported-from: 9.2.24 (native/pg9-2/0002-no-shell-spawn.patch) for 9.1.24 by scripts/port-patches.js
+Ported-from: 9.1.24 (native/pg9-1/0002-no-shell-spawn.patch) for 9.0.23 by scripts/port-patches.js
+
+diff --git a/src/bin/initdb/initdb.c b/src/bin/initdb/initdb.c
+--- a/src/bin/initdb/initdb.c
++++ b/src/bin/initdb/initdb.c
+@@ -56,6 +56,8 @@
+ #include <signal.h>
+ #include <time.h>
+ 
++#include "common/noshell.h"
++#include "common/noshell.h"
+ #include "libpq/pqsignal.h"
+ #include "mb/pg_wchar.h"
+ #include "getaddrinfo.h"
+diff --git a/src/port/Makefile b/src/port/Makefile
+--- a/src/port/Makefile
++++ b/src/port/Makefile
+@@ -30,7 +30,7 @@
+ override CPPFLAGS := -I$(top_builddir)/src/port -DFRONTEND $(CPPFLAGS)
+ LIBS += $(PTHREAD_LIBS)
+ 
+-OBJS = $(LIBOBJS) chklocale.o dirmod.o exec.o noblock.o path.o \
++OBJS = noshell.o $(LIBOBJS) chklocale.o dirmod.o exec.o noblock.o path.o \
+ 	pgsleep.o pgstrcasecmp.o qsort.o qsort_arg.o sprompt.o thread.o
+ ifneq (,$(filter $(PORTNAME),cygwin win32))
+ OBJS += pipe.o
+diff --git a/src/port/exec.c b/src/port/exec.c
+--- a/src/port/exec.c
++++ b/src/port/exec.c
+@@ -25,6 +25,8 @@
+ #include <sys/wait.h>
+ #include <unistd.h>
+ 
++#include "common/noshell.h"
++
+ #ifndef FRONTEND
+ /* We use only 3-parameter elog calls in this file, for simplicity */
+ /* NOTE: caller must provide gettext call around str! */
+diff --git a/src/port/noshell.c b/src/port/noshell.c
+new file mode 100644
+--- a/src/port/noshell.c
++++ b/src/port/noshell.c
+@@ -0,0 +1,360 @@
++/*-------------------------------------------------------------------------
++ *
++ * noshell.c
++ *	  popen()/pclose()/system() without /bin/sh.  See common/noshell.h.
++ *
++ * Only compiled when PG_NO_SHELL is defined.
++ *
++ * src/common/noshell.c
++ *
++ *-------------------------------------------------------------------------
++ */
++#ifndef FRONTEND
++#include "postgres.h"
++#else
++#include "postgres_fe.h"
++#endif
++
++#ifdef PG_NO_SHELL
++
++#include <ctype.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <spawn.h>
++#include <sys/wait.h>
++#include <unistd.h>
++
++#include "common/noshell.h"
++
++extern char **environ;
++
++#define NS_MAXARGS 128
++#define NS_MAXPIPES 16
++
++typedef struct NsCommand
++{
++	char	   *argv[NS_MAXARGS + 1];
++	int			argc;
++	char	   *in_path;
++	char	   *out_path;
++	char	   *err_path;
++	bool		err_to_out;
++} NsCommand;
++
++static struct
++{
++	FILE	   *stream;
++	pid_t		pid;
++}			ns_pipes[NS_MAXPIPES];
++
++static void
++ns_free(NsCommand *c)
++{
++	for (int i = 0; i < c->argc; i++)
++		free(c->argv[i]);
++	free(c->in_path);
++	free(c->out_path);
++	free(c->err_path);
++}
++
++/* Characters a shell would interpret when unquoted; we refuse rather than guess. */
++static bool
++ns_is_special(char ch)
++{
++	return strchr("|&;()$`\n*?[]{}~#!", ch) != NULL;
++}
++
++/* Read one word at *pp (quotes resolved); NULL with errno = EINVAL on unsupported syntax. */
++static char *
++ns_word(const char **pp)
++{
++	const char *p = *pp;
++	size_t		cap = strlen(p) + 1;
++	char	   *out = malloc(cap);
++	size_t		n = 0;
++
++	if (out == NULL)
++		return NULL;
++
++	while (*p != '\0' && *p != ' ' && *p != '\t' && *p != '<' && *p != '>')
++	{
++		if (*p == '\'')
++		{
++			p++;
++			while (*p != '\'')
++			{
++				if (*p == '\0')
++					goto bad;
++				out[n++] = *p++;
++			}
++			p++;
++		}
++		else if (*p == '"')
++		{
++			p++;
++			while (*p != '"')
++			{
++				if (*p == '\0' || *p == '$' || *p == '`')
++					goto bad;
++				if (*p == '\\' && (p[1] == '"' || p[1] == '\\'))
++					p++;
++				out[n++] = *p++;
++			}
++			p++;
++		}
++		else if (*p == '\\')
++		{
++			if (p[1] == '\0' || p[1] == '\n')
++				goto bad;
++			out[n++] = p[1];
++			p += 2;
++		}
++		else
++		{
++			if (ns_is_special(*p))
++				goto bad;
++			out[n++] = *p++;
++		}
++	}
++	out[n] = '\0';
++	*pp = p;
++	return out;
++
++bad:
++	free(out);
++	errno = EINVAL;
++	return NULL;
++}
++
++static bool
++ns_parse(const char *cmd, NsCommand *c)
++{
++	const char *p = cmd;
++
++	memset(c, 0, sizeof(*c));
++	for (;;)
++	{
++		char	  **target = NULL;
++
++		while (*p == ' ' || *p == '\t')
++			p++;
++		if (*p == '\0')
++			break;
++
++		if (strncmp(p, "2>&1", 4) == 0 && (p[4] == '\0' || p[4] == ' ' || p[4] == '\t'))
++		{
++			c->err_to_out = true;
++			p += 4;
++			continue;
++		}
++		if (p[0] == '2' && p[1] == '>')
++		{
++			target = &c->err_path;
++			p += 2;
++		}
++		else if (*p == '<')
++		{
++			target = &c->in_path;
++			p++;
++		}
++		else if (*p == '>')
++		{
++			target = &c->out_path;
++			p++;
++		}
++
++		if (target != NULL)
++		{
++			while (*p == ' ' || *p == '\t')
++				p++;
++			if (*p == '\0' || *p == '<' || *p == '>' || *target != NULL)
++				goto bad;
++			*target = ns_word(&p);
++			if (*target == NULL)
++				goto fail;
++		}
++		else
++		{
++			char	   *w;
++
++			if (c->argc >= NS_MAXARGS)
++				goto bad;
++			w = ns_word(&p);
++			if (w == NULL)
++				goto fail;
++			c->argv[c->argc++] = w;
++		}
++	}
++	if (c->argc == 0)
++		goto bad;
++	return true;
++
++bad:
++	errno = EINVAL;
++fail:
++	ns_free(c);
++	return false;
++}
++
++/*
++ * Start the command.  If pipe_mode is 'r' or 'w', a pipe is connected to the child's
++ * stdout or stdin and the parent's end is returned in *parent_fd.
++ */
++static bool
++ns_spawn(const char *cmd, char pipe_mode, int *parent_fd, pid_t *pid)
++{
++	NsCommand	c;
++	posix_spawn_file_actions_t fa;
++	int			pfd[2] = {-1, -1};
++	int			rc;
++	int			parent_end = 0;
++	int			child_end = 0;
++
++	if (!ns_parse(cmd, &c))
++		return false;
++	if ((rc = posix_spawn_file_actions_init(&fa)) != 0)
++	{
++		ns_free(&c);
++		errno = rc;
++		return false;
++	}
++
++	if (pipe_mode != '\0')
++	{
++		if (pipe(pfd) < 0)
++			goto fail_errno;
++		parent_end = (pipe_mode == 'r') ? pfd[0] : pfd[1];
++		child_end = (pipe_mode == 'r') ? pfd[1] : pfd[0];
++		(void) fcntl(parent_end, F_SETFD, FD_CLOEXEC);
++		(void) fcntl(child_end, F_SETFD, FD_CLOEXEC);
++		if ((rc = posix_spawn_file_actions_adddup2(&fa, child_end, pipe_mode == 'r' ? 1 : 0)) != 0)
++			goto fail_rc;
++	}
++	/* Redirections apply after the pipe, in the order a shell would: stdin, stdout, stderr, 2>&1 */
++	if (c.in_path && (rc = posix_spawn_file_actions_addopen(&fa, 0, c.in_path, O_RDONLY, 0)) != 0)
++		goto fail_rc;
++	if (c.out_path && (rc = posix_spawn_file_actions_addopen(&fa, 1, c.out_path, O_WRONLY | O_CREAT | O_TRUNC, 0666)) != 0)
++		goto fail_rc;
++	if (c.err_path && (rc = posix_spawn_file_actions_addopen(&fa, 2, c.err_path, O_WRONLY | O_CREAT | O_TRUNC, 0666)) != 0)
++		goto fail_rc;
++	if (c.err_to_out && (rc = posix_spawn_file_actions_adddup2(&fa, 1, 2)) != 0)
++		goto fail_rc;
++
++	if (strchr(c.argv[0], '/') != NULL)
++		rc = posix_spawn(pid, c.argv[0], &fa, NULL, c.argv, environ);
++	else
++		rc = posix_spawnp(pid, c.argv[0], &fa, NULL, c.argv, environ);
++	if (rc != 0)
++		goto fail_rc;
++
++	posix_spawn_file_actions_destroy(&fa);
++	ns_free(&c);
++	if (pipe_mode != '\0')
++	{
++		close(child_end);
++		*parent_fd = parent_end;
++	}
++	return true;
++
++fail_errno:
++	rc = errno;
++fail_rc:
++	if (pfd[0] >= 0)
++		close(pfd[0]);
++	if (pfd[1] >= 0)
++		close(pfd[1]);
++	posix_spawn_file_actions_destroy(&fa);
++	ns_free(&c);
++	errno = rc;
++	return false;
++}
++
++FILE *
++pg_noshell_popen(const char *command, const char *mode)
++{
++	int			fd;
++	pid_t		pid;
++	FILE	   *f;
++	int			slot = -1;
++
++	if (mode == NULL || (strcmp(mode, "r") != 0 && strcmp(mode, "w") != 0))
++	{
++		errno = EINVAL;
++		return NULL;
++	}
++	for (int i = 0; i < NS_MAXPIPES; i++)
++	{
++		if (ns_pipes[i].stream == NULL)
++		{
++			slot = i;
++			break;
++		}
++	}
++	if (slot < 0)
++	{
++		errno = EMFILE;
++		return NULL;
++	}
++	if (!ns_spawn(command, mode[0], &fd, &pid))
++		return NULL;
++	f = fdopen(fd, mode);
++	if (f == NULL)
++	{
++		int			save = errno;
++
++		close(fd);
++		(void) waitpid(pid, NULL, 0);
++		errno = save;
++		return NULL;
++	}
++	ns_pipes[slot].stream = f;
++	ns_pipes[slot].pid = pid;
++	return f;
++}
++
++int
++pg_noshell_pclose(FILE *stream)
++{
++	pid_t		pid = -1;
++	int			status;
++
++	for (int i = 0; i < NS_MAXPIPES; i++)
++	{
++		if (ns_pipes[i].stream == stream)
++		{
++			pid = ns_pipes[i].pid;
++			ns_pipes[i].stream = NULL;
++			break;
++		}
++	}
++	(void) fclose(stream);
++	if (pid < 0)
++	{
++		errno = ECHILD;
++		return -1;
++	}
++	while (waitpid(pid, &status, 0) < 0)
++	{
++		if (errno != EINTR)
++			return -1;
++	}
++	return status;
++}
++
++int
++pg_noshell_system(const char *command)
++{
++	pid_t		pid;
++	int			status;
++
++	if (!ns_spawn(command, '\0', NULL, &pid))
++		return -1;
++	while (waitpid(pid, &status, 0) < 0)
++	{
++		if (errno != EINTR)
++			return -1;
++	}
++	return status;
++}
++
++#endif							/* PG_NO_SHELL */
+diff --git a/src/include/common/noshell.h b/src/include/common/noshell.h
+new file mode 100644
+--- a/src/include/common/noshell.h
++++ b/src/include/common/noshell.h
+@@ -0,0 +1,33 @@
++/*-------------------------------------------------------------------------
++ *
++ * noshell.h
++ *	  popen()/pclose()/system() without /bin/sh, for images that have no shell.
++ *
++ * initdb and find_other_exec() start the server and probe versions with
++ * popen("\"/path/postgres\" --boot ... > \"/dev/null\" 2>&1") and system().  A
++ * FROM scratch container has no /bin/sh, so with PG_NO_SHELL defined those calls
++ * are replaced by a small interpreter that understands exactly what the callers
++ * write: words, "double" and 'single' quotes, backslash, "<" "file", ">" "file",
++ * "2>" "file" and "2>&1".  Anything else that a shell would interpret (pipes, &, ;,
++ * $, backquotes, globs, subshells) is refused with EINVAL instead of being run wrongly.
++ *
++ * src/include/common/noshell.h
++ *
++ *-------------------------------------------------------------------------
++ */
++#ifndef COMMON_NOSHELL_H
++#define COMMON_NOSHELL_H
++
++#include <stdio.h>
++
++extern FILE *pg_noshell_popen(const char *command, const char *mode);
++extern int	pg_noshell_pclose(FILE *stream);
++extern int	pg_noshell_system(const char *command);
++
++#ifdef PG_NO_SHELL
++#define popen(command, mode) pg_noshell_popen(command, mode)
++#define pclose(stream) pg_noshell_pclose(stream)
++#define system(command) pg_noshell_system(command)
++#endif
++
++#endif							/* COMMON_NOSHELL_H */

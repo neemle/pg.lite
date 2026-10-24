@@ -41,7 +41,7 @@ Binaryen 133 / node 24.19.0 for `wasm`). That file is **generated**:
   image) are installed from the distributions' current repositories at build time and are **not**
   version-pinned; the versions actually built are recorded by `capture-toolchain.sh`, so a
   rebuild that drifts is visible as a diff in `toolchain.lock.json`. Pinning them (or snapshot
-  mirrors) is open work, together with older toolchains for old PostgreSQL majors (CDB-24).
+  mirrors) is open work. The same builders compile every release from 9.0 to 18 (old sources get per-range `cflags` in `ranges.json`).
 - Sizes on this host: `musl` 491 MB, `wasm` 3.49 GB (the SDK image alone is 3.48 GB), tools
   image 469 MB. First builds took about 2.5 and 3.5 minutes plus the base image download.
 - The Emscripten cache inside the SDK image is writable by root only. This was exercised on

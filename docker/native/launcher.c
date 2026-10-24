@@ -155,7 +155,12 @@ main(int argc, char **argv)
 		}
 		append(pgdata, "postgresql.conf",
 			   "\n# added by pg-launcher\nlisten_addresses = '*'\ntimezone = 'UTC'\nlog_timezone = 'UTC'\n");
+#ifdef NO_AUTH_SPLIT
+		/* before 9.2 "all" is not an address keyword (it would be looked up as a host name) */
+		append(pgdata, "pg_hba.conf", "\nhost all all 0.0.0.0/0 " PASSWORD_AUTH "\nhost all all ::/0 " PASSWORD_AUTH "\n");
+#else
 		append(pgdata, "pg_hba.conf", "\nhost all all all " PASSWORD_AUTH "\n");
+#endif
 	}
 
 	{

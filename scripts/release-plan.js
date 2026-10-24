@@ -6,6 +6,7 @@
 //                                    exit 0 ok, 2 usage, 3 the tag is not a release in sources.lock.json,
 //                                    4 the version has no patch series yet (its major is not supported)
 //   release-plan.js --github <tag>   the same, as KEY=value lines for $GITHUB_OUTPUT
+//   --ranges <file> --patches <dir> other data for the resolver (tests)
 //
 // "Drop-in replacement" means: the image and the archive released from tag vX.Y.Z contain exactly upstream
 // PostgreSQL X.Y.Z (checksum-pinned in sources.lock.json) plus this repository's patches, and the image tags are
@@ -20,6 +21,8 @@ const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const github = args[0] === '--github';
 if (github) args.shift();
+const rangesArgs = [];
+for (const o of ['--ranges', '--patches']) { const i = args.indexOf(o); if (i >= 0) rangesArgs.push(...args.splice(i, 2)); }
 const tag = args[0];
 if (!tag) { console.error('usage: release-plan.js [--github] <tag>'); process.exit(2); }
 
@@ -37,7 +40,7 @@ const newest = (list) => list.map((r) => r.version).reduce((a, b) => (newer(b, a
 const newestInMajor = newest(lock.releases.filter((r) => r.major === release.major));
 const newestOverall = newest(lock.releases);
 
-const r = spawnSync('node', [path.join(root, 'scripts', 'resolve.js'), version, '--allow-missing-builder'], { encoding: 'utf8' });
+const r = spawnSync('node', [path.join(root, 'scripts', 'resolve.js'), version, '--allow-missing-builder', ...rangesArgs], { encoding: 'utf8' });
 if (r.status !== 0) { console.error(r.stderr || r.stdout); process.exit(4); }
 const plan = JSON.parse(r.stdout);
 const empty = plan.patches.filter((p) => p.patches.length === 0).map((p) => p.target);

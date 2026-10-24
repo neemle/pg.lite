@@ -135,6 +135,8 @@ for d in src/port src/common src/timezone; do
     echo "build-native: make $d"; step make -j"$(nproc)" -C "$d"
 done
 echo "build-native: make src/backend"; step make -j"$(nproc)" -C src/backend $be_arg
+# 9.0 lets the walreceiver link race with the libpq build under -j: build libpq first
+echo "build-native: make src/interfaces/libpq"; step make -j"$(nproc)" -C src/interfaces/libpq
 for d in src/pl/plpgsql/src src/backend/snowball src/backend/replication/libpqwalreceiver; do
     echo "build-native: make $d (module objects, linked into postgres below)"
     if [ "$lto" = 1 ]; then

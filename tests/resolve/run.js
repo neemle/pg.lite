@@ -30,14 +30,19 @@ check('18.6 plan carries the locked commit and checksum', !!plan && plan.commit 
 check('plan references the series files of its range', !!plan && plan.patches.map((p) => `${p.target}:${p.series}`).join(',') === 'common:series,native:series,wasm:series');
 check('plan is deterministic (two runs are byte-identical)', run(['18.6']).stdout === r.stdout);
 
-r = run(['9.0.23', '--allow-missing-builder']);
+// a release the builder lock does not reach yet (here: the lock starts at 9.1) resolves with its own series, but not without a builder
+const tc = loadJson('toolchain.lock.json'); tc.ranges[0].from = '9.1.0';
+const tcFile = withFile('toolchain-from-9-1.json', tc);
+r = run(['9.0.23', '--allow-missing-builder', '--toolchain', tcFile]);
 plan = r.status === 0 ? JSON.parse(r.stdout) : null;
-check('9.0.23 resolves to pg9 with its own series and no builder yet', !!plan && plan.range === 'pg9' && plan.builders === null
-  && plan.patches[1].series === 'series.pg9', r.stderr);
+check('9.0.23 resolves to pg9-0 with its own series and no builder when the lock starts at 9.1', !!plan && plan.range === 'pg9-0' && plan.builders === null
+  && plan.patches[1].series === 'series.pg9-0', r.stderr);
+r = run(['9.0.23', '--toolchain', tcFile]);
+check('9.0.23 without --allow-missing-builder fails with exit 5 then', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
 r = run(['9.0.23']);
-check('9.0.23 without --allow-missing-builder fails with exit 5', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
+check('9.0.23 has a builder in the real lock', r.status === 0 && JSON.parse(r.stdout).builders !== null, `${r.status} ${r.stderr}`);
 
-for (const [v, id] of [['9.0.0', 'pg9'], ['9.0.23', 'pg9'], ['9.1.24', 'pg9-1'], ['9.2.24', 'pg9-2'], ['9.3.25', 'pg9-3'], ['9.4.26', 'pg9-4'], ['9.5.25', 'pg9-5'], ['9.6.24', 'pg9-6'], ['10.0', 'pg10'], ['11.22', 'pg11'], ['12.22', 'pg12'], ['13.23', 'pg13'], ['14.24', 'pg14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
+for (const [v, id] of [['9.0.0', 'pg9-0'], ['9.0.23', 'pg9-0'], ['9.1.24', 'pg9-1'], ['9.2.24', 'pg9-2'], ['9.3.25', 'pg9-3'], ['9.4.26', 'pg9-4'], ['9.5.25', 'pg9-5'], ['9.6.24', 'pg9-6'], ['10.0', 'pg10'], ['11.22', 'pg11'], ['12.22', 'pg12'], ['13.23', 'pg13'], ['14.24', 'pg14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
   r = run([v, '--allow-missing-builder']);
   check(`${v} resolves to ${id}`, r.status === 0 && JSON.parse(r.stdout).range === id, r.stderr);
 }
