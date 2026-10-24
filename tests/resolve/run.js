@@ -32,12 +32,12 @@ check('plan is deterministic (two runs are byte-identical)', run(['18.6']).stdou
 
 r = run(['13.4', '--allow-missing-builder']);
 plan = r.status === 0 ? JSON.parse(r.stdout) : null;
-check('13.4 resolves to pg13-15 with its own series and no builder yet', !!plan && plan.range === 'pg13-15' && plan.builders === null
-  && plan.patches[1].series === 'series.pg13-15', r.stderr);
+check('13.4 resolves to pg13-14 with its own series and no builder yet', !!plan && plan.range === 'pg13-14' && plan.builders === null
+  && plan.patches[1].series === 'series.pg13-14', r.stderr);
 r = run(['13.4']);
 check('13.4 without --allow-missing-builder fails with exit 5', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
 
-for (const [v, id] of [['9.0.0', 'pg9'], ['9.6.24', 'pg9'], ['10.0', 'pg10-12'], ['12.22', 'pg10-12'], ['15.19', 'pg13-15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
+for (const [v, id] of [['9.0.0', 'pg9'], ['9.6.24', 'pg9'], ['10.0', 'pg10-12'], ['12.22', 'pg10-12'], ['14.22', 'pg13-14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
   r = run([v, '--allow-missing-builder']);
   check(`${v} resolves to ${id}`, r.status === 0 && JSON.parse(r.stdout).range === id, r.stderr);
 }

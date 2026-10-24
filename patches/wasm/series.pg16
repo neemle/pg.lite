@@ -7,4 +7,4 @@
 0005-wasm-semaphores.patch
 0006-wasm-dsm-sysv.patch
 pg16/0007-wasm-embedded-protocol.patch
-pg16/0008-wasm-storage-barrier.patch
+0008-wasm-storage-barrier.patch

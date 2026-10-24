@@ -20,13 +20,22 @@
       "notes": "PostgreSQL 10 to 12. Patch series are empty until the ports for this era land (CDB-26, CDB-29)."
     },
     {
-      "id": "pg13-15",
+      "id": "pg13-14",
       "from": "13.0",
-      "to": "15.99",
-      "patches": { "common": "series.pg13-15", "native": "series.pg13-15", "wasm": "series.pg13-15" },
+      "to": "14.99",
+      "patches": { "common": "series.pg13-14", "native": "series.pg13-14", "wasm": "series.pg13-14" },
       "configure": [],
       "omittedFeatures": [],
-      "notes": "PostgreSQL 13 to 15. Patch series are empty until the ports for this era land (CDB-27, CDB-30)."
+      "notes": "PostgreSQL 13 and 14. Patch series are empty until the ports for this era land (CDB-27, CDB-30)."
+    },
+    {
+      "id": "pg15",
+      "from": "15.0",
+      "to": "15.99",
+      "patches": { "common": "series.pg15", "native": "series.pg15", "wasm": "series.pg15" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 15: the 16 series ported by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js (patches/*/pg15/ are the patches that needed it)."
     },
     {
       "id": "pg16",

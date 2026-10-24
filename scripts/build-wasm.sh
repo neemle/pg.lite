@@ -45,7 +45,8 @@ ldflags="${WASM_LDFLAGS:--fwasm-exceptions -sSUPPORT_LONGJMP=wasm -sENVIRONMENT=
 # Link settings of the browser module: an ES module for a Worker, JavaScript Promise Integration so that the
 # backend can wait for the client's next protocol bytes (patch wasm/0007) without a second thread, the in-memory
 # file system, and a heap that grows.
-weblink="${WASM_WEB_LDFLAGS:--fwasm-exceptions -sSUPPORT_LONGJMP=wasm -sENVIRONMENT=web,worker -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createPostgres -sJSPI -sJSPI_EXPORTS=pg_wasm_main -sEXPORTED_FUNCTIONS=_pg_wasm_main,_malloc,_free -sEXPORTED_RUNTIME_METHODS=FS,HEAPU8 -sFORCE_FILESYSTEM=1 -sINVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=134217728 -sMAXIMUM_MEMORY=2147483648 -sSTACK_SIZE=8388608}"
+weblink="${WASM_WEB_LDFLAGS:--fwasm-exceptions -sSUPPORT_LONGJMP=wasm -sENVIRONMENT=web,worker -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createPostgres -sJSPI -sJSPI_EXPORTS=pg_wasm_main -sEXPORTED_FUNCTIONS=_pg_wasm_main,_malloc,_free -sEXPORTED_RUNTIME_METHODS=FS,HEAPU8 -sFORCE_FILESYSTEM=1 -sINVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=134217728 -sMAXIMUM_MEMORY=2147483648 -sSTACK_SIZE=8388608 -Wl,--wrap=fsync -Wl,--wrap=fdatasync}"
+# --wrap: fsync() and fdatasync() in the server become the storage barrier of the browser (wasm_embed.c, patch 0008)
 
 [ -f "$src/configure" ] || { echo "build-wasm: $src has no configure; run ./dc make wasm-src VERSION=$ver" >&2; exit 2; }
 [ -f "$src/src/backend/port/wasm_shm.c" ] || { echo "build-wasm: $src is not patched for wasm (no wasm_shm.c); run ./dc make wasm-src VERSION=$ver" >&2; exit 2; }
@@ -146,9 +147,12 @@ step make -C src/backend install "$D" rpath= LDFLAGS_EX_BE=
 step make -C src/timezone install "$D" rpath= LDFLAGS_EX_BE=
 step make -C src/bin/initdb install "$D" rpath= LDFLAGS_EX_BE= -o submake-libpq
 step make -C src/pl/plpgsql/src install-data "$D"
-# the snowball Makefile installs the data files only after linking a shared library, which a static server has no use for
-printf 'include Makefile\n.PHONY: wasm-install-data\nwasm-install-data: $(SQLSCRIPT)\n\t$(MKDIR_P) "$(DESTDIR)$(datadir)/$(DICTDIR)"\n\t$(INSTALL_DATA) $(SQLSCRIPT) "$(DESTDIR)$(datadir)"\n\t$(INSTALL_DATA) $(addprefix $(srcdir)/stopwords/,$(stop_files)) "$(DESTDIR)$(datadir)/$(DICTDIR)"\n' > "$obj/snowball-install.mk"
-step make -C src/backend/snowball -f "$obj/snowball-install.mk" wasm-install-data "$D"
+# the snowball Makefile installs the data files only after linking a shared library, which a static server has no use for:
+# generate the SQL (a Makefile target in every release) and install it with the stop words of the one language kept
+step make -C src/backend/snowball snowball_create.sql
+mkdir -p "$inst$prefix/share/tsearch_data"
+cp src/backend/snowball/snowball_create.sql "$inst$prefix/share/"
+cp "$src/src/backend/snowball/stopwords/english.stop" "$inst$prefix/share/tsearch_data/"
 # a WebAssembly executable is the .js launcher plus a .wasm next to it; "install" copies only the first
 bin="$inst$prefix/bin"
 cp "$obj/src/backend/postgres.wasm" "$bin/"

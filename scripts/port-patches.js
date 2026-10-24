@@ -2,7 +2,8 @@
 'use strict';
 // Port the patch series of one release to another (maintainer tool, tools container).
 //
-//   port-patches.js --from 18.6 --to 17.11 --range pg17 [--targets common,native,wasm]
+//   port-patches.js --from 18.6 --to 17.11 --range pg17 [--targets common,native,wasm] [--from-series series.pg17]
+//   (--from-series: port from another range's series instead of the baseline one, e.g. 16 to 15 as a neighbour)
 //
 // For every patch of the --from series, in order: when it applies to the --to tree as it is (fuzz 0) the series of
 // the range simply lists the same file; when it does not, the patch is re-made by a three-way merge per file
@@ -40,7 +41,7 @@ fs.mkdirSync(work, { recursive: true });
 must(sh('cp', ['-a', path.join(root, 'cache', 'src', opt.from), A]), 'copy from-tree');
 must(sh('cp', ['-a', path.join(root, 'cache', 'src', opt.to), B]), 'copy to-tree');
 
-const readSeries = (target) => fs.readFileSync(path.join(root, 'patches', target, 'series'), 'utf8')
+const readSeries = (target) => fs.readFileSync(path.join(root, 'patches', target, opt['from-series'] || 'series'), 'utf8')
   .split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
 const headerOf = (text) => { const i = text.search(/^diff /m); return text.slice(0, i); };
 const filesOf = (text) => [...text.matchAll(/^diff --git a\/\S+ b\/(\S+)$/gm)].map((m) => m[1]);
@@ -55,6 +56,14 @@ for (const target of opt.targets) {
     const text = fs.readFileSync(file, 'utf8');
     const beforeA = snapshot(A, 'A-before');
     must(tryApply(A, file, false), `${target}/${name} on ${opt.from}`);
+    // a hand-made patch for this range (no "Ported-from" header) is kept as it is; it must apply to the target
+    const mine = path.join(root, 'patches', target, opt.range, path.basename(name));
+    if (fs.existsSync(mine) && !/^Ported-from:/m.test(fs.readFileSync(mine, 'utf8'))) {
+      must(tryApply(B, mine, true), `the hand-made ${target}/${opt.range}/${path.basename(name)} on ${opt.to}`);
+      must(tryApply(B, mine, false), `apply the hand-made ${target}/${opt.range}/${path.basename(name)}`);
+      out.push(`${opt.range}/${path.basename(name)}`); report.push(`kept     ${target}/${opt.range}/${path.basename(name)} (hand-made)`);
+      continue;
+    }
     if (tryApply(B, file, true).status === 0) {
       must(tryApply(B, file, false), `apply ${target}/${name}`);
       out.push(name); report.push(`same     ${target}/${name}`);
@@ -70,7 +79,7 @@ for (const target of opt.targets) {
         fs.rmSync(theirs, { force: true }); fs.copyFileSync(ours, theirs);
       } else if (!fs.existsSync(theirs)) { console.error(`port: ${rel} does not exist in ${opt.to}`); process.exit(1); }
       else {
-        const resolved = path.join(resolvedDir, `${target}-${name}-${rel.replace(/\//g, '_')}`);
+        const resolved = path.join(resolvedDir, `${target}-${path.basename(name)}-${rel.replace(/\//g, '_')}`);
         if (fs.existsSync(resolved)) {
           fs.rmSync(theirs, { force: true }); fs.copyFileSync(resolved, theirs);   // a new file: the snapshot shares the old one (hard links)
         } else {
@@ -88,11 +97,11 @@ for (const target of opt.targets) {
       if (d.status === 1) sections.push(`diff --git a/${rel} b/${rel}\n${fs.existsSync(orig) ? '' : 'new file mode 100644\n'}${d.stdout}`);
     }
     const header = headerOf(text).replace(/\n+$/, '\n') + `Ported-from: ${opt.from} (${target}/${name}) for ${opt.to} by scripts/port-patches.js\n\n`;
-    const dest = path.join(root, 'patches', target, opt.range, name);
+    const dest = path.join(root, 'patches', target, opt.range, path.basename(name));
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.writeFileSync(dest, header + sections.join(''));
     must(tryApply(beforeB, dest, true), `the new ${target}/${opt.range}/${name} on ${opt.to}`);
-    out.push(`${opt.range}/${name}`); report.push(`PORTED   ${target}/${name}`);
+    out.push(`${opt.range}/${path.basename(name)}`); report.push(`PORTED   ${target}/${name}`);
   }
   const seriesFile = path.join(root, 'patches', target, `series.${opt.range}`);
   const head = `# Patch series for the "${target}" target, range ${opt.range} (PostgreSQL ${opt.to.split('.')[0]}.x): one *.patch path per line, relative to this directory.\n# Made by scripts/port-patches.js from the baseline series (${opt.from}); entries in ${opt.range}/ are the patches that needed a port, the others are shared with the baseline.\n`;
