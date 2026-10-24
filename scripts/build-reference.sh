@@ -7,9 +7,11 @@
 # - No patch is applied here by construction; the script refuses to run if the source tree is
 #   not the one fetch.sh verified.
 # - Outputs in build/ref/<version>/: install/ (make install), install-strip/ (make install-strip),
-#   build.log; and reports/reference-size.json with the byte totals and the method.
+#   build.log; and reports/reference-size[-<version>].json (no suffix for the baseline release) with the byte totals and the method.
 set -eu
 ver="${1:?usage: build-reference.sh <version>}"
+baseline=$(sed -n 's/.*"baseline": "\([^"]*\)".*/\1/p' /w/sources.lock.json | head -1)
+report=/w/reports/reference-size-$ver.json; [ "$ver" = "$baseline" ] && report=/w/reports/reference-size.json
 src="/w/cache/src/$ver"
 marker="$src/.compactdb-verified"
 out="/w/build/ref/$ver"
@@ -55,6 +57,6 @@ pkgs=$(dpkg-query -W -f='${Package}=${Version};' gcc libicu-dev libreadline-dev 
 mkdir -p /w/reports
 printf '{\n  "version": "%s",\n  "kind": "unmodified upstream, default configure, glibc dynamic",\n  "configure": "--prefix=%s",\n  "method": "sum of regular-file apparent sizes in bytes (find -type f -printf %%s), install tree under the prefix; unstripped = make install, stripped = make install-strip; shared libraries the executables need from the OS are listed but not counted",\n  "unstripped": %s,\n  "stripped": %s,\n  "postgresNeededLibraries": "%s",\n  "buildPackages": "%s",\n  "gcc": "%s"\n}\n' \
     "$ver" "$prefix" "$(sub "$out/install")" "$(sub "$out/install-strip")" "$needs" "$pkgs" "$(gcc -dumpfullversion)" \
-    > /w/reports/reference-size.json
-echo "build-reference: wrote reports/reference-size.json"
-cat /w/reports/reference-size.json
+    > "$report"
+echo "build-reference: wrote $report"
+cat "$report"

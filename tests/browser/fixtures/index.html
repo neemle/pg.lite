@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>compact.db engine fixture</title>
+<h1>compact.db engine fixture</h1>
+<pre id="out">loading</pre>
+<script type="module">
+import { PostgresWasm, createPgDriver } from '/src/index.js';
+window.pg = { PostgresWasm, createPgDriver };
+window.openDb = (options = {}) => PostgresWasm.open({ workerUrl: '/src/engine-worker.js', engineUrl: '/engine/postgres.mjs', ...options });
+document.getElementById('out').textContent = 'ready';
+</script>

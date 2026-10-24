@@ -8,7 +8,7 @@
 
 # Nothing builds or runs on the host. Use: ./dc make <target>   (see docker/tools/Dockerfile).
 ifeq ($(wildcard /.compactdb-tools /.compactdb-builder),)
-$(error Not inside a project container. Run: ./dc make $(MAKECMDGOALS)   (builders: ./dcb musl|wasm make ...))
+$(error Not inside a project container. Run: ./dc make $(MAKECMDGOALS)   (builders: ./dcb musl|wasm|web make ...))
 endif
 
 SHELL := /bin/sh
@@ -21,8 +21,8 @@ NOT_IMPL := scripts/not-implemented.sh
         builder-check capture-toolchain update-toolchain-lock reference \
         feature-check feature-matrix test-feature release-index test-release-index \
         resolve resolve-check test-resolve probe probe-all test-probe \
-        check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node \
-        native-build native-src test-noshell
+        check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node web-demo package-wasm \
+        native-build native-src test-noshell test-release-plan
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -45,8 +45,9 @@ verify-static:
 test-native:
 	@$(NOT_IMPL) test-native CDB-4
 
+# Browser tests of the built module (Chromium in the web builder): ./dcb web make test-wasm VERSION=18.6
 test-wasm:
-	@$(NOT_IMPL) test-wasm CDB-7
+	@scripts/web-test.sh
 
 test-portability:
 	@$(NOT_IMPL) test-portability CDB-9
@@ -87,15 +88,23 @@ update-toolchain-lock:
 
 # Apply the common+native patch series into build/native/<v>/src (tools container):
 native-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --targets common,native
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --targets common,native $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --series-args)
 
 # Apply the common+wasm patch series into build/wasm/<v>/src (tools container):
 wasm-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --targets common,wasm
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --targets common,wasm $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --series-args)
 
 # WebAssembly build of one release (docs/wasm.md): ./dcb wasm make wasm-build VERSION=18.6
 wasm-build:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-wasm.sh $(VERSION)
+
+# Angular + TypeORM demo on the browser module (docs/wasm.md): ./dcb web make web-demo VERSION=18.6
+web-demo:
+	@scripts/web-demo.sh
+
+# Release archive of the browser module (scripts/package-wasm.sh): ./dc make package-wasm VERSION=18.6
+package-wasm:
+	@scripts/package-wasm.sh
 
 # Run SQL in the built wasm server under node: ./dcb wasm make test-wasm-node VERSION=18.6
 test-wasm-node:
@@ -178,7 +187,11 @@ test-patches:
 	@node tests/patches/run.js
 
 # All repo self-tests that need no network.
-selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index test-resolve resolve-check test-probe test-check-wasm
+selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index test-resolve resolve-check test-release-plan test-probe test-check-wasm
+
+# The tag is the PostgreSQL version (scripts/release-plan.js, .github/workflows/release.yml).
+test-release-plan:
+	@node tests/release-plan/run.js
 
 # Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
 test-fetch:

@@ -56,6 +56,12 @@
   },
   "ranges": [
     {
+      "from": "16.0",
+      "to": "17.99",
+      "nativeImage": "musl-18",
+      "wasmImage": "wasm-18"
+    },
+    {
       "from": "18.0",
       "to": "18.99",
       "nativeImage": "musl-18",

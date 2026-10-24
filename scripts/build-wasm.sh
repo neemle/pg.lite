@@ -29,6 +29,11 @@ template="$base/template-pgdata"
 log="$base/build.log"
 prefix=/pgsql
 jobs=$(nproc)
+# WEB=1 builds the browser module instead (a second tree, same sources and configuration): an ES module and a
+# .wasm that run in a Worker, with the data files and the template data directory of the node build packed into
+# postgres.data. Run the node build first; it makes those files.
+web="${WEB:-0}"; [ "$web" = 0 ] && unset WEB || true
+if [ "$web" = 1 ]; then obj="$base/obj-web"; log="$base/build-web.log"; out="$base/web"; fi
 
 # Exceptions: PostgreSQL's error handling is sigsetjmp/longjmp; with -fwasm-exceptions Emscripten implements it
 # on WebAssembly exception handling instead of the slower, bigger JavaScript emulation.
@@ -37,6 +42,11 @@ cflags="${WASM_CFLAGS:--Os -fwasm-exceptions -sSUPPORT_LONGJMP=wasm -fno-strict-
 # heap, a stack deep enough for max_stack_depth, and a clean exit so atexit handlers run.
 ldflags="${WASM_LDFLAGS:--fwasm-exceptions -sSUPPORT_LONGJMP=wasm -sENVIRONMENT=node -sNODERAWFS=1 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=268435456 -sMAXIMUM_MEMORY=2147483648 -sSTACK_SIZE=8388608 -sEXIT_RUNTIME=1}"
 
+# Link settings of the browser module: an ES module for a Worker, JavaScript Promise Integration so that the
+# backend can wait for the client's next protocol bytes (patch wasm/0007) without a second thread, the in-memory
+# file system, and a heap that grows.
+weblink="${WASM_WEB_LDFLAGS:--fwasm-exceptions -sSUPPORT_LONGJMP=wasm -sENVIRONMENT=web,worker -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createPostgres -sJSPI -sJSPI_EXPORTS=pg_wasm_main -sEXPORTED_FUNCTIONS=_pg_wasm_main,_malloc,_free -sEXPORTED_RUNTIME_METHODS=FS,HEAPU8 -sFORCE_FILESYSTEM=1 -sINVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=134217728 -sMAXIMUM_MEMORY=2147483648 -sSTACK_SIZE=8388608}"
+
 [ -f "$src/configure" ] || { echo "build-wasm: $src has no configure; run ./dc make wasm-src VERSION=$ver" >&2; exit 2; }
 [ -f "$src/src/backend/port/wasm_shm.c" ] || { echo "build-wasm: $src is not patched for wasm (no wasm_shm.c); run ./dc make wasm-src VERSION=$ver" >&2; exit 2; }
 
@@ -44,8 +54,24 @@ resume=0
 if [ "${RESUME:-0}" = 1 ] && [ -f "$obj/GNUmakefile" ]; then resume=1; fi
 mkdir -p "$base"
 if [ "$resume" = 0 ]; then rm -rf "$obj"; : > "$log"; fi
-rm -rf "$inst" "$template"
+if [ "$web" = 1 ]; then
+    [ -d "$inst$prefix/share" ] && [ -d "$template" ] || { echo "build-wasm: WEB=1 needs the node build first (no $inst/share or $template)" >&2; exit 2; }
+else
+    rm -rf "$inst" "$template"
+fi
 mkdir -p "$obj" "$inst"; cd "$obj"
+# A release tarball carries some generated headers in the source tree (errcodes.h in 16.x). An out-of-tree build then
+# links src/include/utils/errcodes.h to where it would have generated the file, which does not exist: point such
+# links at the copy in the source tree.
+fix_header_links() {
+    for l in $(find src/include -type l); do
+        [ -e "$l" ] && continue
+        t=$(readlink "$l"); alt="$src/${t#"$PWD"/}"
+        [ -e "$alt" ] && ln -sf "$alt" "$l"
+    done
+    return 0
+}
+
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-wasm: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 
 export CC=emcc
@@ -59,9 +85,10 @@ if [ "$resume" = 0 ]; then
     echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
     # emcc writes executable programs, so configure can run its tests under node: no cross-compile cache needed.
     # shellcheck disable=SC2086
-    step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL"
-    step make -C src/backend generated-headers
+    step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}"
 fi
+step make -C src/backend generated-headers
+fix_header_links
 
 for d in src/port src/common src/timezone; do
     echo "build-wasm: make $d"; step mk -C "$d"
@@ -84,7 +111,25 @@ compile_module src/backend/snowball dict_snowball
 mods="$(list_objs src/pl/plpgsql/src) $(list_objs src/backend/snowball)"
 
 echo "build-wasm: link postgres"
-rm -f src/backend/postgres src/backend/postgres.wasm
+rm -f src/backend/postgres src/backend/postgres.wasm src/backend/postgres.data
+if [ "$web" = 1 ]; then
+    # same objects, other link: the program path and the data directory are fixed by pg_wasm_main() (wasm_embed.c)
+    step mk -C src/backend postgres STATIC_MODULE_OBJS="$mods" \
+        LDFLAGS="$weblink --preload-file $template@/pgdata --preload-file $inst$prefix/share@$prefix/share"
+    rm -rf "$out"; mkdir -p "$out"
+    cp src/backend/postgres "$out/postgres.mjs"
+    cp src/backend/postgres.wasm src/backend/postgres.data "$out/"
+    # what the page-side storage checks before it opens a stored database (web/src/idb-store.js): an engine built
+    # from another release or another feature profile must not read data written by this one
+    profile=$(sha256sum /w/feature-profile.json | cut -c1-12)
+    # the packaged files carry no empty directories (pg_notify, pg_twophase, ...): the Worker creates these
+    empty=$(cd "$template" && find . -mindepth 1 -type d -empty | sed 's|^\.||' | sort | sed 's/.*/    "&"/' | paste -sd, -)
+    printf '{\n  "pg": "%s",\n  "profile": "%s",\n  "storageFormat": 1,\n  "toolchain": "emscripten-%s",\n  "emptyDirs": [\n%s\n  ]\n}\n' \
+        "$ver" "$profile" "$(emcc --version | head -1 | sed 's/.* \([0-9][0-9.]*\) (.*/\1/')" "$empty" > "$out/manifest.json"
+    echo "build-wasm: done (web module in $out, $log)"
+    ls -l "$out" | sed 's/^/  /'
+    exit 0
+fi
 step mk -C src/backend postgres STATIC_MODULE_OBJS="$mods"
 
 # ---- initdb (a wasm program for node): needs libpgcommon/libpgport/libpgfeutils and the objects of libpq it uses
@@ -114,9 +159,12 @@ rm -f "$inst$prefix/share/errcodes.txt"      # build-time input only
 echo "build-wasm: initdb (template data directory)"
 # C.UTF-8 and the builtin provider, as in the native build, so both targets answer the same way; one-megabyte WAL
 # segments keep the template (and what a browser has to persist) small.
+locale_args="--locale=C.UTF-8"
+# the builtin locale provider exists from PostgreSQL 17 on: use it where this initdb has it (feature detection)
+if "$bin/initdb" --help | grep -q builtin; then locale_args="$locale_args --locale-provider=builtin --builtin-locale=C.UTF-8"; fi
 # shellcheck disable=SC2086
-step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=postgres --auth=trust --encoding=UTF8 --locale=C.UTF-8 \
-    --locale-provider=builtin --builtin-locale=C.UTF-8 --wal-segsize=1 --no-sync ${TEMPLATE_ARGS:-}
+step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=postgres --auth=trust --encoding=UTF8 \
+    $locale_args --wal-segsize=1 --no-sync ${TEMPLATE_ARGS:-}
 
 echo "build-wasm: done ($log)"
 ls -l "$bin" | sed 's/^/  /'

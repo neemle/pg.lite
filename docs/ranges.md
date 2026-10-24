@@ -8,8 +8,10 @@ Every difference between PostgreSQL versions is **data**, never code. Three file
 | `ranges.json` | per version range: patch series per target, extra configure options, deliberately omitted features |
 | `toolchain.lock.json` | per version range: the builder images (by digest) for the native and WASM builds |
 
-Ranges today: `pg9` (9.0.0 to 9.6.99), `pg10-12`, `pg13-17`, `pg18` (the baseline). `to` is
-inclusive, so `9.6.99` covers every 9.6.x. The series file names (`series`, `series.pg9`, ...)
+Ranges today: `pg9` (9.0.0 to 9.6.99), `pg10-12`, `pg13-15`, `pg16`, `pg17`, `pg18` (the baseline). `to` is
+inclusive, so `9.6.99` covers every 9.6.x. Only `pg16`, `pg17` and `pg18` have patch series; a release in another
+range cannot be built or released yet (`scripts/release-plan.js` says so). `make native-src` and `make wasm-src` pick
+the series of the version's range (`scripts/resolve.js <version> --series-args`). The series file names (`series`, `series.pg9`, ...)
 select files in `patches/<target>/`; the baseline range uses the default `series` files.
 
 ## Resolve a version

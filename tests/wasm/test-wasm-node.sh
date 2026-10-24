@@ -44,7 +44,7 @@ SELECT 'after the error'
 CHECKPOINT
 EOF
 ) || true
-echo "$out" | grep -q 'PostgreSQL 18' && pass "version() answers" || bad "version() missing"
+echo "$out" | grep -q "PostgreSQL ${ver%%.*}" && pass "version() answers" || bad "version() missing"
 echo "$out" | grep -q '= "2"' && pass "1 + 1 = 2" || bad "arithmetic"
 echo "$out" | grep -q '= "1000"' && pass "1000 rows inserted and counted" || bad "count"
 echo "$out" | grep -q '123456789012346.178500' && pass "NUMERIC(20,6) keeps its digits (sum of 1000 rows)" || bad "numeric sum missing"

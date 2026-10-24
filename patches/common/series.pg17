@@ -1,0 +1,5 @@
+# Patch series for the "common" target, range pg17 (PostgreSQL 17.x): one *.patch path per line, relative to this directory.
+# Made by scripts/port-patches.js from the baseline series (18.6); entries in pg17/ are the patches that needed a port, the others are shared with the baseline.
+pg17/0001-static-modules.patch
+0003-no-locale-a.patch
+pg17/0004-snowball-english-only.patch

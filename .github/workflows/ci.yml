@@ -1,0 +1,22 @@
+name: ci
+
+# Every push and pull request: the repository checks that need no PostgreSQL build (a few minutes).
+# The builds themselves run on release tags (release.yml) and can be started by hand as a dry run (release.yml, "Run workflow").
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repo:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      # Nothing runs on the runner but docker and git: every target runs in the project's tools container.
+      - name: Self-tests (locks, patch series, resolver, probes, no upstream source committed)
+        run: ./dc make selftest
+      - name: Lock files
+        run: ./dc make validate-locks

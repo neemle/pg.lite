@@ -75,6 +75,18 @@ if [ "$resume" = 0 ]; then rm -rf "$out/obj"; fi
 rm -rf "$out/staticmods" "$out/install" "$out/install-strip"
 mkdir -p "$out/obj" "$out/staticmods"; cd "$out/obj"
 log="$out/build.log"; [ "$resume" = 1 ] || : > "$log"
+# A release tarball carries some generated headers in the source tree (errcodes.h in 16.x). An out-of-tree build then
+# links src/include/utils/errcodes.h to where it would have generated the file, which does not exist: point such
+# links at the copy in the source tree.
+fix_header_links() {
+    for l in $(find src/include -type l); do
+        [ -e "$l" ] && continue
+        t=$(readlink "$l"); alt="$src/${t#"$PWD"/}"
+        [ -e "$alt" ] && ln -sf "$alt" "$l"
+    done
+    return 0
+}
+
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-native: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 
 # Options that exist in this release's configure (feature detection, not version checks).
@@ -98,8 +110,9 @@ if [ "$resume" = 0 ]; then
     [ "$lto" != 1 ] || set -- "$@" AR=gcc-ar RANLIB=gcc-ranlib NM=gcc-nm
     step "$src/configure" "$@"
     # Parallel out-of-tree builds race on generated headers, so make those first.
-    step make -C src/backend generated-headers
 fi
+step make -C src/backend generated-headers
+fix_header_links
 
 # The server has its own encoding functions; only the frontends get the shim.
 for d in src/port src/common src/timezone; do

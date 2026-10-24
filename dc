@@ -19,7 +19,10 @@ cache_vol="${DC_CACHE_VOLUME:-compactdb-cache}"
 build_vol="${DC_BUILD_VOLUME:-compactdb-build}"
 
 # Build is incremental: layers are cached, so this is fast once the image exists.
-docker build -q -t "$image" "$context" >/dev/null
+secret=""
+[ -f "$root/.local/corp-ca.pem" ] && secret="--secret id=corpca,src=$root/.local/corp-ca.pem"
+# shellcheck disable=SC2086
+docker build -q $secret -t "$image" "$context" >/dev/null
 
 user=""
 uid_gid=""
@@ -45,9 +48,14 @@ for a in "$@"; do { [ "$a" = "fetch" ] || [ "$a" = "release-index" ] || [ "$a" =
 tty=""
 [ -t 0 ] && [ -t 1 ] && tty="-it"
 
+# A corporate TLS-inspecting proxy: its root certificate, exported to .local/corp-ca.pem (git-ignored), is trusted by
+# node and npm inside the container; certificate checking itself stays on.
+ca=""
+[ -f "$root/.local/corp-ca.pem" ] && ca="-e NODE_EXTRA_CA_CERTS=/w/.local/corp-ca.pem"
+
 # shellcheck disable=SC2086
 # Build options reach the container only when they are set on the host (docker -e NAME passes it through).
-MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user \
-    -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_CONFIGURE -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e SRC -e FETCH_HTTP_FALLBACK \
+MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user $ca \
+    -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_CONFIGURE -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e WEB -e SRC -e FETCH_HTTP_FALLBACK \
     -v "$root:/w" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
     -w /w "$image" "$@"

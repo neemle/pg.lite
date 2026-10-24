@@ -1,0 +1,8 @@
+:root {
+  --bg: #fafaf8; --card: #ffffff; --line: #dcdcd4; --muted: #6b6b63; --accent: #2b5fd9; --on-accent: #ffffff;
+  --bad: #b3261e; --tag: #e8eefc; color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #161715; --card: #1f201d; --line: #34352f; --muted: #9a9a90; --accent: #6b93f2; --on-accent: #0d0d0c; --bad: #f2928b; --tag: #2a3350; }
+}
+html, body { margin: 0; background: var(--bg); color: light-dark(#1b1b18, #ecece6); font: 16px/1.45 system-ui, sans-serif; }

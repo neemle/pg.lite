@@ -6,3 +6,5 @@
 0004-wasm-user-name.patch
 0005-wasm-semaphores.patch
 0006-wasm-dsm-sysv.patch
+0007-wasm-embedded-protocol.patch
+0008-wasm-storage-barrier.patch

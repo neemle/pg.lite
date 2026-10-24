@@ -14,3 +14,8 @@ node_modules/
 *.log
 .DS_Store
 /xsfx-*.tar.gz
+.local/
+
+# Playwright output
+tests/browser/test-results/
+playwright-report/

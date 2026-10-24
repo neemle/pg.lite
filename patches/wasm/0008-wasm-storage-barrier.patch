@@ -1,0 +1,85 @@
+Subject: Make fsync the storage barrier of the browser build
+Purpose: PostgreSQL's durability contract is "fsync returned, so the data is stored": it fsyncs the WAL before a commit returns, data files at checkpoints and pg_control after them. In a browser the files live in memory and are stored in IndexedDB, so the browser link (PG_WASM_BROWSER) replaces the fsync and fdatasync system calls in fd.c by wasm_persist_barrier(), which calls Module.pgBarrier(): the page-side storage writes everything changed since the previous barrier in one IndexedDB transaction with strict durability and resolves when that transaction is complete (-1 when it failed, which becomes EIO, and PostgreSQL treats a failed WAL fsync as PANIC and stops, so a commit that was not stored is never reported). Every barrier therefore stores a consistent generation of all files together, and PostgreSQL's own WAL recovery handles an interruption between barriers. The node build is unchanged (real fsync); without Module.pgBarrier the barrier does nothing (memory-only database).
+Components: src/backend/storage/file/fd.c, src/backend/port/wasm_embed.c, src/include/port/wasm_embed.h
+Checks: tests/browser: a committed transaction survives killing the Worker, a failing store (fault injection) stops the engine without reporting the commit, an interrupted barrier leaves the previous generation
+Origin: own
+
+diff --git a/src/backend/storage/file/fd.c b/src/backend/storage/file/fd.c
+--- a/src/backend/storage/file/fd.c
++++ b/src/backend/storage/file/fd.c
+@@ -101,6 +101,9 @@
+ #include "utils/guc_hooks.h"
+ #include "utils/resowner.h"
+ #include "utils/varlena.h"
++#if defined(__EMSCRIPTEN__) && defined(PG_WASM_BROWSER)
++#include "port/wasm_embed.h"
++#endif
+ 
+ /* Define PG_FLUSH_DATA_WORKS if we have an implementation for pg_flush_data */
+ #if defined(HAVE_SYNC_FILE_RANGE)
+@@ -446,7 +449,14 @@
+ 		return 0;
+ 
+ retry:
++#if defined(__EMSCRIPTEN__) && defined(PG_WASM_BROWSER)
++	/* the browser's storage barrier: returns after the stored copy of the database is complete */
++	rc = wasm_persist_barrier();
++	if (rc != 0)
++		errno = EIO;
++#else
+ 	rc = fsync(fd);
++#endif
+ 
+ 	if (rc == -1 && errno == EINTR)
+ 		goto retry;
+@@ -485,7 +495,14 @@
+ 		return 0;
+ 
+ retry:
++#if defined(__EMSCRIPTEN__) && defined(PG_WASM_BROWSER)
++	/* the browser's storage barrier: returns after the stored copy of the database is complete */
++	rc = wasm_persist_barrier();
++	if (rc != 0)
++		errno = EIO;
++#else
+ 	rc = fdatasync(fd);
++#endif
+ 
+ 	if (rc == -1 && errno == EINTR)
+ 		goto retry;
+diff --git a/src/backend/port/wasm_embed.c b/src/backend/port/wasm_embed.c
+--- a/src/backend/port/wasm_embed.c
++++ b/src/backend/port/wasm_embed.c
+@@ -46,6 +46,19 @@
+ 	return Module.pgWrite(src, len);
+ });
+ 
++/*
++ * The storage barrier.  PostgreSQL calls fsync on the WAL before a commit returns and on data files and pg_control
++ * at checkpoints; the browser build (fd.c) calls this instead.  Module.pgBarrier() writes everything changed since
++ * the last barrier to IndexedDB in one transaction and resolves when that transaction is complete: 0, or -1 when
++ * it failed, which makes fsync fail and stops PostgreSQL, so a commit that was not stored is never reported.
++ * With no Module.pgBarrier (memory-only database) it does nothing.
++ */
++EM_ASYNC_JS(int, wasm_persist_barrier, (void),
++{
++	if (!Module.pgBarrier)
++		return 0;
++	return await Module.pgBarrier();
++});
+ #else							/* !PG_WASM_BROWSER */
+ 
+ int
+diff --git a/src/include/port/wasm_embed.h b/src/include/port/wasm_embed.h
+--- a/src/include/port/wasm_embed.h
++++ b/src/include/port/wasm_embed.h
+@@ -22,4 +22,9 @@
+ /* set up the protocol buffers and the "remote" output destination (pqcomm.c) */
+ extern void pq_init_embedded(void);
+ 
++#ifdef PG_WASM_BROWSER
++/* wait until the database is stored (see wasm_embed.c); 0, or -1 when storing failed */
++extern int	wasm_persist_barrier(void);
++#endif
++
+ #endif							/* WASM_EMBED_H */

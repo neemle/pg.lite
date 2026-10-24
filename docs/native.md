@@ -59,7 +59,9 @@ Build-side facts worth knowing:
   `archive_command` with shell syntax.
 - **Not done yet:** two concurrent sessions with row locks and isolation (N07), crash/recovery after a confirmed commit (N08), the shared SQL corpus
   on this build (N09), upstream regression and isolation suites, size/startup/memory measurements, sizes of the compressed image layer.
-- Built and tested for 18.6 only; the 13-17 backport and older majors are separate items.
+- Built and image-tested for 18.6, 17.11 and 16.15 (the same `native-image.sh test`; the patch series of 17 and 16 are ported from 18, see
+  docs/patches.md); 15 and older are separate items. The builtin locale provider exists from 17 on: `pg-launcher` is built with it only where
+  `initdb --help` lists it, 16 uses the libc provider with the same `C.UTF-8` name.
 
 ## What is in the image, why, and what can still go
 

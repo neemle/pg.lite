@@ -53,7 +53,9 @@ image)
          for b in $tools; do cp \$inst/bin/\$b \$r/usr/local/pgsql/bin/; done
          cp -a \$inst/share \$r/usr/local/pgsql/share
          rm -f \$r/usr/local/pgsql/share/errcodes.txt   # build-time input only; nothing reads it at run time
-         gcc -O2 -static -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c
+         # the launcher runs initdb on the first start: use the builtin locale provider only if this initdb has one
+         lopt=''; if ! \$inst/bin/initdb --help | grep -q builtin; then lopt=-DNO_BUILTIN_LOCALE; fi
+         gcc -O2 -static \$lopt -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c
          strip --strip-all \$r/usr/local/pgsql/bin/pg-launcher
          if [ '$pack' = xsfx ]; then   # pack every executable; keep a packed file only if it is smaller (the stub is 90 KB)
              cp $xsfx_bin /tmp/xsfx; chmod +x /tmp/xsfx

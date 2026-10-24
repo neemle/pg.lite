@@ -119,8 +119,12 @@ main(int argc, char **argv)
 			char		pgdataarg[4096];
 			char	   *initdb_argv[] = {
 				PREFIX "/bin/initdb", "-D", pgdataarg, userarg, "--pwfile=" PWFILE,
-				"--encoding=UTF8", "--locale=C.UTF-8", "--locale-provider=builtin",
-				"--builtin-locale=C.UTF-8", "--auth-local=trust", "--auth-host=scram-sha-256", NULL
+				"--encoding=UTF8", "--locale=C.UTF-8",
+#ifndef NO_BUILTIN_LOCALE
+				/* the builtin provider (PostgreSQL 17 and later): the same ordering on every libc */
+				"--locale-provider=builtin", "--builtin-locale=C.UTF-8",
+#endif
+				"--auth-local=trust", "--auth-host=scram-sha-256", NULL
 			};
 			int			rc;
 

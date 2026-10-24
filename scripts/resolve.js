@@ -8,6 +8,7 @@
 //
 //   resolve.js <version> [--allow-missing-builder]     print the plan as JSON
 //   resolve.js --check-all [--allow-missing-builder]    resolve every release in the index
+//   resolve.js <version> --series-args                 only the --series options for patches.js apply
 //
 // Options (for tests): --sources F --ranges F --toolchain F --patches DIR
 // Exit codes: 0 ok, 2 usage, 3 version not in the release index, 4 no/overlapping range,
@@ -29,6 +30,7 @@ for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === '--allow-missing-builder') opt.allowMissingBuilder = true;
   else if (a === '--check-all') opt.checkAll = true;
+  else if (a === '--series-args') opt.seriesArgs = true;
   else if (a === '--sources' || a === '--ranges' || a === '--toolchain' || a === '--patches') opt[a.slice(2)] = path.resolve(args[++i] || '');
   else if (!a.startsWith('--') && !opt.version) opt.version = a;
   else { console.error(`unknown argument ${a}`); process.exit(2); }
@@ -101,7 +103,10 @@ try {
     }
     console.log(`resolve --check-all: ${ok} of ${sources.releases.length} releases resolve${noBuilder ? `; ${noBuilder} have no builder range yet (CDB-24)` : ''}`);
   } else {
-    console.log(JSON.stringify(resolve(opt.version), null, 2));
+    const plan = resolve(opt.version);
+    // for patches.js apply: the series files of this version's range, e.g. "--series common=series.pg17 --series native=..."
+    if (opt.seriesArgs) console.log(plan.patches.map((p) => `--series ${p.target}=${p.series}`).join(' '));
+    else console.log(JSON.stringify(plan, null, 2));
   }
 } catch (e) {
   if (e instanceof PlanError) { console.error(`resolve: ${e.message}`); process.exit(e.code); }

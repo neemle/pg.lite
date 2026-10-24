@@ -26,6 +26,29 @@ All `make` targets, scripts and tests run inside the tools container defined in
 - Targets owned by backlog items that have not landed yet exit with status 2 and name the owner,
   for example `./dc make native` -> `NOT IMPLEMENTED (owned by CDB-3 ...)`.
 
+## Builders
+
+`./dcb <name> <command>` runs a command in a builder image from `docker/builders/<name>/Dockerfile`, with the same
+mounts and network rules as `./dc`:
+
+| Builder | For |
+| --- | --- |
+| `musl` | the static native server and the scratch image (docs/native.md) |
+| `wasm` | the WebAssembly server, `initdb`, and the browser module (docs/wasm.md) |
+| `web` | Node and Chromium (Playwright): the Angular demo and the browser tests |
+| `ref` | the unmodified upstream reference build and its `psql` |
+
+The network is off in every container except for `fetch` and `DC_NET=1`. npm installs go into the build volume:
+`DC_NET=1 ./dcb web sh scripts/web-install.sh tests/browser` (and `web/demo`), using the committed `package-lock.json`.
+
+### Behind a TLS-inspecting proxy
+
+A corporate proxy that re-signs HTTPS makes downloads inside containers fail with certificate errors. Export the
+proxy's root certificate (a public certificate, not a secret) to `.local/corp-ca.pem` (git-ignored); `./dc` then
+trusts it for node and npm in every container (`NODE_EXTRA_CA_CERTS`) and passes it to image builds as an optional
+BuildKit secret (`id=corpca`, never stored in an image). Certificate checking stays on. Source tarballs from
+`ftp.postgresql.org` use plain http with the pinned SHA-256 as the check when you set `FETCH_HTTP_FALLBACK=1`.
+
 ## What is pinned
 
 - `sources.lock.json`: upstream release, tag, full commit SHA, archive SHA-256. Baseline 18.6,

@@ -150,7 +150,7 @@ function apply() {
 
   fs.rmSync(opt.out, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(opt.out), { recursive: true });
-  fs.cpSync(opt.src, opt.out, { recursive: true, filter: (s) => path.basename(s) !== '.compactdb-verified' });
+  fs.cpSync(opt.src, opt.out, { recursive: true, preserveTimestamps: true, filter: (s) => path.basename(s) !== '.compactdb-verified' });
 
   const applied = [];
   for (const e of entries) {

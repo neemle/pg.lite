@@ -51,6 +51,26 @@ also be recorded in `THIRD_PARTY.md`. A continuation line starts with whitespace
   `.patch` file that is not in its series, an incomplete header, a bad `Origin`, or a borrowed
   patch whose attribution is incomplete or missing from `THIRD_PARTY.md`.
 
+## Other releases: porting the baseline series
+
+The series in `patches/<target>/series` are written for the baseline release (18.x). A release range of another
+major (`pg17`, `pg16`, ...) has its own `series.<range>` files. Most patches apply to the neighbouring majors as they
+are, and those are simply listed again; the few whose context differs get a version of their own in
+`patches/<target>/<range>/`. `scripts/port-patches.js` makes them:
+
+```sh
+./dc node scripts/port-patches.js --from 18.6 --to 17.11 --range pg17
+```
+
+For every patch in order, it applies the patch to the baseline tree and, when it also applies to the target tree
+with fuzz 0, lists the same file. Otherwise it merges per file (three-way: the baseline before the patch, after the
+patch, and the target file) and writes the merge result as a plain diff against the target, with a `Ported-from`
+header line. A conflict stops the run and writes `build/port/<from>-to-<to>-resolved/<patch>-<file>.conflict`; edit
+it, save it without the `.conflict` suffix and run again, and the resolution is used. The result is a normal series:
+`./dc make patches-verify` and `./dc make native-src VERSION=17.11` (fuzz 0) check it, the release builds test it.
+Port against the newest minor of the major, then check the others with `make native-src VERSION=<x.y>`: within a
+major the contexts rarely change.
+
 ## Where the trees live
 
 `cache/` (fetched upstream) and `build/` (patched copies, build output) are Docker named volumes

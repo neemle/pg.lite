@@ -20,13 +20,31 @@
       "notes": "PostgreSQL 10 to 12. Patch series are empty until the ports for this era land (CDB-26, CDB-29)."
     },
     {
-      "id": "pg13-17",
+      "id": "pg13-15",
       "from": "13.0",
-      "to": "17.99",
-      "patches": { "common": "series.pg13-17", "native": "series.pg13-17", "wasm": "series.pg13-17" },
+      "to": "15.99",
+      "patches": { "common": "series.pg13-15", "native": "series.pg13-15", "wasm": "series.pg13-15" },
       "configure": [],
       "omittedFeatures": [],
-      "notes": "PostgreSQL 13 to 17: adapted from the 18.x baseline (CDB-27, CDB-30)."
+      "notes": "PostgreSQL 13 to 15. Patch series are empty until the ports for this era land (CDB-27, CDB-30)."
+    },
+    {
+      "id": "pg16",
+      "from": "16.0",
+      "to": "16.99",
+      "patches": { "common": "series.pg16", "native": "series.pg16", "wasm": "series.pg16" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 16: the 18.x series, ported by scripts/port-patches.js (docs/patches.md); entries in patches/*/pg16/ are the patches that needed it."
+    },
+    {
+      "id": "pg17",
+      "from": "17.0",
+      "to": "17.99",
+      "patches": { "common": "series.pg17", "native": "series.pg17", "wasm": "series.pg17" },
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 17: the 18.x series, ported by scripts/port-patches.js (docs/patches.md); entries in patches/*/pg17/ are the patches that needed it."
     },
     {
       "id": "pg18",
