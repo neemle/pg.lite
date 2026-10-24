@@ -2,6 +2,7 @@
   "name": "compactdb-demo",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Notes app: Angular + TypeORM on PostgreSQL running inside the browser (compact.db WebAssembly build). Built by scripts/web-demo.sh.",
   "scripts": {
     "ng": "ng",

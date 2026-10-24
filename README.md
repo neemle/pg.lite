@@ -60,6 +60,7 @@ How releases differ from each other is data, not code: [docs/ranges.md](docs/ran
 
 ## Licence
 
-PostgreSQL is under the PostgreSQL License ([licenses/postgresql](licenses/postgresql)); it is not part of this
-repository. Third-party material used here is listed in [THIRD_PARTY.md](THIRD_PARTY.md). The licence of this
-repository's own scripts and patches has to be chosen by its owner before the repository is made public.
+This repository (scripts, Dockerfiles, patches, the web module and the demo) is under the [MIT License](LICENSE).
+PostgreSQL itself is under the PostgreSQL License ([licenses/postgresql](licenses/postgresql)); it is not part of this
+repository, and the images and archives built from it contain PostgreSQL code under that licence. Third-party
+material used here is listed in [THIRD_PARTY.md](THIRD_PARTY.md).
