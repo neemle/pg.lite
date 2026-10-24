@@ -109,5 +109,6 @@ await db.close();
 A tag is a PostgreSQL version. `git tag v18.6 && git push origin v18.6` runs `.github/workflows/release.yml`:
 it checks that the tag names an upstream release this repository can build (`scripts/release-plan.js`), builds and tests
 the WebAssembly module and the static image of that exact release, publishes `compact-db-wasm-18.6.tar.gz` with its
-checksum as a GitHub release and the image as `ghcr.io/<owner>/postgres:18.6` (also `:18` when 18.6 is the newest 18.x,
-`:latest` for the newest release overall; Docker Hub when `DOCKERHUB_REPOSITORY` and the Docker Hub secrets are set).
+checksum as a GitHub release and the image to Docker Hub as `<DOCKERHUB_REPOSITORY>:18.6` (also `:18` when 18.6 is the newest 18.x,
+`:latest` for the newest release overall). `DOCKERHUB_REPOSITORY` (variable) and `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN`
+(secrets) must be set; a tag build fails at once without them.

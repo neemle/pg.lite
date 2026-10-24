@@ -3,8 +3,9 @@ name: release
 # A tag is a PostgreSQL version: v18.6 builds PostgreSQL 18.6 (checksum-pinned in sources.lock.json) with this
 # repository's patches, and publishes
 #   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
-#   - the static musl server as a FROM scratch Docker image: ghcr.io/<owner>/postgres:<version>, and on Docker Hub
-#     when DOCKERHUB_USERNAME / DOCKERHUB_TOKEN (secrets) and DOCKERHUB_REPOSITORY (variable, e.g. "org/postgres") are set.
+#   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
+#     Configure the repository variable DOCKERHUB_REPOSITORY (for example "org/postgres") and the secrets
+#     DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (an access token with write permission); a tag build fails at once without them.
 # Image tags: the exact version (18.6) and, when it is the newest release of its major, the major (18); "latest" only
 # for the newest release of all.  v16.x, v17.x and v18.x are parallel lines of drop-in replacements.
 on:
@@ -20,7 +21,6 @@ on:
 
 permissions:
   contents: write     # create the release and upload its files
-  packages: write     # push to ghcr.io
 
 concurrency:
   group: release-${{ github.ref_name }}-${{ inputs.version }}
@@ -43,8 +43,18 @@ jobs:
           TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', inputs.version) }}
         run: ./dc node scripts/release-plan.js --github "$TAG" | tee -a "$GITHUB_OUTPUT"
       - id: publish
-        name: Only a pushed tag publishes
-        run: echo "publish=${{ github.ref_type == 'tag' }}" >> "$GITHUB_OUTPUT"
+        name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
+        env:
+          IS_TAG: ${{ github.ref_type == 'tag' }}
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ "$IS_TAG" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
+            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example org/postgres) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
+            exit 1
+          fi
+          echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
 
   wasm:
     needs: plan
@@ -114,35 +124,23 @@ jobs:
         env:
           NEWEST_IN_MAJOR: ${{ needs.plan.outputs.newestInMajor }}
           NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
-          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
         run: |
-          owner=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
           tags="$VERSION"
           [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
           [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
-          {
-            echo "ghcr=ghcr.io/$owner/postgres"
-            echo "tags=$tags"
-            echo "hub=${DOCKERHUB_REPOSITORY}"
-            if [ -n "$DOCKERHUB_TOKEN" ] && [ -n "$DOCKERHUB_REPOSITORY" ]; then echo "hubready=true"; fi
-          } >> "$GITHUB_OUTPUT"
-      - name: Push to ghcr.io
+          echo "tags=$tags" >> "$GITHUB_OUTPUT"
+      - name: Push to Docker Hub
         if: ${{ needs.plan.outputs.publish == 'true' }}
+        env:
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          TAGS: ${{ steps.tags.outputs.tags }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          for t in ${{ steps.tags.outputs.tags }}; do
-            docker tag "compactdb-native:$VERSION" "${{ steps.tags.outputs.ghcr }}:$t"
-            docker push "${{ steps.tags.outputs.ghcr }}:$t"
-          done
-      - name: Push to Docker Hub (when configured)
-        if: ${{ needs.plan.outputs.publish == 'true' && steps.tags.outputs.hubready == 'true' }}
-        run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          for t in ${{ steps.tags.outputs.tags }}; do
-            docker tag "compactdb-native:$VERSION" "${{ steps.tags.outputs.hub }}:$t"
-            docker push "${{ steps.tags.outputs.hub }}:$t"
+          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          for t in $TAGS; do
+            docker tag "compactdb-native:$VERSION" "$DOCKERHUB_REPOSITORY:$t"
+            docker push "$DOCKERHUB_REPOSITORY:$t"
           done
       - name: Image report
         run: docker image inspect "compactdb-native:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
@@ -164,7 +162,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.plan.outputs.version }}
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
         run: |
           gh release create "$GITHUB_REF_NAME" assets/* --repo "$GITHUB_REPOSITORY" \
             --title "PostgreSQL $VERSION (compact.db)" \
-            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/postgres:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in sources.lock.json."
+            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in sources.lock.json."

@@ -23,15 +23,16 @@ A git tag is a PostgreSQL version: **`v18.6` is PostgreSQL 18.6**, with this rep
 
 Pushing a tag `vX.Y` runs [.github/workflows/release.yml](.github/workflows/release.yml): it builds and tests that exact
 release and publishes the browser module as a GitHub release (`compact-db-wasm-X.Y.tar.gz` with its checksum) and the
-image as `ghcr.io/<owner>/postgres:X.Y` (also `:X` for the newest X.y, `:latest` for the newest release overall;
-Docker Hub too when `DOCKERHUB_REPOSITORY` (variable) and `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` (secrets) are set).
+image to Docker Hub as `<DOCKERHUB_REPOSITORY>:X.Y` (also `:X` for the newest X.y, `:latest` for the newest release overall).
+Set the repository variable `DOCKERHUB_REPOSITORY` (for example `org/postgres`) and the secrets `DOCKERHUB_USERNAME` and
+`DOCKERHUB_TOKEN` first: a tag build fails at once without them.
 "Run workflow" on the same workflow does a dry run of any version without publishing.
 
 ## Use
 
 ```sh
 # the image: first start with an empty volume
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 ghcr.io/<owner>/postgres:18.6
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 <org>/postgres:18.6
 ```
 
 ```js
