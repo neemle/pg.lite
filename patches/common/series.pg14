@@ -1,0 +1,5 @@
+# Patch series for the "common" target, range pg14 (PostgreSQL 14.x): one *.patch path per line, relative to this directory.
+# Made by scripts/port-patches.js from the baseline series (15.19); entries in pg14/ are the patches that needed a port, the others are shared with the baseline.
+pg14/0001-static-modules.patch
+pg16/0003-no-locale-a.patch
+pg15/0004-snowball-english-only.patch

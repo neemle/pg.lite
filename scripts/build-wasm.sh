@@ -84,6 +84,11 @@ if [ "$resume" = 0 ]; then
     opts="--prefix=$prefix --without-readline --without-zlib --without-icu"
     help=$("$src/configure" --help)
     echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
+    # the release range's own configure options and compiler flags (data in ranges.json, written by make wasm-src)
+    range_configure=$(tr '\n' ' ' < "$base/range-configure" 2>/dev/null || true)
+    range_cflags=$(tr '\n' ' ' < "$base/range-cflags" 2>/dev/null || true)
+    [ -z "$range_configure" ] || opts="$opts $range_configure"
+    [ -z "$range_cflags" ] || cflags="$cflags $range_cflags"
     # emcc writes executable programs, so configure can run its tests under node: no cross-compile cache needed.
     # shellcheck disable=SC2086
     step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}"
@@ -153,6 +158,12 @@ step make -C src/backend/snowball snowball_create.sql
 mkdir -p "$inst$prefix/share/tsearch_data"
 cp src/backend/snowball/snowball_create.sql "$inst$prefix/share/"
 cp "$src/src/backend/snowball/stopwords/english.stop" "$inst$prefix/share/tsearch_data/"
+# releases up to 11 have initdb read conversion_create.sql (encoding conversions from loadable modules; 12 and later have
+# them built in): there are no loadable modules here, so an empty one (feature detection: only where initdb asks for it)
+if grep -q conversion_create.sql "$src/src/bin/initdb/initdb.c"; then
+    printf -- '-- no encoding conversions in this build (no loadable modules)
+' > "$inst$prefix/share/conversion_create.sql"
+fi
 # a WebAssembly executable is the .js launcher plus a .wasm next to it; "install" copies only the first
 bin="$inst$prefix/bin"
 cp "$obj/src/backend/postgres.wasm" "$bin/"
@@ -166,9 +177,11 @@ echo "build-wasm: initdb (template data directory)"
 locale_args="--locale=C.UTF-8"
 # the builtin locale provider exists from PostgreSQL 17 on: use it where this initdb has it (feature detection)
 if "$bin/initdb" --help | grep -q builtin; then locale_args="$locale_args --locale-provider=builtin --builtin-locale=C.UTF-8"; fi
+# one-megabyte WAL segments (11 and later) keep the template small; 10 and earlier cannot set it and keep 16 MB
+if "$bin/initdb" --help | grep -q wal-segsize; then locale_args="$locale_args --wal-segsize=1"; fi
 # shellcheck disable=SC2086
 step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=postgres --auth=trust --encoding=UTF8 \
-    $locale_args --wal-segsize=1 --no-sync ${TEMPLATE_ARGS:-}
+    $locale_args --no-sync ${TEMPLATE_ARGS:-}
 
 echo "build-wasm: done ($log)"
 ls -l "$bin" | sed 's/^/  /'

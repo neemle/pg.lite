@@ -1,0 +1,10 @@
+# Patch series for the "wasm" target, range pg14 (PostgreSQL 14.x): one *.patch path per line, relative to this directory.
+# Made by scripts/port-patches.js from the baseline series (15.19); entries in pg14/ are the patches that needed a port, the others are shared with the baseline.
+0001-wasm-shared-memory.patch
+0002-wasm-no-root-check.patch
+0003-wasm-initdb-popen.patch
+0004-wasm-user-name.patch
+0005-wasm-semaphores.patch
+pg14/0006-wasm-dsm-sysv.patch
+pg14/0007-wasm-embedded-protocol.patch
+0008-wasm-storage-barrier.patch

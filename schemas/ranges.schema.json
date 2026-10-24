@@ -34,6 +34,11 @@
             "items": { "type": "string", "pattern": "^--(with|without|enable|disable)-[a-z0-9-]+(=.+)?$" },
             "description": "Extra configure options for this range, as data."
           },
+          "cflags": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^-[A-Za-z0-9=_.+-]+$" },
+            "description": "Extra compiler flags for this range (for example -std=gnu17 for releases written for older C), added to CFLAGS by the native and the WebAssembly build."
+          },
           "omittedFeatures": {
             "type": "array",
             "items": { "type": "string", "pattern": "^[a-z0-9-]+$" },

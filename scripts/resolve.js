@@ -9,6 +9,7 @@
 //   resolve.js <version> [--allow-missing-builder]     print the plan as JSON
 //   resolve.js --check-all [--allow-missing-builder]    resolve every release in the index
 //   resolve.js <version> --series-args                 only the --series options for patches.js apply
+//   resolve.js <version> --write-build-args <dir>      write <dir>/range-configure and <dir>/range-cflags for the build scripts
 //
 // Options (for tests): --sources F --ranges F --toolchain F --patches DIR
 // Exit codes: 0 ok, 2 usage, 3 version not in the release index, 4 no/overlapping range,
@@ -31,6 +32,7 @@ for (let i = 0; i < args.length; i++) {
   if (a === '--allow-missing-builder') opt.allowMissingBuilder = true;
   else if (a === '--check-all') opt.checkAll = true;
   else if (a === '--series-args') opt.seriesArgs = true;
+  else if (a === '--write-build-args') opt.writeBuildArgs = path.resolve(args[++i] || '');
   else if (a === '--sources' || a === '--ranges' || a === '--toolchain' || a === '--patches') opt[a.slice(2)] = path.resolve(args[++i] || '');
   else if (!a.startsWith('--') && !opt.version) opt.version = a;
   else { console.error(`unknown argument ${a}`); process.exit(2); }
@@ -89,6 +91,7 @@ function resolve(version) {
     builders,
     patches,
     configure: range.configure,
+    cflags: range.cflags || [],
     omittedFeatures: range.omittedFeatures,
   };
 }
@@ -105,7 +108,12 @@ try {
   } else {
     const plan = resolve(opt.version);
     // for patches.js apply: the series files of this version's range, e.g. "--series common=series.pg17 --series native=..."
-    if (opt.seriesArgs) console.log(plan.patches.map((p) => `--series ${p.target}=${p.series}`).join(' '));
+    if (opt.writeBuildArgs) {
+      // for the build scripts, which run where there is no node: the range's extra configure options and compiler flags, one per line
+      fs.mkdirSync(opt.writeBuildArgs, { recursive: true });
+      fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-configure'), plan.configure.map((x) => `${x}\n`).join(''));
+      fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-cflags'), plan.cflags.map((x) => `${x}\n`).join(''));
+    } else if (opt.seriesArgs) console.log(plan.patches.map((p) => `--series ${p.target}=${p.series}`).join(' '));
     else console.log(JSON.stringify(plan, null, 2));
   }
 } catch (e) {

@@ -30,14 +30,14 @@ check('18.6 plan carries the locked commit and checksum', !!plan && plan.commit 
 check('plan references the series files of its range', !!plan && plan.patches.map((p) => `${p.target}:${p.series}`).join(',') === 'common:series,native:series,wasm:series');
 check('plan is deterministic (two runs are byte-identical)', run(['18.6']).stdout === r.stdout);
 
-r = run(['13.4', '--allow-missing-builder']);
+r = run(['9.3.25', '--allow-missing-builder']);
 plan = r.status === 0 ? JSON.parse(r.stdout) : null;
-check('13.4 resolves to pg13-14 with its own series and no builder yet', !!plan && plan.range === 'pg13-14' && plan.builders === null
-  && plan.patches[1].series === 'series.pg13-14', r.stderr);
-r = run(['13.4']);
-check('13.4 without --allow-missing-builder fails with exit 5', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
+check('9.3.25 resolves to pg9 with its own series and no builder yet', !!plan && plan.range === 'pg9' && plan.builders === null
+  && plan.patches[1].series === 'series.pg9', r.stderr);
+r = run(['9.3.25']);
+check('9.3.25 without --allow-missing-builder fails with exit 5', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
 
-for (const [v, id] of [['9.0.0', 'pg9'], ['9.6.24', 'pg9'], ['10.0', 'pg10-12'], ['12.22', 'pg10-12'], ['14.22', 'pg13-14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
+for (const [v, id] of [['9.0.0', 'pg9'], ['9.3.25', 'pg9'], ['9.4.26', 'pg9-4'], ['9.5.25', 'pg9-5'], ['9.6.24', 'pg9-6'], ['10.0', 'pg10'], ['11.22', 'pg11'], ['12.22', 'pg12'], ['13.23', 'pg13'], ['14.24', 'pg14'], ['15.19', 'pg15'], ['16.15', 'pg16'], ['17.11', 'pg17']]) {
   r = run([v, '--allow-missing-builder']);
   check(`${v} resolves to ${id}`, r.status === 0 && JSON.parse(r.stdout).range === id, r.stderr);
 }
@@ -50,7 +50,7 @@ check('every release in the index resolves (builder gaps tolerated)', r.status =
 
 // --- mutated data
 const ranges = loadJson('ranges.json');
-let m = clone(ranges); m.ranges = m.ranges.filter((x) => x.id !== 'pg10-12');
+let m = clone(ranges); m.ranges = m.ranges.filter((x) => x.id !== 'pg11');
 r = run(['11.5', '--allow-missing-builder', '--ranges', withFile('gap.json', m)]);
 check('an uncovered version fails with exit 4', r.status === 4 && r.stderr.includes('no range'), `${r.status} ${r.stderr}`);
 
@@ -66,7 +66,7 @@ check('a range naming a missing series file fails with exit 6', r.status === 6 &
 const vl = (rangesFile) => spawnSync(process.execPath, [path.join(root, 'scripts', 'validate-locks.js'), '--ranges', rangesFile], { encoding: 'utf8' });
 let v = vl(path.join(root, 'ranges.json'));
 check('validate-locks accepts ranges.json against the 351-release index', v.status === 0 && v.stdout.includes('ranges: OK'), v.stdout + v.stderr);
-m = clone(ranges); m.ranges = m.ranges.filter((x) => x.id !== 'pg10-12');
+m = clone(ranges); m.ranges = m.ranges.filter((x) => x.id !== 'pg11');
 v = vl(withFile('hole.json', m));
 check('validate-locks rejects a hole in the ranges', v.status === 1 && v.stderr.includes('covered by 0 ranges'), v.stdout + v.stderr);
 

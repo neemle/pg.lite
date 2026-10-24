@@ -96,6 +96,11 @@ echo "$help" | grep -q -- '--without-readline' && opts="$opts --without-readline
 echo "$help" | grep -qE -- '--(with|without)-icu' && opts="$opts --without-icu"
 echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
 if [ -n "$extra_opts" ]; then opts="$opts $extra_opts"; fi
+# the release range's own configure options and compiler flags (data in ranges.json, written by make native-src)
+range_configure=$(tr '\n' ' ' < "$base/range-configure" 2>/dev/null || true)
+range_cflags=$(tr '\n' ' ' < "$base/range-cflags" 2>/dev/null || true)
+[ -z "$range_configure" ] || opts="$opts $range_configure"
+[ -z "$range_cflags" ] || cflags="${cflags:--O2} $range_cflags"
 
 # Static frontends need the two encoding functions the shared libpq would export (see the shim).
 step gcc -O2 -c -o "$out/shim.o" /w/docker/native/libpq_static_shim.c
@@ -149,7 +154,9 @@ step objcopy --redefine-sym Pg_magic_func=dict_snowball_Pg_magic_func --redefine
 # the blob local except the two entry points, so nothing in it can clash with the server's functions of the same names.
 # What the blob leaves undefined (libc, and the server functions libpqwalreceiver itself uses) is resolved by the final link.
 lw="$out/obj/src/backend/replication/libpqwalreceiver"
-step ld -r -o "$sm/libpqwalreceiver.o" "$lw/libpqwalreceiver.o" --start-group "$out/obj/src/interfaces/libpq/libpq.a" "$out/obj/src/common/libpgcommon_shlib.a" "$out/obj/src/port/libpgport_shlib.a" --end-group
+# libpq is built against the "_shlib" variants of libpgcommon and libpgport where the release has them (feature detection)
+shl=_shlib; [ -f "$out/obj/src/common/libpgcommon_shlib.a" ] || shl=
+step ld -r -o "$sm/libpqwalreceiver.o" "$lw/libpqwalreceiver.o" --start-group "$out/obj/src/interfaces/libpq/libpq.a" "$out/obj/src/common/libpgcommon$shl.a" "$out/obj/src/port/libpgport$shl.a" --end-group
 step objcopy --redefine-sym Pg_magic_func=libpqwalreceiver_Pg_magic_func --redefine-sym _PG_init=libpqwalreceiver_PG_init "$sm/libpqwalreceiver.o"
 step objcopy --keep-global-symbol=libpqwalreceiver_Pg_magic_func --keep-global-symbol=libpqwalreceiver_PG_init "$sm/libpqwalreceiver.o"
 
@@ -170,5 +177,14 @@ for kind in install install-strip; do
         step make -C "$d" "$kind" DESTDIR="$out/$kind" STATIC_MODULE_OBJS="$mods" $be_arg
     done
 done
+# Releases up to 11 have initdb read conversion_create.sql, which creates the encoding conversions from loadable modules
+# (12 and later have them built in). A static server has no loadable modules and the profile has no conversions, so the
+# file is an empty one (feature detection: only where initdb asks for it).
+if grep -q conversion_create.sql "$src/src/bin/initdb/initdb.c"; then
+    for kind in install install-strip; do
+        printf -- '-- no encoding conversions in this build (no loadable modules)
+' > "$out/$kind$prefix/share/conversion_create.sql"
+    done
+fi
 echo "build-native: done ($log)"
 ls -l "$out/install-strip$prefix/bin"

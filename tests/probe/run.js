@@ -120,9 +120,9 @@ t('CLI on a fixture tree prints args, skipped options and capabilities', () => {
   assert.strictEqual(r.status, 0, r.stderr);
   const out = JSON.parse(r.stdout);
   assert.strictEqual(out.version, '10.5');
-  assert.strictEqual(out.range, 'pg10-12');
+  assert.strictEqual(out.range, 'pg10');
   assert.deepStrictEqual(out.args, ['--prefix=/usr/local/pgsql', '--without-readline', '--without-zlib']);
-  assert.deepStrictEqual(out.skipped.map((s) => s.flag), ['--without-icu']);
+  assert.deepStrictEqual(out.skipped.map((s) => s.flag), ['--without-icu', '--disable-thread-safety']);
   assert.strictEqual(out.capabilities.savepoint, true);
 });
 

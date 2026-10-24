@@ -27,7 +27,7 @@ echo "--- first session: SQL profile"
 out=$(run <<'EOF'
 SELECT version()
 SELECT 1 + 1 AS two
-CREATE TABLE t (id int PRIMARY KEY, u uuid DEFAULT gen_random_uuid(), amount numeric(20,6) NOT NULL, note text)
+CREATE TABLE t (id int PRIMARY KEY, u text DEFAULT md5(random()::text), amount numeric(20,6) NOT NULL, note text)
 INSERT INTO t (id, amount, note) SELECT g, g * 0.000001 + 123456789012.345678, 'row ' || g FROM generate_series(1, 1000) g
 SELECT count(*), sum(amount) FROM t
 CREATE VIEW v AS SELECT id, note FROM t WHERE id <= 3

@@ -1,0 +1,33 @@
+Subject: Use System V dynamic shared memory in the WebAssembly build, not shm_open() with mmap()
+Purpose: initdb picks the "posix" dynamic shared memory implementation because Emscripten has shm_open(), and the server's default is the same. A posix segment is a shared-memory file mapped with mmap(MAP_SHARED), and Emscripten writes such a mapping back through the file descriptor NUMBER when it is unmapped; by then the number belongs to another file. Measured: the 6708-byte dynamic shared memory control segment (magic 0x9a503d32) was written over the first block of the btree index base/1/2691 at process exit, so the next postgres failed with "page verification failed" and "invalid page in block 0". The "sysv" implementation (wasm_shm.c, patch 0001) is plain memory of this process and has no file descriptor. With __EMSCRIPTEN__ defined, the posix implementation is neither offered nor chosen by default, in the server (dsm_impl.h) and in initdb.
+Components: src/include/storage/dsm_impl.h, src/bin/initdb/initdb.c
+Checks: scripts/build-wasm.sh creates the template data directory and postgres --single opens it (scripts/test-wasm-node.sh); the generated postgresql.conf has dynamic_shared_memory_type = sysv
+Origin: own
+Ported-from: 15.19 (wasm/0006-wasm-dsm-sysv.patch) for 14.24 by scripts/port-patches.js
+Ported-from: 12.22 (wasm/pg14/0006-wasm-dsm-sysv.patch) for 11.22 by scripts/port-patches.js
+
+diff --git a/src/include/storage/dsm_impl.h b/src/include/storage/dsm_impl.h
+--- a/src/include/storage/dsm_impl.h
++++ b/src/include/storage/dsm_impl.h
+@@ -28,7 +28,8 @@
+ #define USE_DSM_WINDOWS
+ #define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE		DSM_IMPL_WINDOWS
+ #else
+-#ifdef HAVE_SHM_OPEN
++/* a posix segment is mmap()ed over a descriptor number that WebAssembly writes back by number: not usable */
++#if defined(HAVE_SHM_OPEN) && !defined(__EMSCRIPTEN__)
+ #define USE_DSM_POSIX
+ #define DEFAULT_DYNAMIC_SHARED_MEMORY_TYPE		DSM_IMPL_POSIX
+ #endif
+diff --git a/src/bin/initdb/initdb.c b/src/bin/initdb/initdb.c
+--- a/src/bin/initdb/initdb.c
++++ b/src/bin/initdb/initdb.c
+@@ -922,7 +922,7 @@
+ static char *
+ choose_dsm_implementation(void)
+ {
+-#ifdef HAVE_SHM_OPEN
++#if defined(HAVE_SHM_OPEN) && !defined(__EMSCRIPTEN__)
+ 	int			ntries = 10;
+ 
+ 	/* Initialize random(); this function is its only user in this program. */

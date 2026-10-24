@@ -111,7 +111,9 @@ test)
     echo "--- cold init in the scratch image on an empty volume, as uid 70 (no shell, no .so)"
     sh "$0" up "$ver"
     [ "$(client -At -c 'SELECT 1')" = "1" ] && pass "SELECT 1 from an external client over TCP" || bad "SELECT 1"
-    client -At -c "SELECT version()" -c "SHOW server_encoding" -c "SHOW timezone" -c "SELECT datlocprovider::text || ' ' || datcollate FROM pg_database WHERE datname='postgres'"
+    client -At -c "SELECT version()" -c "SHOW server_encoding" -c "SHOW timezone" -c "SELECT datcollate FROM pg_database WHERE datname='postgres'"
+    # the locale provider column exists from 15 on
+    client -At -c "SELECT datlocprovider::text FROM pg_database WHERE datname='postgres'" 2>/dev/null || echo "(this release has no locale provider column)"
 
     echo "--- built-in modules (no dlopen)"
     out=$(client -At -c "CREATE FUNCTION f(x int) RETURNS int LANGUAGE plpgsql AS \$\$ BEGIN RETURN x + 1; END \$\$" -c "SELECT f(41)" 2>&1) && [ "$(echo "$out" | tail -1)" = "42" ] && pass "plpgsql function runs" || { bad "plpgsql: $out"; }

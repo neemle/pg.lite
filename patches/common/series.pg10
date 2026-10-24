@@ -1,0 +1,5 @@
+# Patch series for the "common" target, range pg10 (PostgreSQL 10.x): one *.patch path per line, relative to this directory.
+# Made by scripts/port-patches.js from the baseline series (11.22); entries in pg10/ are the patches that needed a port, the others are shared with the baseline.
+pg11/0001-static-modules.patch
+pg16/0003-no-locale-a.patch
+pg10/0004-snowball-english-only.patch

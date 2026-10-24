@@ -9,7 +9,10 @@ obj="/w/build/native/$ver/obj"
 [ -f "$src/src/common/noshell.c" ] || { echo "test-noshell: patched tree missing; run ./dc make native-src VERSION=$ver" >&2; exit 2; }
 [ -f "$obj/src/include/pg_config.h" ] || { echo "test-noshell: tree not configured; run ./dcb musl make native-build VERSION=$ver" >&2; exit 2; }
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
-gcc -O2 -Wall -DFRONTEND -DPG_NO_SHELL -I"$obj/src/include" -I"$src/src/include" -c -o "$tmp/noshell.o" "$src/src/common/noshell.c"
+range_cflags=$(tr '
+' ' ' < "/w/build/native/$ver/range-cflags" 2>/dev/null || true)   # for example -std=gnu17 for releases written for older C
+# shellcheck disable=SC2086
+gcc -O2 -Wall $range_cflags -DFRONTEND -DPG_NO_SHELL -I"$obj/src/include" -I"$src/src/include" -c -o "$tmp/noshell.o" "$src/src/common/noshell.c"
 gcc -O2 -Wall -c -o "$tmp/test.o" /w/tests/native/noshell-test.c
 gcc -static -o "$tmp/test" "$tmp/test.o" "$tmp/noshell.o"
 "$tmp/test"

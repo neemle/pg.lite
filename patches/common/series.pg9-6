@@ -1,0 +1,5 @@
+# Patch series for the "common" target, range pg9-6 (PostgreSQL 9.x): one *.patch path per line, relative to this directory.
+# Made by scripts/port-patches.js from the baseline series (10.23); entries in pg9-6/ are the patches that needed a port, the others are shared with the baseline.
+pg9-6/0001-static-modules.patch
+pg9-6/0003-no-locale-a.patch
+pg9-6/0004-snowball-english-only.patch

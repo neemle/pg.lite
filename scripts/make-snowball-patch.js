@@ -23,10 +23,13 @@ const files = { Makefile: path.join(dir, 'Makefile'), 'dict_snowball.c': path.jo
 function editMakefile(t) {
   // the stemmer object list
   const objs = /^OBJS \+= \\\n(?:\tstem_[A-Za-z0-9_]+\.o(?: \\)?\n)+/m;
-  if (!objs.test(t)) throw new Error('Makefile: stemmer object list not found');
-  t = t.replace(objs, 'OBJS += \\\n\tstem_UTF_8_english.o\n');
+  // older releases (12 and before) list the stemmers right after the common objects in the OBJS= line
+  const objsOld = /^(OBJS=.*utilities\.o) \\\n(?:\tstem_[A-Za-z0-9_]+\.o(?: \\)?\n)+/m;
+  if (objs.test(t)) t = t.replace(objs, 'OBJS += \\\n\tstem_UTF_8_english.o\n');
+  else if (objsOld.test(t)) t = t.replace(objsOld, '$1 stem_UTF_8_english.o\n');
+  else throw new Error('Makefile: stemmer object list not found');
   // the language list: language and the dictionary used for all-ASCII words
-  const langs = /^LANGUAGES=\s*\\\n(?:\t[a-z]+\t+[a-z]+(?:\t*\\)?\n)+/m;
+  const langs = /^LANGUAGES=\s*\\\n(?:\t[a-z]+[ \t]+[a-z]+[ \t]*(?:\\)?\n)+/m;
   if (!langs.test(t)) throw new Error('Makefile: LANGUAGES list not found');
   return t.replace(langs, 'LANGUAGES=  \\\n\tenglish\t\tenglish\n');
 }
@@ -36,12 +39,15 @@ function editDict(t) {
   if (!t.includes('stem_UTF_8_english.h')) {
     t = t.replace('#include "snowball/libstemmer/header.h"\n', '#include "snowball/libstemmer/header.h"\n#include "snowball/libstemmer/stem_UTF_8_english.h"\n');
   }
-  const before = t;
-  t = t.replace(/^\tSTEMMER_MODULE\([^\n]*\),\n/gm, '');
-  if (t === before) throw new Error('dict_snowball.c: STEMMER_MODULE entries not found');
   const marker = '\t * Stemmers list from Snowball distribution\n\t */\n';
   if (!t.includes(marker)) throw new Error('dict_snowball.c: stemmer list comment not found');
-  return t.replace(marker, `${marker}\tSTEMMER_MODULE(english, PG_UTF8, UTF_8),\n`);
+  const before = t;
+  // 12 and later use the STEMMER_MODULE macro; older releases spell every entry out as a struct initializer
+  t = t.replace(/^\tSTEMMER_MODULE\([^\n]*\),\n/gm, '');
+  if (t !== before) return t.replace(marker, `${marker}\tSTEMMER_MODULE(english, PG_UTF8, UTF_8),\n`);
+  t = t.replace(/^\t\{"[a-z]+", PG_[A-Z0-9_]+, [a-z]+_[A-Za-z0-9_]+_create_env, [^\n]*\},\n/gm, '');
+  if (t === before) throw new Error('dict_snowball.c: stemmer entries not found');
+  return t.replace(marker, `${marker}\t{"english", PG_UTF8, english_UTF_8_create_env, english_UTF_8_close_env, english_UTF_8_stem},\n`);
 }
 
 const edits = { Makefile: editMakefile, 'dict_snowball.c': editDict };
