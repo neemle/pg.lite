@@ -131,6 +131,7 @@ fix_header_links
 
 # The server has its own encoding functions; only the frontends get the shim.
 for d in src/port src/common src/timezone; do
+    [ -d "$src/$d" ] || continue   # src/common arrived in 9.3
     echo "build-native: make $d"; step make -j"$(nproc)" -C "$d"
 done
 echo "build-native: make src/backend"; step make -j"$(nproc)" -C src/backend $be_arg
@@ -168,7 +169,7 @@ step objcopy --redefine-sym Pg_magic_func=dict_snowball_Pg_magic_func --redefine
 lw="$out/obj/src/backend/replication/libpqwalreceiver"
 # libpq is built against the "_shlib" variants of libpgcommon and libpgport where the release has them (feature detection)
 shl=_shlib; [ -f "$out/obj/src/common/libpgcommon_shlib.a" ] || shl=
-step ld -r -o "$sm/libpqwalreceiver.o" "$lw/libpqwalreceiver.o" --start-group "$out/obj/src/interfaces/libpq/libpq.a" "$out/obj/src/common/libpgcommon$shl.a" "$out/obj/src/port/libpgport$shl.a" --end-group
+step ld -r -o "$sm/libpqwalreceiver.o" "$lw/libpqwalreceiver.o" --start-group "$out/obj/src/interfaces/libpq/libpq.a" $([ -f "$out/obj/src/common/libpgcommon$shl.a" ] && echo "$out/obj/src/common/libpgcommon$shl.a") "$out/obj/src/port/libpgport$shl.a" --end-group
 step objcopy --redefine-sym Pg_magic_func=libpqwalreceiver_Pg_magic_func --redefine-sym _PG_init=libpqwalreceiver_PG_init "$sm/libpqwalreceiver.o"
 step objcopy --keep-global-symbol=libpqwalreceiver_Pg_magic_func --keep-global-symbol=libpqwalreceiver_PG_init "$sm/libpqwalreceiver.o"
 

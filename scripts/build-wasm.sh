@@ -107,6 +107,7 @@ make_headers
 fix_header_links
 
 for d in src/port src/common src/timezone; do
+    [ -d "$src/$d" ] || continue   # src/common arrived in 9.3
     echo "build-wasm: make $d"; step mk -C "$d"
 done
 # ---- static modules: plain objects with unique entry-point names (wasm objects cannot be renamed with objcopy,
@@ -190,7 +191,7 @@ if "$bin/initdb" --help | grep -q builtin; then locale_args="$locale_args --loca
 # one-megabyte WAL segments (11 and later) keep the template small; 10 and earlier cannot set it and keep 16 MB
 if "$bin/initdb" --help | grep -q wal-segsize; then locale_args="$locale_args --wal-segsize=1"; fi
 # the option that skips fsync is --no-sync from 10 on, --nosync before
-nosync_arg=--no-sync; "$bin/initdb" --help | grep -q -- --no-sync || nosync_arg=--nosync
+nosync_arg=--no-sync; "$bin/initdb" --help | grep -q -- --no-sync || { nosync_arg=--nosync; "$bin/initdb" --help | grep -q -- --nosync || nosync_arg=; }   # 9.2 never syncs and has no option
 # shellcheck disable=SC2086
 step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=postgres --auth=trust --encoding=UTF8 \
     $locale_args $nosync_arg ${TEMPLATE_ARGS:-}

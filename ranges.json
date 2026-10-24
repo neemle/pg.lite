@@ -4,7 +4,7 @@
     {
       "id": "pg9",
       "from": "9.0.0",
-      "to": "9.2.99",
+      "to": "9.1.99",
       "patches": {
         "common": "series.pg9",
         "native": "series.pg9",
@@ -12,7 +12,30 @@
       },
       "configure": [],
       "omittedFeatures": [],
-      "notes": "PostgreSQL 9.0 to 9.2. Patch series are empty until the ports for this era land."
+      "notes": "PostgreSQL 9.0 and 9.1. Patch series are empty until the ports for this era land."
+    },
+    {
+      "id": "pg9-2",
+      "from": "9.2.0",
+      "to": "9.2.99",
+      "patches": {
+        "common": "series.pg9-2",
+        "native": "series.pg9-2",
+        "wasm": "series.pg9-2"
+      },
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.2: ported from 9.3 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
     },
     {
       "id": "pg9-3",
