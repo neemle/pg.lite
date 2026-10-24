@@ -73,6 +73,16 @@ fix_header_links() {
     return 0
 }
 
+# Generate the headers the parallel build races on. 9.6 and later have a target for it; earlier releases generate the same
+# headers through the targets their recursive build depends on.
+make_headers() {
+    if grep -q '^generated-headers' "$src/src/backend/Makefile"; then
+        step make -C src/backend generated-headers
+    else
+        step make -C src/backend ../../src/include/parser/gram.h ../../src/include/catalog/schemapg.h             ../../src/include/utils/fmgroids.h ../../src/include/utils/errcodes.h ../../src/include/utils/probes.h
+    fi
+}
+
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-wasm: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 
 export CC=emcc
@@ -93,7 +103,7 @@ if [ "$resume" = 0 ]; then
     # shellcheck disable=SC2086
     step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}"
 fi
-step make -C src/backend generated-headers
+make_headers
 fix_header_links
 
 for d in src/port src/common src/timezone; do
@@ -136,12 +146,12 @@ if [ "$web" = 1 ]; then
     ls -l "$out" | sed 's/^/  /'
     exit 0
 fi
-step mk -C src/backend postgres STATIC_MODULE_OBJS="$mods"
+step mk -C src/backend postgres STATIC_MODULE_OBJS="$mods" LDFLAGS="$ldflags ${WASM_LINK_EXTRA:-}"   # WASM_LINK_EXTRA: debugging aid, for example --profiling-funcs (function names in traces)
 
 # ---- initdb (a wasm program for node): needs libpgcommon/libpgport/libpgfeutils and the objects of libpq it uses
 echo "build-wasm: initdb"
 step mk -C src/interfaces/libpq libpq.a
-step mk -C src/fe_utils
+[ ! -d "$src/src/fe_utils" ] || step mk -C src/fe_utils   # the front-end utilities library exists from 9.6 on
 step mk -o submake-libpq -C src/bin/initdb initdb
 
 # ---- install: server, tools, and the data files initdb needs, all from this tree
@@ -179,9 +189,11 @@ locale_args="--locale=C.UTF-8"
 if "$bin/initdb" --help | grep -q builtin; then locale_args="$locale_args --locale-provider=builtin --builtin-locale=C.UTF-8"; fi
 # one-megabyte WAL segments (11 and later) keep the template small; 10 and earlier cannot set it and keep 16 MB
 if "$bin/initdb" --help | grep -q wal-segsize; then locale_args="$locale_args --wal-segsize=1"; fi
+# the option that skips fsync is --no-sync from 10 on, --nosync before
+nosync_arg=--no-sync; "$bin/initdb" --help | grep -q -- --no-sync || nosync_arg=--nosync
 # shellcheck disable=SC2086
 step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=postgres --auth=trust --encoding=UTF8 \
-    $locale_args --no-sync ${TEMPLATE_ARGS:-}
+    $locale_args $nosync_arg ${TEMPLATE_ARGS:-}
 
 echo "build-wasm: done ($log)"
 ls -l "$bin" | sed 's/^/  /'

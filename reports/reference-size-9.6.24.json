@@ -1,0 +1,11 @@
+{
+  "version": "9.6.24",
+  "kind": "unmodified upstream, default configure, glibc dynamic",
+  "configure": "--prefix=/usr/local/pgsql",
+  "method": "sum of regular-file apparent sizes in bytes (find -type f -printf %s), install tree under the prefix; unstripped = make install, stripped = make install-strip; shared libraries the executables need from the OS are listed but not counted",
+  "unstripped": {"bin":11580864,"lib":5431925,"share":1866131,"include":3792585,"total":22671505,"files":1373,"postgresBinary":7481416,"libpq":191896},
+  "stripped": {"bin":10502368,"lib":5166317,"share":1866131,"include":3792585,"total":21327401,"files":1373,"postgresBinary":6766656,"libpq":171048},
+  "postgresNeededLibraries": "/lib64/ld-linux-x86-64.so.2 libc.so.6 libm.so.6",
+  "buildPackages": "bison=2:3.8.2+dfsg-1+b1;flex=2.6.4-8.2;gcc=4:12.2.0-3;libicu-dev=72.1-3+deb12u1;libreadline-dev=8.2-1.3;perl=5.36.0-7+deb12u4;zlib1g-dev=1:1.2.13.dfsg-1",
+  "gcc": "12.2.0"
+}

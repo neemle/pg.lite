@@ -89,12 +89,12 @@ update-toolchain-lock:
 # Apply the common+native patch series into build/native/<v>/src (tools container):
 native-src:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --targets common,native $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --series-args)
-	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/native/$(VERSION)
+	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/native/$(VERSION) --target native
 
 # Apply the common+wasm patch series into build/wasm/<v>/src (tools container):
 wasm-src:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --targets common,wasm $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --series-args)
-	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/wasm/$(VERSION)
+	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/wasm/$(VERSION) --target wasm
 
 # WebAssembly build of one release (docs/wasm.md): ./dcb wasm make wasm-build VERSION=18.6
 wasm-build:

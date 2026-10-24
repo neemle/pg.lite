@@ -56,6 +56,9 @@ for (const target of opt.targets) {
     const text = fs.readFileSync(file, 'utf8');
     const beforeA = snapshot(A, 'A-before');
     must(tryApply(A, file, false), `${target}/${name} on ${opt.from}`);
+    // <patch>.skip next to the ported patches: this release does not need the patch (the file says why), so the series leaves it out
+    const skip = path.join(root, 'patches', target, opt.range, `${path.basename(name)}.skip`);
+    if (fs.existsSync(skip)) { report.push(`skipped  ${target}/${name} (${fs.readFileSync(skip, 'utf8').trim().split('\n')[0]})`); continue; }
     // a hand-made patch for this range (no "Ported-from" header) is kept as it is; it must apply to the target
     const mine = path.join(root, 'patches', target, opt.range, path.basename(name));
     if (fs.existsSync(mine) && !/^Ported-from:/m.test(fs.readFileSync(mine, 'utf8'))) {
@@ -102,6 +105,18 @@ for (const target of opt.targets) {
     fs.writeFileSync(dest, header + sections.join(''));
     must(tryApply(beforeB, dest, true), `the new ${target}/${opt.range}/${name} on ${opt.to}`);
     out.push(`${opt.range}/${path.basename(name)}`); report.push(`PORTED   ${target}/${name}`);
+  }
+  // hand-made patches of this range that no baseline patch produced (a fix only this release needs) go at the end, by name
+  const rangeDir = path.join(root, 'patches', target, opt.range);
+  if (fs.existsSync(rangeDir)) {
+    for (const f of fs.readdirSync(rangeDir).sort()) {
+      const rel = `${opt.range}/${f}`;
+      if (!f.endsWith('.patch') || out.includes(rel)) continue;
+      if (/^Ported-from:/m.test(fs.readFileSync(path.join(rangeDir, f), 'utf8'))) continue;   // a leftover of an earlier port
+      must(tryApply(B, path.join(rangeDir, f), true), `the hand-made ${target}/${rel} on ${opt.to}`);
+      must(tryApply(B, path.join(rangeDir, f), false), `apply the hand-made ${target}/${rel}`);
+      out.push(rel); report.push(`added    ${target}/${rel} (hand-made, only this range)`);
+    }
   }
   const seriesFile = path.join(root, 'patches', target, `series.${opt.range}`);
   const head = `# Patch series for the "${target}" target, range ${opt.range} (PostgreSQL ${opt.to.split('.')[0]}.x): one *.patch path per line, relative to this directory.\n# Made by scripts/port-patches.js from the baseline series (${opt.from}); entries in ${opt.range}/ are the patches that needed a port, the others are shared with the baseline.\n`;

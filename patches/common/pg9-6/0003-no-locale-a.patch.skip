@@ -1,0 +1,1 @@
+Before PostgreSQL 10 initdb itself runs "locale -a" (setup_collation) and carries on with a warning when it cannot; pg_import_system_collations() does not exist yet, so there is nothing to patch.

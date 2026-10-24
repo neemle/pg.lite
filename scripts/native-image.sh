@@ -26,7 +26,27 @@ builder="compactdb-builder-musl:local"
 pw="native-test-only"
 export MSYS_NO_PATHCONV=1
 
-client() { docker run --rm --network "$net" -e PGPASSWORD="${CLIENT_PASSWORD:-$pw}" --entrypoint psql "$client_img" -h "$name" -U postgres -v ON_ERROR_STOP=1 "$@"; }
+client_one() { docker run --rm --network "$net" -e PGPASSWORD="${CLIENT_PASSWORD:-$pw}" --entrypoint psql "$client_img" -h "$name" -U postgres -v ON_ERROR_STOP=1 "$@"; }
+# psql before 9.6 takes a single -c: run one psql per -c (commands are single-line), the other arguments are shared
+client() {
+    cmds=$(mktemp); common=""; ncmd=0
+    while [ $# -gt 0 ]; do
+        if [ "$1" = -c ]; then printf '%s
+' "$2" >> "$cmds"; ncmd=$((ncmd + 1)); shift 2; else common="$common $1"; shift; fi
+    done
+    rc=0
+    if [ "$ncmd" -le 1 ]; then
+        # shellcheck disable=SC2086
+        if [ "$ncmd" = 1 ]; then client_one $common -c "$(cat "$cmds")" || rc=$?; else client_one $common || rc=$?; fi
+    else
+        while IFS= read -r c; do
+            # shellcheck disable=SC2086
+            client_one $common -c "$c" || { rc=$?; break; }
+        done < "$cmds"
+    fi
+    rm -f "$cmds"
+    return $rc
+}
 wait_ready() {
     i=0
     until client -At -c "SELECT 1" >/dev/null 2>&1; do
@@ -55,6 +75,7 @@ image)
          rm -f \$r/usr/local/pgsql/share/errcodes.txt   # build-time input only; nothing reads it at run time
          # the launcher runs initdb on the first start: use the builtin locale provider only if this initdb has one
          lopt=''; if ! \$inst/bin/initdb --help | grep -q builtin; then lopt=-DNO_BUILTIN_LOCALE; fi
+         if ! grep -q scram-sha-256 \$inst/bin/initdb; then lopt=\"\$lopt -DNO_SCRAM\"; fi   # releases before 10 know md5 only
          gcc -O2 -static \$lopt -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c
          strip --strip-all \$r/usr/local/pgsql/bin/pg-launcher
          if [ '$pack' = xsfx ]; then   # pack every executable; keep a packed file only if it is smaller (the stub is 90 KB)

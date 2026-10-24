@@ -24,6 +24,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+/* password authentication of network connections: SCRAM exists from PostgreSQL 10 on, earlier releases use md5
+ * (the image build defines NO_SCRAM when initdb does not know scram-sha-256) */
+#ifdef NO_SCRAM
+#define PASSWORD_AUTH "md5"
+#else
+#define PASSWORD_AUTH "scram-sha-256"
+#endif
+
 #define PREFIX "/usr/local/pgsql"
 #define DEFAULT_PGDATA "/var/lib/postgresql/data"
 #define PWFILE "/tmp/.pg-launcher-pw"
@@ -124,7 +132,7 @@ main(int argc, char **argv)
 				/* the builtin provider (PostgreSQL 17 and later): the same ordering on every libc */
 				"--locale-provider=builtin", "--builtin-locale=C.UTF-8",
 #endif
-				"--auth-local=trust", "--auth-host=scram-sha-256", NULL
+				"--auth-local=trust", "--auth-host=" PASSWORD_AUTH, NULL
 			};
 			int			rc;
 
@@ -142,7 +150,7 @@ main(int argc, char **argv)
 		}
 		append(pgdata, "postgresql.conf",
 			   "\n# added by pg-launcher\nlisten_addresses = '*'\ntimezone = 'UTC'\nlog_timezone = 'UTC'\n");
-		append(pgdata, "pg_hba.conf", "\nhost all all all scram-sha-256\n");
+		append(pgdata, "pg_hba.conf", "\nhost all all all " PASSWORD_AUTH "\n");
 	}
 
 	{

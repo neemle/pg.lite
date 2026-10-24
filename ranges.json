@@ -24,10 +24,15 @@
         "wasm": "series.pg9-4"
       },
       "configure": [
-        "--disable-thread-safety"
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
       ],
       "cflags": [
-        "-std=gnu89"
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
       ],
       "omittedFeatures": [],
       "notes": "PostgreSQL 9.4: ported from 9.5 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
@@ -42,10 +47,15 @@
         "wasm": "series.pg9-5"
       },
       "configure": [
-        "--disable-thread-safety"
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
       ],
       "cflags": [
-        "-std=gnu89"
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
       ],
       "omittedFeatures": [],
       "notes": "PostgreSQL 9.5: ported from 9.6 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
@@ -60,10 +70,15 @@
         "wasm": "series.pg9-6"
       },
       "configure": [
-        "--disable-thread-safety"
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
       ],
       "cflags": [
-        "-std=gnu89"
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
       ],
       "omittedFeatures": [],
       "notes": "PostgreSQL 9.6: ported from 10 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."

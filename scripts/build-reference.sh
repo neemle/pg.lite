@@ -29,7 +29,11 @@ step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-reference
 echo "build-reference: configure (default options, prefix $prefix), then make, install, install-strip"
 step "$src/configure" --prefix="$prefix"
 # Out-of-tree parallel builds race on generated headers (utils/errcodes.h): generate them first.
-step make -C src/backend generated-headers
+if grep -q '^generated-headers' "$src/src/backend/Makefile"; then
+    step make -C src/backend generated-headers
+else    # releases before 9.6: the headers the recursive build depends on
+    step make -C src/backend ../../src/include/parser/gram.h ../../src/include/catalog/schemapg.h ../../src/include/utils/fmgroids.h ../../src/include/utils/errcodes.h ../../src/include/utils/probes.h
+fi
 step make -j"$(nproc)"
 step make install DESTDIR="$out/install"
 step make install-strip DESTDIR="$out/install-strip"

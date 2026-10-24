@@ -33,6 +33,7 @@ for (let i = 0; i < args.length; i++) {
   else if (a === '--check-all') opt.checkAll = true;
   else if (a === '--series-args') opt.seriesArgs = true;
   else if (a === '--write-build-args') opt.writeBuildArgs = path.resolve(args[++i] || '');
+  else if (a === '--target') opt.target = args[++i];
   else if (a === '--sources' || a === '--ranges' || a === '--toolchain' || a === '--patches') opt[a.slice(2)] = path.resolve(args[++i] || '');
   else if (!a.startsWith('--') && !opt.version) opt.version = a;
   else { console.error(`unknown argument ${a}`); process.exit(2); }
@@ -111,7 +112,7 @@ try {
     if (opt.writeBuildArgs) {
       // for the build scripts, which run where there is no node: the range's extra configure options and compiler flags, one per line
       fs.mkdirSync(opt.writeBuildArgs, { recursive: true });
-      fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-configure'), plan.configure.map((x) => `${x}\n`).join(''));
+      fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-configure'), plan.configure.filter((x) => !/^(wasm|native):/.test(x) || x.startsWith(`${opt.target}:`)).map((x) => `${x.replace(/^(wasm|native):/, '')}\n`).join(''));
       fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-cflags'), plan.cflags.map((x) => `${x}\n`).join(''));
     } else if (opt.seriesArgs) console.log(plan.patches.map((p) => `--series ${p.target}=${p.series}`).join(' '));
     else console.log(JSON.stringify(plan, null, 2));

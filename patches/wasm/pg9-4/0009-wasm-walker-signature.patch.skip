@@ -1,0 +1,1 @@
+9.5 and 9.4 have no ExecShutdownNode (it arrived with parallel query in 9.6).

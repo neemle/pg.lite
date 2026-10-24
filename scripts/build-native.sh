@@ -87,6 +87,16 @@ fix_header_links() {
     return 0
 }
 
+# Generate the headers the parallel build races on. 9.6 and later have a target for it; earlier releases generate the same
+# headers through the targets their recursive build depends on.
+make_headers() {
+    if grep -q '^generated-headers' "$src/src/backend/Makefile"; then
+        step make -C src/backend generated-headers
+    else
+        step make -C src/backend ../../src/include/parser/gram.h ../../src/include/catalog/schemapg.h             ../../src/include/utils/fmgroids.h ../../src/include/utils/errcodes.h ../../src/include/utils/probes.h
+    fi
+}
+
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-native: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 
 # Options that exist in this release's configure (feature detection, not version checks).
@@ -116,7 +126,7 @@ if [ "$resume" = 0 ]; then
     step "$src/configure" "$@"
     # Parallel out-of-tree builds race on generated headers, so make those first.
 fi
-step make -C src/backend generated-headers
+make_headers
 fix_header_links
 
 # The server has its own encoding functions; only the frontends get the shim.
@@ -134,7 +144,9 @@ for d in src/pl/plpgsql/src src/backend/snowball src/backend/replication/libpqwa
         step make -j"$(nproc)" -C "$d" LDFLAGS=
     fi
 done
-for d in src/bin/initdb src/bin/pg_resetwal src/bin/pg_controldata; do
+# pg_resetwal was called pg_resetxlog before 10
+resetwal=pg_resetwal; [ -d "$src/src/bin/pg_resetwal" ] || resetwal=pg_resetxlog
+for d in src/bin/initdb src/bin/$resetwal src/bin/pg_controldata; do
     echo "build-native: make $d (frontend, with the libpq static shim)"
     step make -j"$(nproc)" -C "$d" LDFLAGS_EX="$fe_ldx"
 done
@@ -173,7 +185,7 @@ done
 # ---- install (full and stripped)
 for kind in install install-strip; do
     # src/include installs postgres.bki and system_constraints.sql (the headers it also installs stay out of the image)
-    for d in src/include src/backend src/timezone src/pl/plpgsql/src src/backend/snowball src/bin/initdb src/bin/pg_resetwal src/bin/pg_controldata; do
+    for d in src/include src/backend src/timezone src/pl/plpgsql/src src/backend/snowball src/bin/initdb src/bin/$resetwal src/bin/pg_controldata; do
         step make -C "$d" "$kind" DESTDIR="$out/$kind" STATIC_MODULE_OBJS="$mods" $be_arg
     done
 done
