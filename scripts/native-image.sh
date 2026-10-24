@@ -76,6 +76,7 @@ image)
          # the launcher runs initdb on the first start: use the builtin locale provider only if this initdb has one
          lopt=''; if ! \$inst/bin/initdb --help | grep -q builtin; then lopt=-DNO_BUILTIN_LOCALE; fi
          if ! grep -q scram-sha-256 \$inst/bin/initdb; then lopt=\"\$lopt -DNO_SCRAM\"; fi   # releases before 10 know md5 only
+         if ! grep -q auth-local \$inst/bin/initdb; then lopt=\"\$lopt -DNO_AUTH_SPLIT\"; fi   # releases before 9.2 have a single --auth
          gcc -O2 -static \$lopt -o \$r/usr/local/pgsql/bin/pg-launcher /n/launcher.c
          strip --strip-all \$r/usr/local/pgsql/bin/pg-launcher
          if [ '$pack' = xsfx ]; then   # pack every executable; keep a packed file only if it is smaller (the stub is 90 KB)

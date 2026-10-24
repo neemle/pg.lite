@@ -30,7 +30,7 @@ check('a tag without the v is refused (exit 3)', r.status === 3, `${r.status} ${
 r = run(['v18.99']);
 check('a version that is not an upstream release is refused (exit 3)', r.status === 3 && r.stderr.includes('not in sources.lock.json'), `${r.status} ${r.stderr}`);
 
-r = run(['v9.1.24']);
+r = run(['v9.0.23']);
 check('a release whose range has no patch series yet is refused (exit 4)', r.status === 4 && r.stderr.includes('no'), `${r.status} ${r.stderr}`);
 
 r = run(['--github', 'v18.6']);

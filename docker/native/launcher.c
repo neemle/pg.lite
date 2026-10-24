@@ -132,7 +132,12 @@ main(int argc, char **argv)
 				/* the builtin provider (PostgreSQL 17 and later): the same ordering on every libc */
 				"--locale-provider=builtin", "--builtin-locale=C.UTF-8",
 #endif
+#ifdef NO_AUTH_SPLIT
+				/* before 9.2 initdb has one --auth for every connection type: the password check then covers the socket too */
+				"--auth=" PASSWORD_AUTH, NULL
+#else
 				"--auth-local=trust", "--auth-host=" PASSWORD_AUTH, NULL
+#endif
 			};
 			int			rc;
 
