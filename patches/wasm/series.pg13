@@ -6,5 +6,6 @@
 0004-wasm-user-name.patch
 0005-wasm-semaphores.patch
 pg14/0006-wasm-dsm-sysv.patch
-pg13/0007-wasm-embedded-protocol.patch
+pg13/0007-wasm-embedded-protocol.patch|pg13/0007-wasm-embedded-protocol-r13.15.patch|pg13/0007-wasm-embedded-protocol-r13.13.patch
 0008-wasm-storage-barrier.patch
+pg13/0009-wasm-walker-signature.patch|-

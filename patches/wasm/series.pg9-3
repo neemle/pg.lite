@@ -1,7 +1,7 @@
 # Patch series for the "wasm" target, range pg9-3 (PostgreSQL 9.x): one *.patch path per line, relative to this directory.
 # Made by scripts/port-patches.js from the baseline series (9.4.26); entries in pg9-3/ are the patches that needed a port, the others are shared with the baseline.
 pg9-4/0001-wasm-shared-memory.patch
-pg9-3/0002-wasm-no-root-check.patch
+pg9-3/0002-wasm-no-root-check.patch|pg9-3/0002-wasm-no-root-check-r9.3.4.patch
 pg12/0003-wasm-initdb-popen.patch
 pg9-3/0004-wasm-user-name.patch
 pg9-4/0005-wasm-semaphores.patch

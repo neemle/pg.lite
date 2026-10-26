@@ -8,3 +8,4 @@ pg11/0005-wasm-semaphores.patch
 pg11/0006-wasm-dsm-sysv.patch
 pg11/0007-wasm-embedded-protocol.patch
 0008-wasm-storage-barrier.patch
+pg11/0009-wasm-walker-signature.patch|pg11/0009-wasm-walker-signature-r11.9.patch|-

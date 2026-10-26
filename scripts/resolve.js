@@ -56,7 +56,9 @@ function seriesEntries(target, name) {
   if (!fs.existsSync(file)) throw new PlanError(6, `series file ${path.relative(root, file)} does not exist`);
   const entries = fs.readFileSync(file, 'utf8').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
   for (const e of entries) {
-    if (!fs.existsSync(path.join(opt.patches, target, e))) throw new PlanError(6, `${target}/${name} lists ${e}, which does not exist`);
+    for (const alt of e.split('|').map((x) => x.trim()).filter((x) => x !== '-')) {   // "a.patch|b.patch": alternatives for different contexts
+      if (!fs.existsSync(path.join(opt.patches, target, alt))) throw new PlanError(6, `${target}/${name} lists ${alt}, which does not exist`);
+    }
   }
   return { target, series: name, patches: entries };
 }
@@ -113,7 +115,7 @@ try {
       // for the build scripts, which run where there is no node: the range's extra configure options and compiler flags, one per line
       fs.mkdirSync(opt.writeBuildArgs, { recursive: true });
       fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-configure'), plan.configure.filter((x) => !/^(wasm|native):/.test(x) || x.startsWith(`${opt.target}:`)).map((x) => `${x.replace(/^(wasm|native):/, '')}\n`).join(''));
-      fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-cflags'), plan.cflags.map((x) => `${x}\n`).join(''));
+      fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-cflags'), plan.cflags.filter((x) => !/^(wasm|native):/.test(x) || x.startsWith(`${opt.target}:`)).map((x) => `${x.replace(/^(wasm|native):/, '')}\n`).join(''));
     } else if (opt.seriesArgs) console.log(plan.patches.map((p) => `--series ${p.target}=${p.series}`).join(' '));
     else console.log(JSON.stringify(plan, null, 2));
   }

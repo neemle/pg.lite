@@ -1,0 +1,35 @@
+Subject: Walk the plan with a walker of the signature the walker interface calls
+Purpose: In 9.6 ExecShutdownNode(PlanState *) hands itself to planstate_tree_walker(), which calls its walker as walker(node, context) through a pointer declared with an empty parameter list. Native code tolerates the extra argument; WebAssembly traps on a call through a pointer whose signature differs from the function's ("null function or function signature mismatch"), which stopped every query at the end of ExecutorRun. The wrapper has the exact shape the walker is called with. 10 and later declare the walker with a full prototype and need nothing.
+Components: src/backend/executor/execProcnode.c
+Checks: scripts/build-wasm.sh creates the template data directory and the node and browser tests pass for 9.6
+Origin: own
+Ported-from: 9.6.10 (wasm/pg9-6/0009-wasm-walker-signature.patch) for 9.6.9 by scripts/port-variants.js
+
+diff --git a/src/backend/executor/execProcnode.c b/src/backend/executor/execProcnode.c
+--- a/src/backend/executor/execProcnode.c
++++ b/src/backend/executor/execProcnode.c
+@@ -786,6 +786,17 @@
+ }
+ 
+ /*
++ * planstate_tree_walker() calls its walker as walker(node, context).  A walker of that shape is needed here because
++ * WebAssembly traps a call through a function pointer whose signature differs from the function's own (ExecShutdownNode
++ * takes one argument), which native code tolerates.
++ */
++static bool
++ExecShutdownNodeWalker(PlanState *node, void *context)
++{
++	return ExecShutdownNode(node);
++}
++
++/*
+  * ExecShutdownNode
+  *
+  * Give execution nodes a chance to stop asynchronous resource consumption
+@@ -810,5 +821,5 @@
+ 			break;
+ 	}
+ 
+-	return planstate_tree_walker(node, ExecShutdownNode, NULL);
++	return planstate_tree_walker(node, ExecShutdownNodeWalker, NULL);
+ }

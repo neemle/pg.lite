@@ -17,7 +17,7 @@ pack="${PACK:-}"; case "$pack" in ""|xsfx) ;; *) echo "native: PACK must be empt
 vs="$bvs${pack:+-$pack}"
 xsfx_bin=/b/xsfx/v0.2.0/x/xsfx-x86_64-unknown-linux-musl
 img="compactdb-native:$ver$vs"
-client_img="compactdb-reference:$ver"
+client_img="${CLIENT_IMAGE:-compactdb-reference:$ver}"   # the stock psql of a first minor can crash on a current distribution: CLIENT_IMAGE=compactdb-reference:<later minor of the major>
 net="compactdb-ref-net"
 name="compactdb-native-$ver$vs"
 vol="compactdb-native-data-$ver$vs"

@@ -99,9 +99,26 @@ if [ "$resume" = 0 ]; then
     range_cflags=$(tr '\n' ' ' < "$base/range-cflags" 2>/dev/null || true)
     [ -z "$range_configure" ] || opts="$opts $range_configure"
     [ -z "$range_cflags" ] || cflags="$cflags $range_cflags"
+    # Spinlocks: from 16 on, and in the later minors of 10 to 15, s_lock.h has a generic gcc/clang section (the __sync
+    # builtins) that WebAssembly uses; the first minors of those majors have none, and there the semaphore-based spinlocks of
+    # --disable-spinlocks are the way (one process, so no cost that matters).
+    if ! grep -q 'defined(HAVE_GCC__SYNC_INT32_TAS)' "$src/src/include/storage/s_lock.h" && ! echo "$opts" | grep -q -- '--disable-spinlocks'; then
+        echo "build-wasm: this s_lock.h has no generic gcc section: configure --disable-spinlocks"
+        opts="$opts --disable-spinlocks"
+    fi
+    # The first minors of 14 include <sys/signalfd.h> for every epoll build without asking configure whether it exists
+    # (Emscripten has epoll but no signalfd): where the include is not guarded and the header is missing, wait with poll().
+    latch="$src/src/backend/storage/ipc/latch.c"
+    extra_cpp=""
+    if [ -f "$latch" ] && grep -q 'include <sys/signalfd.h>' "$latch" \
+        && ! grep -B1 'include <sys/signalfd.h>' "$latch" | grep -q HAVE_SYS_SIGNALFD_H \
+        && ! echo '#include <sys/signalfd.h>' | emcc -E -x c - >/dev/null 2>&1; then
+        echo "build-wasm: latch.c includes signalfd.h unguarded and Emscripten has none: -DWAIT_USE_POLL"
+        extra_cpp=" -DWAIT_USE_POLL"
+    fi
     # emcc writes executable programs, so configure can run its tests under node: no cross-compile cache needed.
     # shellcheck disable=SC2086
-    step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}"
+    step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}$extra_cpp"
 fi
 make_headers
 fix_header_links

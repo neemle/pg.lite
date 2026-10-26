@@ -36,8 +36,8 @@
           },
           "cflags": {
             "type": "array",
-            "items": { "type": "string", "pattern": "^-[A-Za-z0-9=_.+-]+$" },
-            "description": "Extra compiler flags for this range (for example -std=gnu17 for releases written for older C), added to CFLAGS by the native and the WebAssembly build."
+            "items": { "type": "string", "pattern": "^((wasm|native):)?-[A-Za-z0-9=_.+-]+$" },
+            "description": "Extra compiler flags for this range (for example -std=gnu17 for releases written for older C), added to CFLAGS by the native and the WebAssembly build; a wasm: or native: prefix limits a flag to one of them (clang rejects some gcc-only flags)."
           },
           "omittedFeatures": {
             "type": "array",

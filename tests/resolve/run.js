@@ -53,6 +53,22 @@ check('a version outside the index fails with exit 3', r.status === 3 && r.stder
 r = run(['--check-all', '--allow-missing-builder']);
 check('every release in the index resolves (builder gaps tolerated)', r.status === 0 && /351 of 351 releases resolve/.test(r.stdout), `${r.status} ${r.stdout}${r.stderr}`);
 
+// the patch series apply to every release (reports/release-apply.json, made by scripts/check-releases.js)
+{
+  const report = loadJson('reports/release-apply.json');
+  const lock = loadJson('sources.lock.json');
+  const bad = [];
+  for (const rel of lock.releases) {
+    const e = report[rel.version];
+    const rr = run([rel.version, '--allow-missing-builder']);
+    const range = rr.status === 0 ? JSON.parse(rr.stdout).range : null;
+    if (!e) bad.push(`${rel.version}: not in the report`);
+    else if (e.native !== 'ok' || e.wasm !== 'ok') bad.push(`${rel.version}: does not apply`);
+    else if (e.range !== range) bad.push(`${rel.version}: report says ${e.range}, ranges.json says ${range}`);
+  }
+  check('the report says every release applies the series of its range, and the report is current', bad.length === 0, bad.slice(0, 8).join('; '));
+}
+
 // --- mutated data
 const ranges = loadJson('ranges.json');
 let m = clone(ranges); m.ranges = m.ranges.filter((x) => x.id !== 'pg11');

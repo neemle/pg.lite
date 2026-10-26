@@ -5,6 +5,6 @@ pg11/0002-wasm-no-root-check.patch
 pg12/0003-wasm-initdb-popen.patch
 0004-wasm-user-name.patch
 pg9-4/0005-wasm-semaphores.patch
-pg11/0006-wasm-dsm-sysv.patch
+pg11/0006-wasm-dsm-sysv.patch|pg9-4/0006-wasm-dsm-sysv-r9.4.19.patch
 pg9-4/0007-wasm-embedded-protocol.patch
 0008-wasm-storage-barrier.patch

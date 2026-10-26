@@ -18,7 +18,7 @@ Every release from `v9.0` to `v18.x` has a parallel line of drop-in replacements
 | Major | Status |
 | --- | --- |
 | 18 | baseline, builds and passes the tests (native image, WebAssembly, browser tests) |
-| 17 down to 9.0 | patch series ported from 18 ([docs/patches.md](docs/patches.md)); built and tested per release by the release workflow. 9.0 to 9.6 are one range each (they differ most) |
+| 17 down to 9.0 | patch series ported from 18 ([docs/patches.md](docs/patches.md)); built and tested per release by the release workflow. 9.0 to 9.6 are one range each (they differ most). Every one of the 351 releases takes its series and the touched files compile ([reports/release-apply.json](reports/release-apply.json), `scripts/check-releases.js`); the oldest minor of every range is built and tested |
 
 Pushing a tag `vX.Y` runs [.github/workflows/release.yml](.github/workflows/release.yml): it builds and tests that exact
 release and publishes the browser module as a GitHub release (`compact-db-wasm-X.Y.tar.gz` with its checksum) and the

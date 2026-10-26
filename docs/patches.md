@@ -76,8 +76,64 @@ patches (its first line says why) leaves that baseline patch out of the range. E
 semaphore emulation, because 9.x selects them on Linux), `pg9-6/0009` (a plan walker with the signature WebAssembly
 requires; 9.6 only), `pg9-6/0003-no-locale-a.patch.skip`. Per range, `ranges.json` also carries `configure`, `cflags`
 (compiler flags old sources need under gcc 15) and `wasm:` / `native:` prefixes for options of one target only.
-Port against the newest minor of the major, then check the others with `make native-src VERSION=<x.y>`: within a
-major the contexts rarely change.
+Port against the newest minor of the major; the older minors are covered by alternatives (next section).
+
+## Every minor release: alternatives
+
+Contexts change between minor releases (a security fix next to a patched line is enough), so one patch file rarely
+applies to every minor of a major. A line of a series may therefore list **alternatives**, separated by `|`:
+
+```
+pg12/0007-wasm-embedded-protocol.patch|pg12/0007-wasm-embedded-protocol-r12.14.patch|pg12/0007-wasm-embedded-protocol-r12.3.patch
+```
+
+`scripts/patches.js apply` takes the first alternative that applies at fuzz 0 (a trial with `patch --dry-run`, then the
+real apply) and fails with "none of the N alternatives applies" otherwise. The first alternative is the one for the
+newest minor, so a release that applied before applies exactly as before. The alternative `-r<x.y>` was made for release
+x.y; it usually fits a span of releases around it.
+
+`scripts/port-variants.js` adds them: `port-variants.js --range pg12 --from 12.22 --to 12.14` takes a release of the range
+that the series applies to completely (`--from`) and one it does not (`--to`), and for every series line that has no fitting
+alternative merges the patch (three-way, like `port-patches.js`) into a new `-r<to>` file and appends it to the line. Walk a
+range from its newest release down, always from the release just above, so each step is a small difference; merge conflicts
+stop the run the same way (resolve, save without `.conflict`, run again).
+
+`scripts/check-releases.js` is the proof: it fetches every release one at a time (SHA-256 checked, tree and archive removed
+afterwards), applies the native and the wasm series of its range, and writes `reports/release-apply.json` (a result per version,
+resumable; `--all`, `--range pg12`, `--versions a,b`, `--recheck`). `tests/resolve/run.js` fails when a release is missing
+from the report, is not `ok`, or the report names another range than `ranges.json` does. After a series or range change:
+
+```sh
+DC_NET=1 FETCH_HTTP_FALLBACK=1 ./dcb check node scripts/check-releases.js --range pg12 --recheck
+```
+
+It runs in the check builder (`docker/builders/check`: node, gcc, bison, flex), because applying is not enough: after the
+apply, `scripts/syntax-check.sh` configures a pristine copy of the release, generates its headers, and compiles every `.c`
+file the series touches with `gcc -fsyntax-only` (the wasm series with `-D__EMSCRIPTEN__`, so its guarded code is what gets
+checked). That is what finds a patch that applies by context but uses something the release does not have (the first minors of
+9.x have no `PqCommReadingMsg`).
+
+**Optional entries.** A line ending in `|-` is optional: `pg12/0009-wasm-walker-signature.patch|-`. If no alternative
+applies, nothing is applied, but only when the text the patch removes is no longer in the tree (a later minor fixed the problem
+itself). If that text is still there, apply fails: an optional patch is never skipped by accident. Walk such a range upwards
+from the release the patch was written for, so every release is looked at.
+
+`scripts/port-variants-range.js` does the walk (`DC_NET=1 FETCH_HTTP_FALLBACK=1 ./dc node scripts/port-variants-range.js pg12`,
+with `--up` for ranges with optional entries and `--wasm-only` to leave the other targets alone): per release it runs
+`port-variants.js` from the neighbour, resolves the mechanical merge conflicts, and stops at the first one that needs a person.
+A new minor release (a new entry in `sources.lock.json`) that breaks a patch shows up in the check first; run the walk for its
+range and the check again.
+
+## Applying is not building
+
+The oldest minor of every range is also built and tested (native image test, wasm node test), and these builds found what
+applying cannot: patches that apply but whose code does not compile or traps in WebAssembly, and toolchain differences between
+minors. They are handled by feature detection in the build scripts, not by version checks: `scripts/build-wasm.sh` configures
+`--disable-spinlocks` where `s_lock.h` has no generic gcc section (the first minors of 10 to 15), and defines `WAIT_USE_POLL`
+where `latch.c` includes `<sys/signalfd.h>` unguarded and Emscripten has no such header (14.0); the walker patch above covers
+a call through a function pointer of another signature, which traps in WebAssembly; `ranges.json` gives 13 to 17 `-std=gnu17`
+like the older ranges (their first minors have prototypes that C23 rejects); `scripts/build-reference.sh` moves a static
+`copy_file_range()` of pg_rewind out of the way (`scripts/reference-compat.h`).
 
 ## Where the trees live
 

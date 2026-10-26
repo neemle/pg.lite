@@ -46,7 +46,7 @@ must(sh('cp', ['-a', path.join(root, 'cache', 'src', opt.from), A]), 'copy from-
 must(sh('cp', ['-a', path.join(root, 'cache', 'src', opt.to), B]), 'copy to-tree');
 
 const readSeries = (target) => fs.readFileSync(path.join(root, 'patches', target, opt['from-series'] || 'series'), 'utf8')
-  .split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+  .split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#')).map((l) => l.split('|')[0].trim());   // alternatives: the first one is the reference
 const headerOf = (text) => { const i = text.search(/^diff /m); return text.slice(0, i); };
 const filesOf = (text) => [...text.matchAll(/^diff --git a\/\S+ b\/(\S+)$/gm)].map((m) => m[1]);
 const snapshot = (dir, name) => { const s = path.join(work, name); fs.rmSync(s, { recursive: true, force: true }); must(sh('cp', ['-al', dir, s]), 'snapshot'); return s; };

@@ -6,5 +6,5 @@
 0004-wasm-user-name.patch
 0005-wasm-semaphores.patch
 0006-wasm-dsm-sysv.patch
-pg15/0007-wasm-embedded-protocol.patch
+pg15/0007-wasm-embedded-protocol.patch|pg15/0007-wasm-embedded-protocol-r15.7.patch|pg15/0007-wasm-embedded-protocol-r15.5.patch
 0008-wasm-storage-barrier.patch

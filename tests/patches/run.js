@@ -134,6 +134,24 @@ d = sandbox(); baseSeries(d);
 fs.writeFileSync(path.join(d, 'patches', 'native', 'series.alt'), 'missing.patch\n');
 expect('verify fails on a missing file listed in a named series', run(d, ['verify']), 1, 'series.alt');
 
+// --- alternatives: "a.patch|b.patch" applies the first one that fits the tree
+d = sandbox(); baseSeries(d);
+put(d, 'common', '0001-greet-a.patch', header({ Subject: 'greet for another context' }) + P_BAD_CONTEXT, false);
+put(d, 'common', '0001-greet-b.patch', header({ Subject: 'greet' }) + P_COMMON, false);
+fs.writeFileSync(path.join(d, 'patches', 'common', 'series'), '0001-greet-a.patch | 0001-greet-b.patch\n');
+expect('verify counts every alternative', run(d, ['verify']), 0, '2 patch(es)');
+let outAlts = expect('apply skips an alternative that does not fit and uses the next', run(d, applyArgs(d, ['--targets', 'common'])), 0, '"patch": "0001-greet-b.patch"');
+expect('the tree has the change of the alternative that fit', { status: fs.readFileSync(path.join(d, 'out', 'hello.c'), 'utf8').includes('hello, world') ? 0 : 1, stdout: '', stderr: '' }, 0);
+fs.writeFileSync(path.join(d, 'patches', 'common', 'series'), '0001-greet-b.patch | 0001-greet-a.patch\n');
+expect('the first alternative that fits wins', run(d, applyArgs(d, ['--targets', 'common'])), 0, '"patch": "0001-greet-b.patch"');
+put(d, 'common', '0002-never.patch', header({ Subject: 'never fits' }) + P_NO_MATCH, false);
+fs.writeFileSync(path.join(d, 'patches', 'common', 'series'), '0001-greet-a.patch | 0002-never.patch\n');
+expect('apply fails when no alternative fits', run(d, applyArgs(d, ['--targets', 'common'])), 1, 'none of the 2 alternatives applies');
+fs.writeFileSync(path.join(d, 'patches', 'common', 'series'), '0001-greet-b.patch | 0001-greet-b.patch\n');
+expect('verify refuses a repeated alternative', run(d, ['verify']), 1, 'duplicate entry');
+fs.writeFileSync(path.join(d, 'patches', 'common', 'series'), '0001-greet-b.patch | missing.patch\n');
+expect('verify fails on a missing alternative', run(d, ['verify']), 1, 'missing.patch');
+
 for (const t of tmps) fs.rmSync(t, { recursive: true, force: true });
 console.log(failed ? `\n${failed} test(s) FAILED` : '\nall patch-tooling tests passed');
 process.exit(failed ? 1 : 0);

@@ -87,7 +87,7 @@ diff --git a/src/backend/libpq/pqcomm.c b/src/backend/libpq/pqcomm.c
  
  		if (r <= 0)
  		{
-@@ -1814,3 +1840,26 @@
+@@ -1814,3 +1840,25 @@
  
  	return STATUS_OK;
  }
@@ -109,7 +109,6 @@ diff --git a/src/backend/libpq/pqcomm.c b/src/backend/libpq/pqcomm.c
 +	PqSendBuffer = MemoryContextAlloc(TopMemoryContext, PqSendBufferSize);
 +	PqSendPointer = PqSendStart = PqRecvPointer = PqRecvLength = 0;
 +	PqCommBusy = false;
-+	PqCommReadingMsg = false;
 +	FrontendProtocol = PG_PROTOCOL(3, 0);
 +	whereToSendOutput = DestRemote;
 +}

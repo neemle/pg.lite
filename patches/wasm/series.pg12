@@ -6,5 +6,6 @@ pg12/0003-wasm-initdb-popen.patch
 0004-wasm-user-name.patch
 pg12/0005-wasm-semaphores.patch
 pg14/0006-wasm-dsm-sysv.patch
-pg12/0007-wasm-embedded-protocol.patch
+pg12/0007-wasm-embedded-protocol.patch|pg12/0007-wasm-embedded-protocol-r12.19.patch|pg12/0007-wasm-embedded-protocol-r12.17.patch
 0008-wasm-storage-barrier.patch
+pg12/0009-wasm-walker-signature.patch|pg12/0009-wasm-walker-signature-r12.4.patch|-

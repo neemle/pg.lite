@@ -5,7 +5,9 @@
 //   patches.js verify [--patches DIR] [--third-party FILE]
 //   patches.js apply --src DIR --out DIR [--targets common,native] [--patches DIR] [--fuzz N]
 //
-// Layout: <patches>/<target>/series lists patch files (relative to that directory) in order.
+// Layout: <patches>/<target>/series lists patch files (relative to that directory) in order. A line may list
+// alternatives separated by "|": the same change written for different contexts (one per span of minor releases);
+// apply uses the first alternative that applies at the fuzz limit, so one series covers every minor of a major.
 // Every patch starts with a header (see docs/patches.md). verify checks headers, series
 // consistency and attribution; apply copies the source tree and applies the series in order,
 // failing on any reject or on fuzz above the limit (default 0).
@@ -50,12 +52,18 @@ function readSeries(target, errors, name = 'series') {
   fs.readFileSync(file, 'utf8').split(/\r?\n/).forEach((raw, n) => {
     const line = raw.trim();
     if (!line || line.startsWith('#')) return;
-    if (line.includes('..') || path.isAbsolute(line) || !line.endsWith('.patch')) {
-      errors.push(`${target}/${name}:${n + 1}: "${line}" must be a relative *.patch path without ".."`); return;
+    const alts = line.split('|').map((x) => x.trim());
+    // a last alternative "-" makes the entry optional: nothing is applied where the change is not needed
+    const optional = alts.length > 1 && alts[alts.length - 1] === '-';
+    const real = optional ? alts.slice(0, -1) : alts;
+    const badAlt = real.find((a) => a.includes('..') || path.isAbsolute(a) || !a.endsWith('.patch'));
+    if (badAlt !== undefined) {
+      errors.push(`${target}/${name}:${n + 1}: "${badAlt}" must be a relative *.patch path without ".."`); return;
     }
-    if (seen.has(line)) { errors.push(`${target}/${name}:${n + 1}: duplicate entry ${line}`); return; }
-    seen.add(line);
-    entries.push({ target, rel: line, file: path.join(dir, line) });
+    const dup = real.find((a, i) => seen.has(a) || real.indexOf(a) !== i);
+    if (dup) { errors.push(`${target}/${name}:${n + 1}: duplicate entry ${dup}`); return; }
+    real.forEach((a) => seen.add(a));
+    entries.push({ target, rel: real[0], file: path.join(dir, real[0]), optional, alts: real.map((a) => ({ rel: a, file: path.join(dir, a) })) });
   });
   return entries;
 }
@@ -101,10 +109,12 @@ function verify() {
     for (const name of names) {
       seriesFiles++;
       for (const e of readSeries(target, errors, name)) {
-        count++;
-        entries.push(e);
-        if (!fs.existsSync(e.file)) { errors.push(`${target}: series entry ${e.rel} (${name}) does not exist`); continue; }
-        checkHeader(`${target}/${e.rel}`, parseHeader(fs.readFileSync(e.file, 'utf8')), thirdParty, errors);
+        for (const a of e.alts) {
+          count++;
+          entries.push(a);
+          if (!fs.existsSync(a.file)) { errors.push(`${target}: series entry ${a.rel} (${name}) does not exist`); continue; }
+          checkHeader(`${target}/${a.rel}`, parseHeader(fs.readFileSync(a.file, 'utf8')), thirdParty, errors);
+        }
       }
     }
     if (fs.existsSync(dir)) {
@@ -121,6 +131,23 @@ function verify() {
 }
 
 // ---- apply -------------------------------------------------------------------------
+// Does the tree still contain what the patch removes? For every file of the patch, all the non-blank lines it removes
+// ("-" lines) are looked for as lines of that file; the first file that has them all is reported ("" when none does).
+// A patch that only adds lines cannot be optional (nothing says when it is needed).
+function stillNeeded(patchFile, tree) {
+  const text = fs.readFileSync(patchFile, 'utf8');
+  for (const section of text.split(/^diff --git /m).slice(1)) {
+    const file = /^a\/\S+ b\/(\S+)/.exec(section);
+    const removed = section.split('\n').filter((l) => l.startsWith('-') && !l.startsWith('---')).map((l) => l.slice(1).trim()).filter(Boolean);
+    if (!file || !removed.length) continue;
+    const full = path.join(tree, file[1]);
+    if (!fs.existsSync(full)) continue;
+    const lines = new Set(fs.readFileSync(full, 'utf8').split('\n').map((l) => l.trim()));
+    if (removed.every((r) => lines.has(r))) return file[1];
+  }
+  return '';
+}
+
 function treeHash(dir) {
   const h = crypto.createHash('sha256');
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true })
@@ -143,8 +170,10 @@ function apply() {
   const entries = opt.targets.flatMap((t) => readSeries(t, errors, opt.series[t] || 'series'));
   const thirdParty = fs.existsSync(opt.thirdParty) ? fs.readFileSync(opt.thirdParty, 'utf8') : '';
   for (const e of entries) {
-    if (!fs.existsSync(e.file)) { errors.push(`${e.target}: series entry ${e.rel} does not exist`); continue; }
-    checkHeader(`${e.target}/${e.rel}`, parseHeader(fs.readFileSync(e.file, 'utf8')), thirdParty, errors);
+    for (const a of e.alts) {
+      if (!fs.existsSync(a.file)) { errors.push(`${e.target}: series entry ${a.rel} does not exist`); continue; }
+      checkHeader(`${e.target}/${a.rel}`, parseHeader(fs.readFileSync(a.file, 'utf8')), thirdParty, errors);
+    }
   }
   if (errors.length) { console.error('apply: series is not valid:'); errors.forEach((e) => console.error(`  - ${e}`)); process.exit(1); }
 
@@ -153,21 +182,49 @@ function apply() {
   fs.cpSync(opt.src, opt.out, { recursive: true, preserveTimestamps: true, filter: (s) => path.basename(s) !== '.compactdb-verified' });
 
   const applied = [];
-  for (const e of entries) {
-    const r = spawnSync('patch', ['-p1', '-N', '--no-backup-if-mismatch', '-r', '-', '-F', String(opt.fuzz), '-i', e.file], { cwd: opt.out, encoding: 'utf8' });
+  const patchArgs = ['-p1', '-N', '--no-backup-if-mismatch', '-r', '-', '-F', String(opt.fuzz)];
+  const tryPatch = (file, dry) => {
+    const r = spawnSync('patch', [...patchArgs, ...(dry ? ['--dry-run'] : []), '-i', file], { cwd: opt.out, encoding: 'utf8' });
     const out = `${r.stdout || ''}${r.stderr || ''}`;
     const fuzzy = /succeeded at \d+ with fuzz (\d+)/.exec(out);
-    if (r.status !== 0 || /FAILED|rejected/i.test(out)) {
-      console.error(`apply: FAIL at ${e.target}/${e.rel} (patch exit ${r.status})\n${out}`);
+    const bad = r.status !== 0 || /FAILED|rejected/i.test(out);
+    return { out, status: r.status, ok: !bad && !(fuzzy && Number(fuzzy[1]) > opt.fuzz), fuzzy };
+  };
+  for (const e of entries) {
+    // the first alternative that applies; with a single one a failure is reported as it always was
+    let chosen = null;
+    let firstFail = null;
+    for (const a of e.alts) {
+      const t0 = tryPatch(a.file, e.alts.length > 1 || e.optional);
+      if (t0.ok) { chosen = a; break; }
+      if (!firstFail) firstFail = { a, t0 };
+    }
+    if (!chosen && e.optional) {
+      // optional entry ("a.patch|-"): skipped only where the text it would change is gone (a later minor fixed it
+      // itself); if that text is still there the patch needs another alternative and this is a failure
+      const left = stillNeeded(e.alts[0].file, opt.out);
+      if (left) {
+        console.error(`apply: FAIL at ${e.target}/${e.rel}: no alternative applies, but the text it changes is still there (${left})\n${firstFail.t0.out}`);
+        fs.rmSync(opt.out, { recursive: true, force: true });
+        process.exit(1);
+      }
+      applied.push({ target: e.target, patch: '-', skipped: e.rel, subject: parseHeader(fs.readFileSync(e.file, 'utf8')).Subject });
+      continue;
+    }
+    if (!chosen) {
+      const { a, t0 } = firstFail;
+      const why = t0.fuzzy && Number(t0.fuzzy[1]) > opt.fuzz && t0.status === 0 ? `: fuzz ${t0.fuzzy[1]} exceeds limit ${opt.fuzz}` : ` (patch exit ${t0.status})`;
+      console.error(`apply: FAIL at ${e.target}/${e.rel}${why}${e.alts.length > 1 ? `; none of the ${e.alts.length} alternatives applies` : ''}
+${t0.out}`);
       fs.rmSync(opt.out, { recursive: true, force: true });
       process.exit(1);
     }
-    if (fuzzy && Number(fuzzy[1]) > opt.fuzz) {
-      console.error(`apply: FAIL at ${e.target}/${e.rel}: fuzz ${fuzzy[1]} exceeds limit ${opt.fuzz}\n${out}`);
-      fs.rmSync(opt.out, { recursive: true, force: true });
-      process.exit(1);
+    if (e.alts.length > 1 || e.optional) {
+      const r = tryPatch(chosen.file, false);
+      if (!r.ok) { console.error(`apply: FAIL at ${e.target}/${chosen.rel} after a successful trial
+${r.out}`); fs.rmSync(opt.out, { recursive: true, force: true }); process.exit(1); }
     }
-    applied.push({ target: e.target, patch: e.rel, subject: parseHeader(fs.readFileSync(e.file, 'utf8')).Subject });
+    applied.push({ target: e.target, patch: chosen.rel, subject: parseHeader(fs.readFileSync(chosen.file, 'utf8')).Subject });
   }
   const report = { src: opt.src, out: opt.out, targets: opt.targets, fuzzLimit: opt.fuzz, applied, treeSha256: treeHash(opt.out) };
   console.log(JSON.stringify(report, null, 2));

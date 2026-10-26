@@ -1,4 +1,4 @@
 # Patch series for the "native" target, range pg13 (PostgreSQL 13.x): one *.patch path per line, relative to this directory.
 # Made by scripts/port-patches.js from the baseline series (14.24); entries in pg13/ are the patches that needed a port, the others are shared with the baseline.
-pg13/0002-no-shell-spawn.patch
+pg13/0002-no-shell-spawn.patch|pg13/0002-no-shell-spawn-r13.10.patch|pg13/0002-no-shell-spawn-r13.6.patch
 0005-static-libpqwalreceiver.patch

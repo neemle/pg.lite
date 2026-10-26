@@ -10,7 +10,7 @@
 # build output) live on named Docker volumes mounted over /w/cache and /w/build, because
 # thousands of small files are far too slow through a Windows/macOS bind mount. Inspect or
 # reset them with: docker volume ls | grep compactdb ; docker volume rm compactdb-cache compactdb-build
-# Network is OFF unless an argument is exactly 'fetch', 'release-index' or 'probe-all', or DC_NET=1.
+# Network is OFF unless an argument is exactly 'fetch', 'release-index', 'probe-all' or 'check-releases', or DC_NET=1.
 set -eu
 root=$(cd "$(dirname "$0")" && pwd)
 image="${DC_IMAGE:-compactdb-tools:local}"
@@ -43,7 +43,7 @@ done
 
 net="--network none"
 [ "${DC_NET:-0}" = "1" ] && net=""
-for a in "$@"; do { [ "$a" = "fetch" ] || [ "$a" = "release-index" ] || [ "$a" = "probe-all" ]; } && net=""; done
+for a in "$@"; do { [ "$a" = "fetch" ] || [ "$a" = "release-index" ] || [ "$a" = "probe-all" ] || [ "$a" = "check-releases" ]; } && net=""; done
 
 tty=""
 [ -t 0 ] && [ -t 1 ] && tty="-it"

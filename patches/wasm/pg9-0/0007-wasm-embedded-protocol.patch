@@ -76,7 +76,7 @@ diff --git a/src/backend/libpq/pqcomm.c b/src/backend/libpq/pqcomm.c
  
  		if (r <= 0)
  		{
-@@ -1711,3 +1732,24 @@
+@@ -1711,3 +1732,23 @@
  
  	return STATUS_OK;
  }
@@ -96,7 +96,6 @@ diff --git a/src/backend/libpq/pqcomm.c b/src/backend/libpq/pqcomm.c
 +{
 +	PqSendPointer = PqRecvPointer = PqRecvLength = 0;
 +	PqCommBusy = false;
-+	PqCommReadingMsg = false;
 +	FrontendProtocol = PG_PROTOCOL(3, 0);
 +	whereToSendOutput = DestRemote;
 +}

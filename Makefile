@@ -22,7 +22,7 @@ NOT_IMPL := scripts/not-implemented.sh
         feature-check feature-matrix test-feature release-index test-release-index \
         resolve resolve-check test-resolve probe probe-all test-probe \
         check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node web-demo package-wasm \
-        native-build native-src test-noshell test-release-plan
+        native-build native-src test-noshell test-release-plan check-releases
 
 help:
 	@echo "Targets: fetch native wasm verify-static test-native test-wasm"
@@ -157,6 +157,11 @@ test-resolve:
 # ./dc enables it for this target). test-release-index is offline.
 release-index:
 	@node scripts/release-index.js
+
+# Does the series of every range apply to every release? (docs/patches.md) Needs network: ./dc enables it for
+# 'check-releases'. Example: ./dc make check-releases ARGS="--range pg12 --recheck"
+check-releases:
+	@node scripts/check-releases.js $(if $(ARGS),$(ARGS),--all)
 
 test-release-index:
 	@node tests/release/run.js

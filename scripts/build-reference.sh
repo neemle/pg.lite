@@ -27,7 +27,18 @@ cd "$out/obj"
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-reference: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 : > "$log"
 echo "build-reference: configure (default options, prefix $prefix), then make, install, install-strip"
-step "$src/configure" --prefix="$prefix"
+# Old sources need the compiler flags of their range (data in ranges.json, written next to the native build by
+# make native-src) to compile with a current gcc; the rest is the default configuration.
+range_cflags=$(tr '\n' ' ' < "/w/build/native/$ver/range-cflags" 2>/dev/null || true)
+# The first minors of some majors define a static copy_file_range() in pg_rewind, which a libc that declares the
+# function (glibc 2.27, musl 1.2) turns into an error: move the name aside for this build only (the product has no pg_rewind).
+cppflags=""
+if grep -q '^copy_file_range(' "$src/src/bin/pg_rewind/copy_fetch.c" 2>/dev/null; then cppflags="-include /w/scripts/reference-compat.h"; fi
+if [ -n "$range_cflags" ]; then
+    step "$src/configure" --prefix="$prefix" CFLAGS="-O2 $range_cflags" CPPFLAGS="$cppflags"
+else
+    step "$src/configure" --prefix="$prefix" CPPFLAGS="$cppflags"
+fi
 # Out-of-tree parallel builds race on generated headers (utils/errcodes.h): generate them first.
 if grep -q '^generated-headers' "$src/src/backend/Makefile"; then
     step make -C src/backend generated-headers
