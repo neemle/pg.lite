@@ -1,4 +1,0 @@
-# Patch series for the "native" target, range pg9-3 (PostgreSQL 9.x): one *.patch path per line, relative to this directory.
-# Made by scripts/port-patches.js from the baseline series (9.4.26); entries in pg9-3/ are the patches that needed a port, the others are shared with the baseline.
-pg9-3/0002-no-shell-spawn.patch|pg9-3/0002-no-shell-spawn-r9.3.5.patch
-0005-static-libpqwalreceiver.patch

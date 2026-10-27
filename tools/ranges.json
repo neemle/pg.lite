@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "ranges": [
+    {
+      "id": "pg9-0",
+      "from": "9.0.0",
+      "to": "9.0.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "native:-fno-aggressive-loop-optimizations",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.0: ported from 9.1 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg9-1",
+      "from": "9.1.0",
+      "to": "9.1.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "native:-fno-aggressive-loop-optimizations",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.1: ported from 9.2 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg9-2",
+      "from": "9.2.0",
+      "to": "9.2.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.2: ported from 9.3 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg9-3",
+      "from": "9.3.0",
+      "to": "9.3.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.3: ported from 9.4 by scripts/port-patches.js; no dynamic shared memory in this release, so the DSM patch is skipped."
+    },
+    {
+      "id": "pg9-4",
+      "from": "9.4.0",
+      "to": "9.4.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.4: ported from 9.5 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg9-5",
+      "from": "9.5.0",
+      "to": "9.5.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.5: ported from 9.6 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg9-6",
+      "from": "9.6.0",
+      "to": "9.6.99",
+      "configure": [
+        "--disable-thread-safety",
+        "wasm:--disable-spinlocks"
+      ],
+      "cflags": [
+        "-std=gnu17",
+        "-Wno-error=implicit-function-declaration",
+        "-Wno-error=implicit-int",
+        "-Wno-error=int-conversion",
+        "-Wno-error=incompatible-pointer-types"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 9.6: ported from 10 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg10",
+      "from": "10.0",
+      "to": "10.99",
+      "configure": [
+        "--disable-thread-safety"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 10: ported from 11 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js.",
+      "cflags": [
+        "-std=gnu17"
+      ]
+    },
+    {
+      "id": "pg11",
+      "from": "11.0",
+      "to": "11.99",
+      "configure": [
+        "--disable-thread-safety"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 11: ported from 12 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js.",
+      "cflags": [
+        "-std=gnu17"
+      ]
+    },
+    {
+      "id": "pg12",
+      "from": "12.0",
+      "to": "12.99",
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 12: ported from 13 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js.",
+      "cflags": [
+        "-std=gnu17"
+      ]
+    },
+    {
+      "id": "pg13",
+      "from": "13.0",
+      "to": "13.99",
+      "configure": [],
+      "cflags": [
+        "-std=gnu17"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 13: ported from 14 by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js."
+    },
+    {
+      "id": "pg14",
+      "from": "14.0",
+      "to": "14.99",
+      "configure": [],
+      "cflags": [
+        "-std=gnu17"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 14: ported from 15 by scripts/port-patches.js (patches/*/pg14/ are the patches that needed it)."
+    },
+    {
+      "id": "pg15",
+      "from": "15.0",
+      "to": "15.99",
+      "configure": [],
+      "cflags": [
+        "-std=gnu17"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 15: the 16 series ported by scripts/port-patches.js; the snowball patch is made by scripts/make-snowball-patch.js (patches/*/pg15/ are the patches that needed it)."
+    },
+    {
+      "id": "pg16",
+      "from": "16.0",
+      "to": "16.99",
+      "configure": [],
+      "cflags": [
+        "-std=gnu17"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 16: the 18.x series, ported by scripts/port-patches.js (docs/patches.md); entries in patches/*/pg16/ are the patches that needed it."
+    },
+    {
+      "id": "pg17",
+      "from": "17.0",
+      "to": "17.99",
+      "configure": [],
+      "cflags": [
+        "-std=gnu17"
+      ],
+      "omittedFeatures": [],
+      "notes": "PostgreSQL 17: the 18.x series, ported by scripts/port-patches.js (docs/patches.md); entries in patches/*/pg17/ are the patches that needed it."
+    },
+    {
+      "id": "pg18",
+      "from": "18.0",
+      "to": "18.99",
+      "configure": [],
+      "omittedFeatures": [],
+      "notes": "Baseline: the 18.x patch series (CDB-3, CDB-6) live in the default series files."
+    }
+  ]
+}

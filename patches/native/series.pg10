@@ -1,4 +1,0 @@
-# Patch series for the "native" target, range pg10 (PostgreSQL 10.x): one *.patch path per line, relative to this directory.
-# Made by scripts/port-patches.js from the baseline series (11.22); entries in pg10/ are the patches that needed a port, the others are shared with the baseline.
-pg10/0002-no-shell-spawn.patch|pg10/0002-no-shell-spawn-r10.20.patch|pg10/0002-no-shell-spawn-r10.4.patch
-0005-static-libpqwalreceiver.patch

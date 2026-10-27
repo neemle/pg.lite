@@ -1,4 +1,0 @@
-# Ordered patch series for the "native" target: one *.patch path per line, relative to this directory.
-# Format and header rules: docs/patches.md. Applied after patches/common.
-0002-no-shell-spawn.patch
-0005-static-libpqwalreceiver.patch

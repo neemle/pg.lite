@@ -1,0 +1,22 @@
+-rwxr-xr-x 0/0               0 2026-10-27 13:43 .dockerenv
+drwxr-xr-x 0/0               0 2026-10-27 13:43 dev/
+-rwxr-xr-x 0/0               0 2026-10-27 13:43 dev/console
+drwxr-xr-x 0/0               0 2026-10-27 13:43 dev/pts/
+drwxr-xr-x 0/0               0 2026-10-27 13:43 dev/shm/
+drwxr-xr-x 0/0               0 2026-10-27 13:43 etc/
+-rwxr-xr-x 0/0               0 2026-10-27 13:43 etc/hostname
+-rwxr-xr-x 0/0               0 2026-10-27 13:43 etc/hosts
+lrwxrwxrwx 0/0               0 2026-10-27 13:43 etc/mtab -> /proc/mounts
+-rwxr-xr-x 0/0               0 2026-10-27 13:43 etc/resolv.conf
+drwxr-xr-x 0/0               0 2026-10-27 13:43 proc/
+drwxr-xr-x 0/0               0 2026-10-27 13:43 sys/
+drwxrwxrwt 0/0               0 2026-10-27 11:21 tmp/
+drwxr-xr-x 0/0               0 2026-10-27 11:21 usr/
+drwxr-xr-x 0/0               0 2026-10-27 11:21 usr/local/
+drwxr-xr-x 0/0               0 2026-10-27 11:21 usr/local/pgsql/
+drwxr-xr-x 0/0               0 2026-10-27 11:21 usr/local/pgsql/bin/
+-rwxr-xr-x 0/0        10092608 2026-10-27 11:21 usr/local/pgsql/bin/postgres
+drwxr-xr-x 70/70             0 2026-10-27 11:21 var/
+drwxr-xr-x 70/70             0 2026-10-27 11:21 var/lib/
+drwxr-xr-x 70/70             0 2026-10-27 11:21 var/lib/postgresql/
+drwxr-xr-x 70/70             0 2026-10-27 11:21 var/lib/postgresql/data/

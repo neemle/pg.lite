@@ -1,0 +1,267 @@
+Targets: wasm
+Subject: Run the WebAssembly backend as a library: frontend/backend protocol through JavaScript calls
+Purpose: A browser has no sockets and no processes, so a client cannot connect to the server, and the single-user text mode (SQL lines on stdin, "backend>" prompts) loses types and structure. Instead the standalone backend (postgres --single) is started through pg_wasm_main() with the output destination set to "remote" and protocol 3: pq_init_embedded() allocates the send buffer, pq_recvbuf() reads the next bytes through wasm_embed_read() and internal_flush_buffer() writes through wasm_embed_write() (both in wasm_embed.c, in front of secure_read/secure_write). In the browser link they call Module.pgRead(), which returns a Promise (the wasm stack is suspended while it is pending, JavaScript Promise Integration), and Module.pgWrite(); PostgresMain() and its loop stay as upstream, so any client library that speaks the PostgreSQL protocol can drive the engine, with every type, bigint and numeric in the text or binary format the protocol defines. The node build gets stubs that fail with ENOSYS. Nothing changes unless wasm_embedded is set by pg_wasm_main().
+Components: src/backend/port/wasm_embed.c (new), src/include/port/wasm_embed.h (new), src/backend/libpq/pqcomm.c, src/backend/tcop/postgres.c, src/backend/port/Makefile
+Checks: scripts/build-wasm.sh WEB=1 links the browser module; tests/browser runs queries through the wire protocol in Chromium and tests/wasm/test-wasm-web-node.sh does the same under node
+Origin: own
+Ported-from: 18.6 (wasm/0007-wasm-embedded-protocol.patch) for 16.15 by scripts/port-patches.js
+Ported-from: 16.15 (wasm/pg16/0007-wasm-embedded-protocol.patch) for 15.19 by scripts/port-patches.js
+Ported-from: 15.19 (wasm/pg15/0007-wasm-embedded-protocol.patch) for 14.24 by scripts/port-patches.js
+Ported-from: 14.24 (wasm/pg14/0007-wasm-embedded-protocol.patch) for 13.23 by scripts/port-patches.js
+Ported-from: 13.23 (wasm/pg13/0007-wasm-embedded-protocol.patch) for 12.22 by scripts/port-patches.js
+Ported-from: 12.22 (wasm/pg12/0007-wasm-embedded-protocol.patch) for 11.22 by scripts/port-patches.js
+Ported-from: 11.22 (wasm/pg11/0007-wasm-embedded-protocol.patch) for 10.23 by scripts/port-patches.js
+Ported-from: 10.23 (wasm/pg10/0007-wasm-embedded-protocol.patch) for 9.6.24 by scripts/port-patches.js
+
+diff --git a/src/backend/libpq/pqcomm.c b/src/backend/libpq/pqcomm.c
+--- a/src/backend/libpq/pqcomm.c
++++ b/src/backend/libpq/pqcomm.c
+@@ -92,6 +92,10 @@
+ #include "libpq/ip.h"
+ #include "libpq/libpq.h"
+ #include "miscadmin.h"
++#ifdef __EMSCRIPTEN__
++#include "port/wasm_embed.h"
++#include "tcop/tcopprot.h"
++#endif
+ #include "storage/ipc.h"
+ #include "utils/guc.h"
+ #include "utils/memutils.h"
+@@ -898,6 +902,11 @@
+ static void
+ socket_set_nonblocking(bool nonblocking)
+ {
++#ifdef __EMSCRIPTEN__
++	/* the client is JavaScript: there is no socket whose mode could change */
++	if (wasm_embedded)
++		return;
++#endif
+ 	if (MyProcPort == NULL)
+ 		ereport(ERROR,
+ 				(errcode(ERRCODE_CONNECTION_DOES_NOT_EXIST),
+@@ -937,8 +946,14 @@
+ 	{
+ 		int			r;
+ 
+-		r = secure_read(MyProcPort, PqRecvBuffer + PqRecvLength,
+-						PQ_RECV_BUFFER_SIZE - PqRecvLength);
++#ifdef __EMSCRIPTEN__
++		if (wasm_embedded)
++			r = wasm_embed_read(PqRecvBuffer + PqRecvLength,
++								PQ_RECV_BUFFER_SIZE - PqRecvLength);
++		else
++#endif
++			r = secure_read(MyProcPort, PqRecvBuffer + PqRecvLength,
++							PQ_RECV_BUFFER_SIZE - PqRecvLength);
+ 
+ 		if (r < 0)
+ 		{
+@@ -1026,6 +1041,12 @@
+ 		return 1;
+ 	}
+ 
++#ifdef __EMSCRIPTEN__
++	/* the client is JavaScript: nothing arrives while a query runs */
++	if (wasm_embedded)
++		return 0;
++#endif
++
+ 	/* Put the socket into non-blocking mode */
+ 	socket_set_nonblocking(true);
+ 
+@@ -1419,7 +1440,12 @@
+ 	{
+ 		int			r;
+ 
+-		r = secure_write(MyProcPort, bufptr, bufend - bufptr);
++#ifdef __EMSCRIPTEN__
++		if (wasm_embedded)
++			r = wasm_embed_write(bufptr, (int) (bufend - bufptr));
++		else
++#endif
++			r = secure_write(MyProcPort, bufptr, bufend - bufptr);
+ 
+ 		if (r <= 0)
+ 		{
+@@ -1915,3 +1941,25 @@
+ 
+ 	return STATUS_OK;
+ }
++#ifdef __EMSCRIPTEN__
++/* --------------------------------
++ *		pq_init_embedded - protocol state for a JavaScript client
++ *
++ * Counterpart of pq_init() for the standalone backend of the WebAssembly
++ * build, which has no socket and no Port (MyProcPort stays NULL): allocate
++ * the send buffer, speak protocol 3 and send results "remote", so that
++ * PostgresMain() behaves as in a client backend.  Bytes move through
++ * wasm_embed_read() and wasm_embed_write() (port/wasm_embed.c).
++ * --------------------------------
++ */
++void
++pq_init_embedded(void)
++{
++	PqSendBufferSize = PQ_SEND_BUFFER_SIZE;
++	PqSendBuffer = MemoryContextAlloc(TopMemoryContext, PqSendBufferSize);
++	PqSendPointer = PqSendStart = PqRecvPointer = PqRecvLength = 0;
++	PqCommBusy = false;
++	FrontendProtocol = PG_PROTOCOL(3, 0);
++	whereToSendOutput = DestRemote;
++}
++#endif							/* __EMSCRIPTEN__ */
+diff --git a/src/backend/tcop/postgres.c b/src/backend/tcop/postgres.c
+--- a/src/backend/tcop/postgres.c
++++ b/src/backend/tcop/postgres.c
+@@ -74,6 +74,9 @@
+ #include "utils/timeout.h"
+ #include "utils/timestamp.h"
+ #include "mb/pg_wchar.h"
++#ifdef __EMSCRIPTEN__
++#include "port/wasm_embed.h"
++#endif
+ 
+ 
+ /* ----------------
+@@ -3662,6 +3665,12 @@
+ 			proc_exit(1);
+ 	}
+ 
++#ifdef __EMSCRIPTEN__
++	/* JavaScript is the client: protocol buffers and "remote" output, no socket */
++	if (wasm_embedded)
++		pq_init_embedded();
++#endif
++
+ 	/*
+ 	 * Set up signal handlers and masks.
+ 	 *
+diff --git a/src/backend/port/Makefile b/src/backend/port/Makefile
+--- a/src/backend/port/Makefile
++++ b/src/backend/port/Makefile
+@@ -21,7 +21,7 @@
+ top_builddir = ../../..
+ include $(top_builddir)/src/Makefile.global
+ 
+-OBJS = atomics.o dynloader.o pg_sema.o pg_shmem.o wasm_shm.o wasm_sema.o $(TAS)
++OBJS = atomics.o dynloader.o pg_sema.o pg_shmem.o wasm_shm.o wasm_sema.o wasm_embed.o $(TAS)
+ 
+ ifeq ($(PORTNAME), darwin)
+ SUBDIRS += darwin
+diff --git a/src/backend/port/wasm_embed.c b/src/backend/port/wasm_embed.c
+new file mode 100644
+--- a/src/backend/port/wasm_embed.c
++++ b/src/backend/port/wasm_embed.c
+@@ -0,0 +1,83 @@
++/*-------------------------------------------------------------------------
++ *
++ * wasm_embed.c
++ *	  Run the single-user backend as a library for JavaScript: the
++ *	  frontend/backend protocol travels through function calls, not a socket.
++ *
++ * A browser has no sockets and no processes.  pg_wasm_main() starts the
++ * standalone backend (postgres --single) with the protocol switched to
++ * "remote" mode: the bytes the backend would send to a client go to
++ * Module.pgWrite(), and when it wants the next message it asks
++ * Module.pgRead(), which returns a Promise.  The wasm stack is suspended
++ * while the Promise is pending (JavaScript Promise Integration), so the
++ * backend's own main loop is used unchanged and any PostgreSQL client
++ * library that speaks the protocol can drive it.  See src/backend/libpq/pqcomm.c
++ * (hooks) and patch wasm/0007.
++ *
++ * The browser link defines PG_WASM_BROWSER; the node build has no such
++ * JavaScript hooks and gets stubs that fail with ENOSYS.
++ *
++ * src/backend/port/wasm_embed.c
++ *
++ *-------------------------------------------------------------------------
++ */
++#ifdef __EMSCRIPTEN__
++
++#include "postgres.h"
++
++#include <emscripten.h>
++#include <errno.h>
++
++#include "port/wasm_embed.h"
++
++bool		wasm_embedded = false;
++
++#ifdef PG_WASM_BROWSER
++
++/* Module.pgRead(ptr, maxlen) -> Promise of the number of bytes stored at ptr (0 = end of input) */
++EM_ASYNC_JS(int, wasm_embed_read, (char *dst, int maxlen),
++{
++	return await Module.pgRead(dst, maxlen);
++});
++
++/* Module.pgWrite(ptr, len) copies the bytes out and returns len */
++EM_JS(int, wasm_embed_write, (const char *src, int len),
++{
++	return Module.pgWrite(src, len);
++});
++
++#else							/* !PG_WASM_BROWSER */
++
++int
++wasm_embed_read(char *dst, int maxlen)
++{
++	errno = ENOSYS;
++	return -1;
++}
++
++int
++wasm_embed_write(const char *src, int len)
++{
++	errno = ENOSYS;
++	return -1;
++}
++
++#endif							/* PG_WASM_BROWSER */
++
++extern int	main(int argc, char *argv[]);
++
++/*
++ * Start the backend; returns when the session ends.  The data directory is
++ * /pgdata and the program path /pgsql/bin/postgres (it must exist as a file,
++ * the server finds its share directory relative to it).
++ */
++EMSCRIPTEN_KEEPALIVE int
++pg_wasm_main(void)
++{
++	static char *argv[] = {"/pgsql/bin/postgres", "--single", "-D", "/pgdata", "postgres", NULL};
++
++	wasm_embedded = true;
++	return main(5, argv);
++}
++
++#endif							/* __EMSCRIPTEN__ */
+diff --git a/src/include/port/wasm_embed.h b/src/include/port/wasm_embed.h
+new file mode 100644
+--- a/src/include/port/wasm_embed.h
++++ b/src/include/port/wasm_embed.h
+@@ -0,0 +1,25 @@
++/*-------------------------------------------------------------------------
++ *
++ * wasm_embed.h
++ *	  Protocol-through-function-calls hooks of the WebAssembly backend.
++ *
++ * src/include/port/wasm_embed.h
++ *
++ *-------------------------------------------------------------------------
++ */
++#ifndef WASM_EMBED_H
++#define WASM_EMBED_H
++
++/* true while the frontend is JavaScript calling in, not a socket client */
++extern PGDLLIMPORT bool wasm_embedded;
++
++/* blocking read of up to maxlen protocol bytes (0 = end of input, -1 = error with errno) */
++extern int	wasm_embed_read(char *dst, int maxlen);
++
++/* send len protocol bytes to the client; returns len or -1 with errno */
++extern int	wasm_embed_write(const char *src, int len);
++
++/* set up the protocol buffers and the "remote" output destination (pqcomm.c) */
++extern void pq_init_embedded(void);
++
++#endif							/* WASM_EMBED_H */

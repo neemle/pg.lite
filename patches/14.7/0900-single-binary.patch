@@ -1,0 +1,925 @@
+Targets: native
+Subject: One-file server: embed share/, initdb and the container entrypoint in postgres
+Purpose: A FROM scratch image should hold one file. This links everything the server needs besides itself into the postgres executable: the share/ tree as a tar image (file system calls on paths below the share and pkglib directories are answered from it, via ld --wrap), initdb, pg_resetwal and pg_controldata as in-process programs (postgres --initdb, --resetwal, --controldata), the container entrypoint (postgres --launcher: initialise PGDATA on the first start, refuse a directory that is not a cluster, then continue as the server) and a synthesized passwd entry for a user id that /etc/passwd does not know. Everything is behind PG_EMBEDDED_IMAGE and needs the objects the build adds (the tar image, the renamed program mains), so without them the code is upstream's.
+Components: src/backend/main/embedded.c (new), src/backend/main/main.c, src/backend/main/Makefile
+Checks: scripts/native-image.sh test (cold init, SQL, restart, bad PGDATA) on an image whose only file is /usr/local/pgsql/bin/postgres; scripts/native-image.sh manifest
+Origin: own
+
+
+--- a/src/backend/main/Makefile
++++ b/src/backend/main/Makefile
+@@ -13,6 +13,7 @@
+ include $(top_builddir)/src/Makefile.global
+ 
+ OBJS = \
+-	main.o
++	main.o \
++	embedded.o
+ 
+ include $(top_srcdir)/src/backend/common.mk
+--- a/src/backend/main/main.c
++++ b/src/backend/main/main.c
+@@ -85,6 +85,15 @@
+ 
+ 	progname = get_progname(argv[0]);
+ 
++#ifdef PG_EMBEDDED_IMAGE
++	/* one-file image: --launcher, --initdb and the embedded share/ tree (main/embedded.c) */
++	{
++		extern void embedded_startup(int *argc, char ***argv);
++
++		embedded_startup(&argc, &argv);
++	}
++#endif
++
+ 	/*
+ 	 * Platform-specific startup hacks
+ 	 */
+--- /dev/null
++++ b/src/backend/main/embedded.c
+@@ -0,0 +1,885 @@
++/*-------------------------------------------------------------------------
++ *
++ * embedded.c
++ *	  One-file server: the data files, initdb and the container entrypoint
++ *	  live inside the postgres executable.
++ *
++ * A normal installation is a server, initdb, a launcher script and a share/
++ * tree.  With PG_EMBEDDED_IMAGE the build links all of it into postgres:
++ *
++ *	- the share/ tree (postgres.bki, the SQL scripts initdb runs, time zone
++ *	  and text search data, extension scripts) is a tar image in the
++ *	  executable.  The file system calls the server and initdb make on paths
++ *	  below the share directory (and on the empty pkglib directory) are
++ *	  answered from that image; every other path goes to the C library.  The
++ *	  calls are intercepted at link time (ld --wrap, see the list below), so
++ *	  no caller had to change.
++ *	- initdb, pg_resetwal and pg_controldata are linked in as embedded_initdb_main() and the like (their main(), renamed):
++ *	  "postgres --initdb", "--resetwal", "--controldata" run them.
++ *	- "postgres --launcher [options]" does what a container entrypoint script
++ *	  does: initialise PGDATA on first start, refuse a directory that is not a
++ *	  cluster, then continue as the server, so the server stays the process
++ *	  the container started.  "postgres --initdb [options]" runs initdb.
++ *	- a process whose user id has no passwd entry (a scratch image has no
++ *	  /etc/passwd) gets a synthesized one, so initdb and the server can ask
++ *	  who they run as.
++ *
++ * The link needs these options (build-native.sh passes them):
++ *	-Wl,--wrap=open -Wl,--wrap=fopen -Wl,--wrap=stat -Wl,--wrap=lstat
++ *	-Wl,--wrap=access -Wl,--wrap=opendir -Wl,--wrap=readdir
++ *	-Wl,--wrap=closedir -Wl,--wrap=rewinddir
++ *	-Wl,--wrap=getpwuid -Wl,--wrap=getpwuid_r
++ * and the objects named embedded_tar_start/embedded_tar_end (the share tree) and
++ * embedded_initdb_main, embedded_resetwal_main, embedded_controldata_main.  All of them are weak here: without them the
++ * functions below are never reached and postgres behaves as upstream.
++ *
++ * The code runs before the memory contexts exist: it uses the C library only.
++ *
++ * src/backend/main/embedded.c
++ *
++ *-------------------------------------------------------------------------
++ */
++#include "postgres.h"
++
++#ifdef PG_EMBEDDED_IMAGE
++
++#include <dirent.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <pwd.h>
++#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/stat.h>
++#include <sys/syscall.h>
++#include <sys/wait.h>
++#include <unistd.h>
++
++extern void embedded_startup(int *argc, char ***argv);
++
++/* provided by the build (objcopy --redefine-sym on the tar image and the renamed initdb main) */
++extern const char embedded_tar_start[] __attribute__((weak));
++extern const char embedded_tar_end[] __attribute__((weak));
++extern int	embedded_initdb_main(int argc, char **argv) __attribute__((weak));
++extern int	embedded_resetwal_main(int argc, char **argv) __attribute__((weak));
++extern int	embedded_controldata_main(int argc, char **argv) __attribute__((weak));
++
++/* the C library functions the linker wraps */
++extern int	__real_open(const char *path, int flags, ...);
++extern FILE *__real_fopen(const char *path, const char *mode);
++extern int	__real_stat(const char *path, struct stat *st);
++extern int	__real_lstat(const char *path, struct stat *st);
++extern int	__real_access(const char *path, int mode);
++extern DIR *__real_opendir(const char *path);
++extern struct dirent *__real_readdir(DIR *dir);
++extern int	__real_closedir(DIR *dir);
++extern void __real_rewinddir(DIR *dir);
++extern struct passwd *__real_getpwuid(uid_t uid);
++extern int	__real_getpwuid_r(uid_t uid, struct passwd *pwd, char *buf, size_t buflen, struct passwd **result);
++
++/* ---------------------------------------------------------------------
++ * The file image
++ * ---------------------------------------------------------------------
++ */
++typedef struct EmbFile
++{
++	const char *path;			/* relative to the share directory, no leading or trailing slash */
++	const char *data;			/* NULL for a directory */
++	size_t		size;
++} EmbFile;
++
++static EmbFile *emb_files = NULL;
++static size_t emb_nfiles = 0;
++static int	emb_ready = 0;		/* 1: index built, 0: not yet, -1: no image */
++static char *emb_argv0 = NULL;
++static char emb_share[1024];	/* the share directory as the server computes it */
++static char emb_pkglib[1024];	/* the (empty) library directory */
++
++static unsigned long
++emb_octal(const char *p, size_t n)
++{
++	unsigned long v = 0;
++
++	while (n-- > 0 && (*p == ' ' || *p == '\0'))
++		p++;
++	while (n + 1 > 0 && *p >= '0' && *p <= '7')
++	{
++		v = v * 8 + (unsigned long) (*p - '0');
++		p++;
++		n--;
++	}
++	return v;
++}
++
++/* Index the tar image (ustar, regular files and directories). */
++static void
++emb_index(void)
++{
++	const char *p = embedded_tar_start;
++	const char *end = embedded_tar_end;
++	size_t		cap = 0;
++
++	if (emb_ready != 0)
++		return;
++	if (&embedded_tar_start == NULL || &embedded_tar_end == NULL || end <= p)
++	{
++		emb_ready = -1;
++		return;
++	}
++	while (p + 512 <= end && p[0] != '\0')
++	{
++		char		name[256];
++		size_t		size = emb_octal(p + 124, 12);
++		char		type = p[156];
++		size_t		n;
++		char	   *copy;
++
++		/* ustar: prefix (155 bytes at 345) + "/" + name (100 bytes at 0) */
++		name[0] = '\0';
++		if (memcmp(p + 257, "ustar", 5) == 0 && p[345] != '\0')
++		{
++			n = strnlen(p + 345, 155);
++			memcpy(name, p + 345, n);
++			name[n++] = '/';
++		}
++		else
++			n = 0;
++		memcpy(name + n, p, 100);
++		name[n + strnlen(p, 100)] = '\0';
++
++		copy = name;
++		while (copy[0] == '.' && copy[1] == '/')
++			copy += 2;
++		n = strlen(copy);
++		while (n > 0 && copy[n - 1] == '/')
++			copy[--n] = '\0';
++
++		if (n > 0 && strcmp(copy, ".") != 0 && (type == '0' || type == '\0' || type == '5'))
++		{
++			if (emb_nfiles == cap)
++			{
++				cap = cap ? cap * 2 : 512;
++				emb_files = realloc(emb_files, cap * sizeof(EmbFile));
++				if (emb_files == NULL)
++					abort();
++			}
++			emb_files[emb_nfiles].path = strdup(copy);
++			emb_files[emb_nfiles].data = (type == '5') ? NULL : p + 512;
++			emb_files[emb_nfiles].size = (type == '5') ? 0 : size;
++			emb_nfiles++;
++		}
++		p += 512 + ((size + 511) / 512) * 512;
++	}
++	emb_ready = 1;
++}
++
++/* Add a file that exists only in memory (the initdb password), below the share directory. */
++static void
++emb_add_file(const char *rel, const char *data, size_t size)
++{
++	emb_files = realloc(emb_files, (emb_nfiles + 1) * sizeof(EmbFile));
++	if (emb_files == NULL)
++		abort();
++	emb_files[emb_nfiles].path = strdup(rel);
++	emb_files[emb_nfiles].data = data;
++	emb_files[emb_nfiles].size = size;
++	emb_nfiles++;
++}
++
++/*
++ * Call once, before anything is opened: from main() with the argv[0] the
++ * process got.  Works out where the server believes share/ and lib/ are.
++ */
++static void
++emb_init(const char *argv0)
++{
++	char		exec_path[MAXPGPATH];
++
++	if (emb_argv0 != NULL)
++		return;
++	emb_argv0 = strdup(argv0);
++	emb_share[0] = emb_pkglib[0] = '\0';
++	if (find_my_exec(argv0, exec_path) == 0)
++	{
++		get_share_path(exec_path, emb_share);
++		get_pkglib_path(exec_path, emb_pkglib);
++	}
++	emb_index();
++}
++
++/*
++ * If path is below the share directory, return the part after it ("" for the
++ * directory itself); NULL otherwise.  The pkglib directory is reported as
++ * the special string "\001" (an empty directory).
++ */
++static const char *
++emb_rel(const char *path)
++{
++	size_t		n;
++
++	if (emb_ready != 1 || emb_share[0] == '\0' || path == NULL)
++		return NULL;
++	n = strlen(emb_share);
++	if (strncmp(path, emb_share, n) == 0 && (path[n] == '/' || path[n] == '\0'))
++	{
++		path += n;
++		while (*path == '/')
++			path++;
++		return path;
++	}
++	n = strlen(emb_pkglib);
++	if (n > 0 && strncmp(path, emb_pkglib, n) == 0 && (path[n] == '\0' || (path[n] == '/' && path[n + 1] == '\0')))
++		return "\001";
++	return NULL;
++}
++
++static const EmbFile *
++emb_find(const char *rel)
++{
++	size_t		i;
++
++	for (i = 0; i < emb_nfiles; i++)
++		if (strcmp(emb_files[i].path, rel) == 0)
++			return &emb_files[i];
++	return NULL;
++}
++
++/* 1: rel is a directory (explicit entry or a parent of an entry) */
++static int
++emb_isdir(const char *rel)
++{
++	size_t		n = strlen(rel),
++				i;
++
++	if (rel[0] == '\001' || n == 0)
++		return 1;
++	for (i = 0; i < emb_nfiles; i++)
++	{
++		const char *f = emb_files[i].path;
++
++		if (strncmp(f, rel, n) == 0 && f[n] == '/')
++			return 1;
++		if (strcmp(f, rel) == 0 && emb_files[i].data == NULL)
++			return 1;
++	}
++	return 0;
++}
++
++static void
++emb_fill_stat(struct stat *st, int isdir, size_t size)
++{
++	memset(st, 0, sizeof(*st));
++	st->st_mode = isdir ? (S_IFDIR | 0555) : (S_IFREG | 0444);
++	st->st_nlink = isdir ? 2 : 1;
++	st->st_uid = geteuid();
++	st->st_gid = getegid();
++	st->st_size = (off_t) size;
++	st->st_blksize = 4096;
++	st->st_blocks = (blkcnt_t) ((size + 511) / 512);
++}
++
++static int
++emb_stat(const char *path, struct stat *st)
++{
++	const char *rel = emb_rel(path);
++	const EmbFile *f;
++
++	if (rel == NULL)
++		return 1;				/* not ours */
++	if (emb_isdir(rel))
++	{
++		emb_fill_stat(st, 1, 0);
++		return 0;
++	}
++	f = emb_find(rel);
++	if (f == NULL)
++	{
++		errno = ENOENT;
++		return -1;
++	}
++	emb_fill_stat(st, 0, f->size);
++	return 0;
++}
++
++int
++__wrap_stat(const char *path, struct stat *st)
++{
++	int			r = emb_stat(path, st);
++
++	return r == 1 ? __real_stat(path, st) : r;
++}
++
++int
++__wrap_lstat(const char *path, struct stat *st)
++{
++	int			r = emb_stat(path, st);
++
++	return r == 1 ? __real_lstat(path, st) : r;
++}
++
++int
++__wrap_access(const char *path, int mode)
++{
++	const char *rel = emb_rel(path);
++	struct stat st;
++
++	if (rel == NULL)
++		return __real_access(path, mode);
++	if (emb_stat(path, &st) != 0)
++		return -1;
++	if (mode & W_OK)
++	{
++		errno = EROFS;
++		return -1;
++	}
++	if ((mode & X_OK) && !S_ISDIR(st.st_mode))
++	{
++		errno = EACCES;
++		return -1;
++	}
++	return 0;
++}
++
++/* A read-only descriptor holding a copy of the file (an anonymous memory file). */
++static int
++emb_open_fd(const EmbFile *f)
++{
++	int			fd = (int) syscall(SYS_memfd_create, "pg-embedded", 0);
++	size_t		done = 0;
++
++	if (fd < 0)
++		return -1;
++	while (done < f->size)
++	{
++		ssize_t		w = write(fd, f->data + done, f->size - done);
++
++		if (w < 0)
++		{
++			if (errno == EINTR)
++				continue;
++			close(fd);
++			return -1;
++		}
++		done += (size_t) w;
++	}
++	if (lseek(fd, 0, SEEK_SET) < 0)
++	{
++		close(fd);
++		return -1;
++	}
++	return fd;
++}
++
++int
++__wrap_open(const char *path, int flags, ...)
++{
++	const char *rel = emb_rel(path);
++	const EmbFile *f;
++
++	if (rel == NULL)
++	{
++		mode_t		mode = 0;
++
++		if (flags & (O_CREAT | O_TMPFILE))
++		{
++			va_list		ap;
++
++			va_start(ap, flags);
++			mode = va_arg(ap, mode_t);
++			va_end(ap);
++		}
++		return __real_open(path, flags, mode);
++	}
++	if (flags & (O_WRONLY | O_RDWR | O_CREAT | O_TRUNC))
++	{
++		errno = EROFS;
++		return -1;
++	}
++	if (emb_isdir(rel))
++	{
++		errno = EISDIR;
++		return -1;
++	}
++	f = emb_find(rel);
++	if (f == NULL)
++	{
++		errno = ENOENT;
++		return -1;
++	}
++	return emb_open_fd(f);
++}
++
++FILE *
++__wrap_fopen(const char *path, const char *mode)
++{
++	const char *rel = emb_rel(path);
++	const EmbFile *f;
++	int			fd;
++	FILE	   *fp;
++
++	if (rel == NULL)
++		return __real_fopen(path, mode);
++	if (mode[0] != 'r' || strchr(mode, '+') != NULL)
++	{
++		errno = EROFS;
++		return NULL;
++	}
++	if (emb_isdir(rel))
++	{
++		errno = EISDIR;
++		return NULL;
++	}
++	f = emb_find(rel);
++	if (f == NULL)
++	{
++		errno = ENOENT;
++		return NULL;
++	}
++	fd = emb_open_fd(f);
++	if (fd < 0)
++		return NULL;
++	fp = fdopen(fd, "r");
++	if (fp == NULL)
++		close(fd);
++	return fp;
++}
++
++/* ---- directories: a DIR* we made is told apart by a registry of live ones */
++typedef struct EmbDir
++{
++	struct EmbDir *next;
++	char	  **names;
++	unsigned char *types;
++	size_t		n;
++	size_t		pos;
++	struct dirent ent;
++} EmbDir;
++
++static EmbDir *emb_dirs = NULL;
++
++static EmbDir *
++emb_dir_of(DIR *d)
++{
++	EmbDir	   *e;
++
++	for (e = emb_dirs; e != NULL; e = e->next)
++		if ((DIR *) e == d)
++			return e;
++	return NULL;
++}
++
++DIR *
++__wrap_opendir(const char *path)
++{
++	const char *rel = emb_rel(path);
++	EmbDir	   *d;
++	size_t		n,
++				i,
++				cap = 16;
++
++	if (rel == NULL)
++		return __real_opendir(path);
++	if (!emb_isdir(rel))
++	{
++		errno = emb_find(rel) ? ENOTDIR : ENOENT;
++		return NULL;
++	}
++	d = calloc(1, sizeof(EmbDir));
++	if (d == NULL)
++		return NULL;
++	d->names = malloc(cap * sizeof(char *));
++	d->types = malloc(cap);
++	d->names[0] = strdup(".");
++	d->types[0] = DT_DIR;
++	d->names[1] = strdup("..");
++	d->types[1] = DT_DIR;
++	d->n = 2;
++	n = (rel[0] == '\001') ? 0 : strlen(rel);
++	for (i = 0; rel[0] != '\001' && i < emb_nfiles; i++)
++	{
++		const char *f = emb_files[i].path;
++		const char *child;
++		const char *slash;
++		size_t		len,
++					j;
++		int			dup = 0;
++
++		if (n > 0)
++		{
++			if (strncmp(f, rel, n) != 0 || f[n] != '/')
++				continue;
++			child = f + n + 1;
++		}
++		else
++			child = f;
++		slash = strchr(child, '/');
++		len = slash ? (size_t) (slash - child) : strlen(child);
++		if (len == 0)
++			continue;
++		for (j = 2; j < d->n; j++)
++			if (strncmp(d->names[j], child, len) == 0 && d->names[j][len] == '\0')
++			{
++				dup = 1;
++				break;
++			}
++		if (dup)
++			continue;
++		if (d->n == cap)
++		{
++			cap *= 2;
++			d->names = realloc(d->names, cap * sizeof(char *));
++			d->types = realloc(d->types, cap);
++		}
++		d->names[d->n] = strndup(child, len);
++		d->types[d->n] = (slash || emb_files[i].data == NULL) ? DT_DIR : DT_REG;
++		d->n++;
++	}
++	d->next = emb_dirs;
++	emb_dirs = d;
++	return (DIR *) d;
++}
++
++struct dirent *
++__wrap_readdir(DIR *dir)
++{
++	EmbDir	   *d = emb_dir_of(dir);
++
++	if (d == NULL)
++		return __real_readdir(dir);
++	if (d->pos >= d->n)
++		return NULL;
++	memset(&d->ent, 0, sizeof(d->ent));
++	d->ent.d_ino = d->pos + 1;
++	d->ent.d_type = d->types[d->pos];
++	strncpy(d->ent.d_name, d->names[d->pos], sizeof(d->ent.d_name) - 1);
++	d->pos++;
++	return &d->ent;
++}
++
++void
++__wrap_rewinddir(DIR *dir)
++{
++	EmbDir	   *d = emb_dir_of(dir);
++
++	if (d == NULL)
++		__real_rewinddir(dir);
++	else
++		d->pos = 0;
++}
++
++int
++__wrap_closedir(DIR *dir)
++{
++	EmbDir	   *d = emb_dir_of(dir);
++	EmbDir	  **pp;
++	size_t		i;
++
++	if (d == NULL)
++		return __real_closedir(dir);
++	for (pp = &emb_dirs; *pp != NULL; pp = &(*pp)->next)
++		if (*pp == d)
++		{
++			*pp = d->next;
++			break;
++		}
++	for (i = 0; i < d->n; i++)
++		free(d->names[i]);
++	free(d->names);
++	free(d->types);
++	free(d);
++	return 0;
++}
++
++/* ---------------------------------------------------------------------
++ * A user without a passwd entry (no /etc/passwd in a scratch image)
++ * ---------------------------------------------------------------------
++ */
++static void
++emb_passwd(uid_t uid, struct passwd *pwd, char *buf, size_t buflen, int *ok)
++{
++	const char *user = getenv("POSTGRES_USER");
++	size_t		ulen;
++
++	if (user == NULL || *user == '\0')
++		user = "postgres";
++	ulen = strlen(user) + 1;
++	*ok = 0;
++	if (buflen < ulen + 2 * sizeof(char) + 16)
++		return;
++	memcpy(buf, user, ulen);
++	memcpy(buf + ulen, "x", 2);
++	memcpy(buf + ulen + 2, "/", 2);
++	memset(pwd, 0, sizeof(*pwd));
++	pwd->pw_name = buf;
++	pwd->pw_passwd = buf + ulen;
++	pwd->pw_uid = uid;
++	pwd->pw_gid = getegid();
++	pwd->pw_gecos = buf + ulen;
++	pwd->pw_dir = buf + ulen + 2;
++	pwd->pw_shell = buf + ulen;
++	*ok = 1;
++}
++
++int
++__wrap_getpwuid_r(uid_t uid, struct passwd *pwd, char *buf, size_t buflen, struct passwd **result)
++{
++	int			r = __real_getpwuid_r(uid, pwd, buf, buflen, result);
++	int			ok;
++
++	if (r == 0 && *result != NULL)
++		return r;
++	if (uid != geteuid() || emb_argv0 == NULL)
++		return r;
++	emb_passwd(uid, pwd, buf, buflen, &ok);
++	if (!ok)
++		return r == 0 ? ERANGE : r;
++	*result = pwd;
++	return 0;
++}
++
++struct passwd *
++__wrap_getpwuid(uid_t uid)
++{
++	static struct passwd pw;
++	static char buf[256];
++	struct passwd *r = __real_getpwuid(uid);
++	int			ok;
++
++	if (r != NULL || uid != geteuid() || emb_argv0 == NULL)
++		return r;
++	emb_passwd(uid, &pw, buf, sizeof(buf), &ok);
++	return ok ? &pw : NULL;
++}
++
++/* ---------------------------------------------------------------------
++ * initdb and the entrypoint
++ * ---------------------------------------------------------------------
++ */
++#define EMB_DEFAULT_PGDATA "/var/lib/postgresql/data"
++
++/* password authentication of network connections: SCRAM from 10 on, md5 before */
++#if PG_VERSION_NUM >= 100000
++#define EMB_PASSWORD_AUTH "scram-sha-256"
++#else
++#define EMB_PASSWORD_AUTH "md5"
++#endif
++
++static void
++emb_die(const char *msg)
++{
++	fprintf(stderr, "postgres --launcher: %s\n", msg);
++	exit(1);
++}
++
++static int
++emb_dir_is_empty(const char *path)
++{
++	DIR		   *d = opendir(path);
++	struct dirent *e;
++	int			empty = 1;
++
++	if (d == NULL)
++		return 1;
++	while ((e = readdir(d)) != NULL)
++	{
++		if (strcmp(e->d_name, ".") != 0 && strcmp(e->d_name, "..") != 0)
++		{
++			empty = 0;
++			break;
++		}
++	}
++	closedir(d);
++	return empty;
++}
++
++static void
++emb_append(const char *dir, const char *file, const char *text)
++{
++	char		path[4096];
++	FILE	   *f;
++
++	snprintf(path, sizeof(path), "%s/%s", dir, file);
++	f = fopen(path, "a");
++	if (f == NULL || fputs(text, f) == EOF || fclose(f) != 0)
++	{
++		fprintf(stderr, "postgres --launcher: cannot append to %s: %s\n", path, strerror(errno));
++		exit(1);
++	}
++}
++
++/* Run initdb in a child process; the password is a file that exists only in this process's memory, never on disk. */
++static int
++emb_run_initdb(const char *argv0, const char *pgdata, const char *user, const char *password)
++{
++	char		userarg[256];
++	char		pgdataarg[4096];
++	char		pwarg[1200];
++	char	   *pwline;
++	char	   *args[24];
++	int			n = 0;
++	pid_t		pid;
++	int			status;
++
++	if (emb_ready != 1 || emb_share[0] == '\0')
++		emb_die("the embedded data files are not available");
++	pwline = malloc(strlen(password) + 2);
++	if (pwline == NULL)
++		emb_die("out of memory");
++	sprintf(pwline, "%s\n", password);
++	emb_add_file(".initdb-password", pwline, strlen(pwline));
++	snprintf(pwarg, sizeof(pwarg), "--pwfile=%s/.initdb-password", emb_share);
++
++	snprintf(userarg, sizeof(userarg), "--username=%s", user);
++	snprintf(pgdataarg, sizeof(pgdataarg), "%s", pgdata);
++	args[n++] = (char *) argv0;
++	args[n++] = "-D";
++	args[n++] = pgdataarg;
++	args[n++] = userarg;
++	args[n++] = pwarg;
++	args[n++] = "--encoding=UTF8";
++	args[n++] = "--locale=C.UTF-8";
++#if PG_VERSION_NUM >= 170000
++	/* the builtin provider: the same ordering on every libc */
++	args[n++] = "--locale-provider=builtin";
++	args[n++] = "--builtin-locale=C.UTF-8";
++#endif
++#if PG_VERSION_NUM >= 90200
++	args[n++] = "--auth-local=trust";
++	args[n++] = "--auth-host=" EMB_PASSWORD_AUTH;
++#else
++	/* before 9.2 initdb has one --auth for every connection type: the password check then covers the socket too */
++	args[n++] = "--auth=" EMB_PASSWORD_AUTH;
++#endif
++	args[n] = NULL;
++
++	fflush(NULL);
++	pid = fork();
++	if (pid < 0)
++		emb_die("cannot fork");
++	if (pid == 0)
++		exit(embedded_initdb_main(n, args));
++	while (waitpid(pid, &status, 0) < 0)
++		if (errno != EINTR)
++		{
++			status = -1;
++			break;
++		}
++	/* the server this process turns into must not keep the password in memory */
++	memset(pwline, 0, strlen(pwline));
++	free(pwline);
++	emb_nfiles--;
++	if (status == -1)
++		return -1;
++	return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
++}
++
++/* Container entrypoint: initialise on the first start, then become "postgres -D PGDATA ..." */
++static void
++emb_launcher(int *argc, char ***argv)
++{
++	const char *pgdata = getenv("PGDATA") ? getenv("PGDATA") : EMB_DEFAULT_PGDATA;
++	const char *user = getenv("POSTGRES_USER") ? getenv("POSTGRES_USER") : "postgres";
++	const char *password = getenv("POSTGRES_PASSWORD");
++	char		version_file[4096];
++	struct stat st;
++	char	  **args;
++	int			n = 0,
++				i;
++
++	snprintf(version_file, sizeof(version_file), "%s/PG_VERSION", pgdata);
++	if (stat(version_file, &st) != 0)
++	{
++		int			rc;
++
++		if (!emb_dir_is_empty(pgdata))
++		{
++			fprintf(stderr, "postgres --launcher: %s is not empty and is not a PostgreSQL cluster; refusing to touch it\n", pgdata);
++			exit(1);
++		}
++		if (password == NULL || *password == '\0')
++			emb_die("POSTGRES_PASSWORD must be set for the first start");
++		if (embedded_initdb_main == NULL)
++			emb_die("this executable was built without initdb");
++		rc = emb_run_initdb((*argv)[0], pgdata, user, password);
++		if (rc != 0)
++		{
++			fprintf(stderr, "postgres --launcher: initdb failed (status %d)\n", rc);
++			exit(1);
++		}
++		emb_append(pgdata, "postgresql.conf",
++				   "\n# added by --launcher\nlisten_addresses = '*'\ntimezone = 'UTC'\nlog_timezone = 'UTC'\n");
++#if PG_VERSION_NUM >= 90200
++		emb_append(pgdata, "pg_hba.conf", "\nhost all all all " EMB_PASSWORD_AUTH "\n");
++#else
++		/* before 9.2 "all" is not an address keyword (it would be looked up as a host name) */
++		emb_append(pgdata, "pg_hba.conf",
++				   "\nhost all all 0.0.0.0/0 " EMB_PASSWORD_AUTH "\nhost all all ::/0 " EMB_PASSWORD_AUTH "\n");
++#endif
++	}
++
++	args = calloc((size_t) *argc + 4, sizeof(char *));
++	if (args == NULL)
++		emb_die("out of memory");
++	args[n++] = (*argv)[0];
++	args[n++] = "-D";
++	args[n++] = (char *) pgdata;
++	for (i = 2; i < *argc; i++)
++		args[n++] = (*argv)[i];
++	args[n] = NULL;
++	*argv = args;
++	*argc = n;
++}
++
++/*
++ * Called by main() before anything else.  Returns normally when the process
++ * is an ordinary postgres; may rewrite argc/argv (--launcher).
++ */
++void
++embedded_startup(int *argc, char ***argv)
++{
++	if (*argc < 1 || (*argv)[0] == NULL)
++		return;
++	emb_init((*argv)[0]);
++	if (*argc >= 2)
++	{
++		static const struct
++		{
++			const char *option;
++			int			(*main_fn) (int, char **);
++		}			tools[] = {
++			{"--initdb", embedded_initdb_main},
++			{"--resetwal", embedded_resetwal_main},
++			{"--controldata", embedded_controldata_main},
++		};
++		size_t		t;
++
++		for (t = 0; t < lengthof(tools); t++)
++		{
++			char	  **args;
++			int			i,
++						n = 0;
++
++			if (strcmp((*argv)[1], tools[t].option) != 0)
++				continue;
++			if (tools[t].main_fn == NULL)
++			{
++				fprintf(stderr, "%s: this executable was built without %s\n", (*argv)[0], tools[t].option + 2);
++				exit(1);
++			}
++			/* the tool finds the server through argv[0] (this very file): argv[0] stays, the option goes */
++			args = calloc((size_t) *argc + 1, sizeof(char *));
++			if (args == NULL)
++				emb_die("out of memory");
++			args[n++] = (*argv)[0];
++			for (i = 2; i < *argc; i++)
++				args[n++] = (*argv)[i];
++			args[n] = NULL;
++			exit(tools[t].main_fn(n, args));
++		}
++	}
++	if (*argc >= 2 && strcmp((*argv)[1], "--launcher") == 0)
++		emb_launcher(argc, argv);
++}
++
++#endif							/* PG_EMBEDDED_IMAGE */

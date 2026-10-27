@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: PostgreSQL version to build and test, for example 17.11 (dry run, nothing is published)
+        description: PostgreSQL version to build and test, for example 17.11, or latest (dry run, nothing is published)
         required: true
 
 permissions:
@@ -41,7 +41,10 @@ jobs:
         name: The tag must be an upstream PostgreSQL release this repository can build
         env:
           TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', inputs.version) }}
-        run: ./dc node scripts/release-plan.js --github "$TAG" | tee -a "$GITHUB_OUTPUT"
+        run: |
+          # a tag is v<version>; a manual run may say "latest" or a bare major, which builder.sh turns into a release
+          [ "${TAG#v}" = "$TAG" ] || TAG="v$(./builder.sh version "${TAG#v}")"
+          tools/dc node scripts/release-plan.js --github "$TAG" | tee -a "$GITHUB_OUTPUT"
       - id: publish
         name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
         env:
@@ -66,35 +69,21 @@ jobs:
       - name: Free disk space (the builder images and trees are several GB)
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
       - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
-        run: |
-          ./dc make fetch VERSION="$VERSION"
-          ./dc make wasm-src VERSION="$VERSION"
-      - name: Build the node-hosted WebAssembly server and the template data directory
-        run: ./dcb wasm make wasm-build VERSION="$VERSION"
-      - name: SQL smoke test under node
-        run: ./dcb wasm make test-wasm-node VERSION="$VERSION"
-      - name: Build the browser module
-        run: WEB=1 ./dcb wasm make wasm-build VERSION="$VERSION"
-      - name: Install the browser test dependencies and the demo's
-        run: |
-          DC_NET=1 ./dcb web sh scripts/web-install.sh tests/browser
-          DC_NET=1 ./dcb web sh scripts/web-install.sh web/demo
-      - name: Build the Angular + TypeORM demo
-        run: ./dcb web make web-demo VERSION="$VERSION"
-      - name: Browser tests (Chromium, real Worker, real IndexedDB)
-        run: ./dcb web make test-wasm VERSION="$VERSION"
-      - name: Package
-        run: ./dc make package-wasm VERSION="$VERSION"
+        run: ./builder.sh patch "$VERSION" wasm
+      - name: Build the engine, the browser module and the demo, and package them
+        run: ./builder.sh build "$VERSION" wasm
+      - name: Test (SQL under node; Chromium with a real Worker and real IndexedDB)
+        run: ./builder.sh test "$VERSION" wasm
       - uses: actions/upload-artifact@v4
         with:
           name: compact-db-wasm-${{ env.VERSION }}
           path: |
-            dist/compact-db-wasm-${{ env.VERSION }}.tar.gz
-            dist/compact-db-wasm-${{ env.VERSION }}.tar.gz.sha256
-            dist/compact-db-wasm-${{ env.VERSION }}.sizes.txt
+            tools/dist/compact-db-wasm-${{ env.VERSION }}.tar.gz
+            tools/dist/compact-db-wasm-${{ env.VERSION }}.tar.gz.sha256
+            tools/dist/compact-db-wasm-${{ env.VERSION }}.sizes.txt
           if-no-files-found: error
 
-  image:
+  cli:
     needs: plan
     runs-on: ubuntu-24.04
     env:
@@ -105,20 +94,11 @@ jobs:
       - name: Free disk space
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
       - name: Fetch the pinned upstream source and apply the patches
-        run: |
-          ./dc make fetch VERSION="$VERSION"
-          ./dc make native-src VERSION="$VERSION"
-      - name: Build the static musl server
-        run: ./dcb musl make native-build VERSION="$VERSION"
-      - name: Unit tests of the shell-free spawn code
-        run: ./dcb musl make test-noshell VERSION="$VERSION"
-      - name: Build the FROM scratch image and test it (SQL, modules, auth, restart, non-empty data directory, static check)
-        run: |
-          ./dcb ref make builder-check               # the reference builder image
-          ./dcb ref make reference VERSION="$VERSION"
-          scripts/reference.sh image "$VERSION"      # the unmodified upstream build whose psql is the external test client
-          scripts/native-image.sh image "$VERSION"
-          scripts/native-image.sh test "$VERSION"
+        run: ./builder.sh patch "$VERSION" cli
+      - name: Build the static one-file server and the FROM scratch image
+        run: ./builder.sh build "$VERSION" cli --tag "compactdb-native:$VERSION"
+      - name: Test (SQL, modules, authentication, restart, non-empty data directory, one file in the image)
+        run: ./builder.sh test "$VERSION" cli
       - name: Image tags
         id: tags
         env:
@@ -150,7 +130,7 @@ jobs:
           path: image-${{ env.VERSION }}.txt
 
   release:
-    needs: [plan, wasm, image]
+    needs: [plan, wasm, cli]
     if: ${{ needs.plan.outputs.publish == 'true' }}
     runs-on: ubuntu-24.04
     steps:

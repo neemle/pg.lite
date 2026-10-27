@@ -17,6 +17,6 @@ jobs:
       - uses: actions/checkout@v4
       # Nothing runs on the runner but docker and git: every target runs in the project's tools container.
       - name: Self-tests (locks, patch series, resolver, probes, no upstream source committed)
-        run: ./dc make selftest
+        run: tools/dc make selftest
       - name: Lock files
-        run: ./dc make validate-locks
+        run: tools/dc make validate-locks

@@ -1,0 +1,43 @@
+Targets: native
+Subject: Register libpqwalreceiver as a module built into the server
+Purpose: Streaming replication and logical replication load the module libpqwalreceiver by name (load_file in walreceiver.c, the apply worker and the table sync worker). A static server cannot dlopen() it, so a standby started from a base backup failed with "could not load library libpqwalreceiver" and never streamed. The module and the libpq objects it calls are linked into the executable (scripts/build-native.sh) and registered here like plpgsql and dict_snowball. Behind PG_STATIC_MODULES, so without that define the code is upstream's.
+Components: src/backend/utils/fmgr/staticmods.c
+Checks: scripts/native-production-test.sh P16 (a standby of the static server streams from the primary, replays its writes, shows up in pg_stat_replication, and is promoted)
+Origin: own
+
+diff --git a/src/backend/utils/fmgr/staticmods.c b/src/backend/utils/fmgr/staticmods.c
+index 8024df3..7342061 100644
+--- a/src/backend/utils/fmgr/staticmods.c
++++ b/src/backend/utils/fmgr/staticmods.c
+@@ -44,6 +44,14 @@ extern Datum dsnowball_lexize(PG_FUNCTION_ARGS) WEAK;
+ extern const Pg_finfo_record *pg_finfo_dsnowball_init(void) WEAK;
+ extern const Pg_finfo_record *pg_finfo_dsnowball_lexize(void) WEAK;
+ 
++/*
++ * libpqwalreceiver (src/backend/replication/libpqwalreceiver) together with the libpq objects it
++ * needs: the WAL receiver of a standby and the apply workers of logical replication load it by name.
++ * It exports nothing but the two entry points; _PG_init installs its function table.
++ */
++extern const Pg_magic_struct *libpqwalreceiver_Pg_magic_func(void) WEAK;
++extern void libpqwalreceiver_PG_init(void) WEAK;
++
+ /* The first entry of every table is Pg_magic_func: NULL there means "not linked in" */
+ static const StaticModuleSym plpgsql_syms[] = {
+ 	{"Pg_magic_func", (void *) plpgsql_Pg_magic_func},
+@@ -67,9 +75,16 @@ static const StaticModuleSym dict_snowball_syms[] = {
+ 	{NULL, NULL}
+ };
+ 
++static const StaticModuleSym libpqwalreceiver_syms[] = {
++	{"Pg_magic_func", (void *) libpqwalreceiver_Pg_magic_func},
++	{"_PG_init", (void *) libpqwalreceiver_PG_init},
++	{NULL, NULL}
++};
++
+ static StaticModule static_modules[] = {
+ 	{"plpgsql", plpgsql_syms, false},
+ 	{"dict_snowball", dict_snowball_syms, false},
++	{"libpqwalreceiver", libpqwalreceiver_syms, false},
+ 	{NULL, NULL, false}
+ };
+ 

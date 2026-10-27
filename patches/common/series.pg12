@@ -1,5 +1,0 @@
-# Patch series for the "common" target, range pg12 (PostgreSQL 12.x): one *.patch path per line, relative to this directory.
-# Made by scripts/port-patches.js from the baseline series (13.23); entries in pg12/ are the patches that needed a port, the others are shared with the baseline.
-pg12/0001-static-modules.patch
-pg16/0003-no-locale-a.patch
-pg12/0004-snowball-english-only.patch
