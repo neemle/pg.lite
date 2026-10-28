@@ -35,7 +35,7 @@ number.
 | Major | Status |
 | --- | --- |
 | 18 | the baseline the patches are written against: builds and passes all tests (image, WebAssembly, browser) |
-| 17 down to 9.0 | patches ported from 18 ([docs/patches.md](tools/docs/patches.md), [docs/ranges.md](tools/docs/ranges.md)); every release is served by the patch folder of a tested version of its major, and the touched files compile ([reports/release-apply.json](tools/reports/release-apply.json)); the image is built and tested on 18.6, 17.11, 16.15, 14.24, 12.22, 10.23, 9.6.24, 9.2.24 and 9.0.23 |
+| 17 down to 9.0 | patches ported from 18 ([docs/patches.md](tools/docs/patches.md), [docs/ranges.md](tools/docs/ranges.md)); every release gets its patches from the cascading folders, and each one applies and the touched files compile ([reports/release-apply.json](tools/reports/release-apply.json)); the image is built and tested on 18.6, 17.11, 16.15, 14.24, 12.22, 10.23, 9.6.24, 9.2.24 and 9.0.23 |
 
 Pushing a tag `vX.Y` runs [.github/workflows/release.yml](.github/workflows/release.yml): it builds and tests that exact release
 and publishes the browser module as a GitHub release and the image to Docker Hub as `<DOCKERHUB_REPOSITORY>:X.Y` (also `:X` for
@@ -52,7 +52,7 @@ The host needs `docker` and `git`; nothing else runs on it. One script does the 
 
 | Command | What it does |
 | --- | --- |
-| `patch` | downloads the upstream source of that exact release (SHA-256 checked) and applies `patches/<version>` to a copy of it |
+| `patch` | downloads the upstream source of that exact release (SHA-256 checked) and applies the patches of that release to a copy of it |
 | `build` | patch, then build: **cli** the static one-file server and its Docker image; **wasm** the engine, the browser module and the demo, packed as `tools/dist/compact-db-wasm-<version>.tar.gz` |
 | `test` | the tests of what build made (it builds first if there is nothing yet) |
 
@@ -133,7 +133,7 @@ proves it: exactly one file, and no shell, loader or shared object.
 | Path | What is there |
 | --- | --- |
 | `README.md`, `LICENSE`, `builder.sh` | this file, the licence, and the one command that patches, builds and tests the image and the WebAssembly module |
-| `patches/` | the patches to PostgreSQL: one folder per tested version (`18.6/`, `9.6.24/`, ...), each with `NNNN-name.patch` files. The four digits are the order; `0900-single-binary.patch` is the wrapper that links everything into one executable ([how](tools/docs/patches.md)) |
+| `patches/` | the patches to PostgreSQL, in folders that cascade: `patches/` holds what every release takes, `patches/12/` what the 12.x releases take, `patches/12/12.4-12.9/` what differs for those releases. A release takes the patches along its path, applied in the order of their four-digit numbers; `0900-single-binary.patch` is the wrapper that links everything into one executable ([how](tools/docs/patches.md)) |
 | `demo/` | the WebAssembly side: the browser module (`src/`: Worker, IndexedDB storage, `pg` facade) and the Angular + TypeORM demo app (`demo/`) |
 | `tools/` | everything that builds and checks, see [tools/README.md](tools/README.md): `scripts/`, `docker/` (builder images and what goes into the final image), `tests/`, `docs/` ([native](tools/docs/native.md), [wasm](tools/docs/wasm.md), [build](tools/docs/build.md), [patches](tools/docs/patches.md), [ranges](tools/docs/ranges.md), [compat](tools/docs/compat.md), [production tests](tools/docs/production-tests.md), [size experiments](tools/docs/size-experiments.md)), the lock files (`sources.lock.json` pins every release's SHA-256, `ranges.json` says how releases differ), and `dc`/`dcb`, which run any command in the project's containers |
 

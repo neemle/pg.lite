@@ -4,7 +4,7 @@
 #   ./builder.sh <command> <version> <target> [options]
 #
 #   command   patch   fetch the upstream source of that exact release (SHA-256 checked against tools/sources.lock.json) and
-#                     apply patches/<version> to a copy of it
+#                     apply the patches of that release (patches/, its family and span folders) to a copy of it
 #             build   patch, then build: cli  -> the static one-file server and its Docker image
 #                                        wasm -> the WebAssembly engine, the browser module, the demo, tools/dist/*.tar.gz
 #             test    run the tests of what build made
@@ -102,7 +102,7 @@ done
 [ "$command" = build ] || [ "$test_it" = 0 ] || die "--test belongs to the build command"
 echo "builder.sh: $command PostgreSQL $version ($target)"
 
-# ---- patch: the verified upstream source plus patches/<version> (or the nearest tested version of its major)
+# ---- patch: the verified upstream source plus the patches of the release (patches/ cascades, see tools/docs/patches.md)
 do_patch() {
     src=native; [ "$target" = wasm ] && src=wasm
     step "fetch PostgreSQL $version (verified against the pinned SHA-256)"

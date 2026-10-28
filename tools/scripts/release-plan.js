@@ -43,11 +43,11 @@ const newestOverall = newest(lock.releases);
 const r = spawnSync('node', [path.join(root, 'scripts', 'resolve.js'), version, '--allow-missing-builder', ...rangesArgs], { encoding: 'utf8' });
 if (r.status !== 0) { console.error(r.stderr || r.stdout); process.exit(4); }
 const plan = JSON.parse(r.stdout);
-if (!plan.patchDirs || plan.patchDirs.length === 0) {
+if (!plan.patchFolders || plan.patchFolders.length < 2) {
   console.error(`release-plan: PostgreSQL ${version} (range ${plan.range}) has no patch folder yet, so it cannot be built. Supported majors are the ones with a folder in patches/.`);
   process.exit(4);
 }
 
-const out = { tag, version, major: release.major, range: plan.range, newestInMajor: newestInMajor === version, newestOverall: newestOverall === version, patchDirs: plan.patchDirs };
+const out = { tag, version, major: release.major, range: plan.range, newestInMajor: newestInMajor === version, newestOverall: newestOverall === version, patchFolders: plan.patchFolders };
 if (github) for (const [k, v] of Object.entries(out)) console.log(`${k}=${Array.isArray(v) ? v.join(',') : v}`);
 else console.log(JSON.stringify(out, null, 2));

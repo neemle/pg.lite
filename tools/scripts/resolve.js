@@ -3,13 +3,13 @@
 // Resolves a PostgreSQL version to its build plan from data only:
 //   sources.lock.json  -> release, tag, commit, archive + checksum
 //   ranges.json        -> extra configure options, compiler flags, omitted features
-//   patches/<version>/ -> the patch folders (one per tested version); a release uses its own folder or the nearest one of its major
+//   patches/           -> the patch tree (cascading folders); a release takes the folders on its way down, see patchtree.js
 //   toolchain.lock.json-> builder images (with digests) for the range
 // There is no version-specific logic in this file; every difference comes from those files.
 //
 //   resolve.js <version> [--allow-missing-builder]     print the plan as JSON
 //   resolve.js --check-all [--allow-missing-builder]    resolve every release in the index
-//   resolve.js <version> --patch-args                  only the --patch-dir options for patches.js apply
+//   resolve.js <version> --patch-folders               the patch folders the release takes, outermost first
 //   resolve.js <version> --write-build-args <dir>      write <dir>/range-configure and <dir>/range-cflags for the build scripts
 //
 // Options (for tests): --sources F --ranges F --toolchain F --patches DIR
@@ -18,6 +18,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const pt = require('./patchtree');
 
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
@@ -32,7 +33,7 @@ for (let i = 0; i < args.length; i++) {
   const a = args[i];
   if (a === '--allow-missing-builder') opt.allowMissingBuilder = true;
   else if (a === '--check-all') opt.checkAll = true;
-  else if (a === '--patch-args') opt.patchArgs = true;
+  else if (a === '--patch-folders') opt.patchFolders = true;
   else if (a === '--write-build-args') opt.writeBuildArgs = path.resolve(args[++i] || '');
   else if (a === '--target') opt.target = args[++i];
   else if (a === '--sources' || a === '--ranges' || a === '--toolchain' || a === '--patches') opt[a.slice(2)] = path.resolve(args[++i] || '');
@@ -52,17 +53,11 @@ const within = (v, from, to) => cmp(ver(from), ver(v)) <= 0 && cmp(ver(v), ver(t
 
 class PlanError extends Error { constructor(code, msg) { super(msg); this.code = code; } }
 
-// The patch folders (patches/<version>) that can serve a release, best first: its own folder, then the other tested
-// versions of the same major, nearest minor first (a newer one before an older one at the same distance).
-function patchDirs(rel) {
-  const dirs = fs.existsSync(opt.patches) ? fs.readdirSync(opt.patches, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name) : [];
-  const major = (v) => { const r = sources.releases.find((x) => x.version === v); return r ? r.major : null; };
-  const minor = (v) => ver(v)[v.split('.')[0] === '9' ? 2 : 1];
-  const same = dirs.filter((d) => major(d) === rel.major);
-  const target = minor(rel.version);
-  same.sort((x, y) => (Math.abs(minor(x) - target) - Math.abs(minor(y) - target)) || (minor(y) - minor(x)));
-  if (same.length === 0) throw new PlanError(6, `no patch folder for PostgreSQL ${rel.major} (patches/${rel.major}.*) `);
-  return same;
+// The folders of the patch tree a release takes (patchtree.js), outermost first; the release needs at least its family folder.
+function patchFoldersOf(rel) {
+  const f = pt.folders(opt.patches, rel.version);
+  if (f.length < 2) throw new PlanError(6, `no patch folder for PostgreSQL ` + rel.major + ` (patches/` + pt.family(rel.version) + `)`);
+  return f.map((x) => x || '.');
 }
 
 function resolve(version) {
@@ -85,7 +80,7 @@ function resolve(version) {
     throw new PlanError(5, `no builder range in toolchain.lock.json covers ${version} yet (see CDB-24); use --allow-missing-builder to resolve everything else`);
   }
 
-  const patchFolders = patchDirs(rel);
+  const patchFolders = patchFoldersOf(rel);
   return {
     version: rel.version,
     major: rel.major,
@@ -94,7 +89,7 @@ function resolve(version) {
     archive: { url: rel.archiveUrl, sha256: rel.archiveSha256, checksumSource: rel.checksumSource },
     range: range.id,
     builders,
-    patchDirs: patchFolders,
+    patchFolders,
     configure: range.configure,
     cflags: range.cflags || [],
     omittedFeatures: range.omittedFeatures,
@@ -117,7 +112,7 @@ try {
       fs.mkdirSync(opt.writeBuildArgs, { recursive: true });
       fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-configure'), plan.configure.filter((x) => !/^(wasm|native):/.test(x) || x.startsWith(`${opt.target}:`)).map((x) => `${x.replace(/^(wasm|native):/, '')}\n`).join(''));
       fs.writeFileSync(path.join(opt.writeBuildArgs, 'range-cflags'), plan.cflags.filter((x) => !/^(wasm|native):/.test(x) || x.startsWith(`${opt.target}:`)).map((x) => `${x.replace(/^(wasm|native):/, '')}\n`).join(''));
-    } else if (opt.patchArgs) console.log(plan.patchDirs.map((d) => `--patch-dir ${d}`).join(' '));
+    } else if (opt.patchFolders) console.log(plan.patchFolders.join(' '));
     else console.log(JSON.stringify(plan, null, 2));
   }
 } catch (e) {

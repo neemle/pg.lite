@@ -57,14 +57,14 @@ capture-toolchain:
 update-toolchain-lock:
 	@node scripts/update-toolchain-lock.js
 
-# Apply the common+native patches of patches/<version> into build/native/<v>/src (tools container):
+# Apply the common+native patches of the release into build/native/<v>/src (tools container):
 native-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --target native $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --patch-args)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --target native --version $(VERSION)
 	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/native/$(VERSION) --target native
 
-# Apply the common+wasm patches of patches/<version> into build/wasm/<v>/src (tools container):
+# Apply the common+wasm patches of the release into build/wasm/<v>/src (tools container):
 wasm-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --target wasm $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --patch-args)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --target wasm --version $(VERSION)
 	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/wasm/$(VERSION) --target wasm
 
 # WebAssembly build of one release (docs/wasm.md): tools/dcb wasm make wasm-build VERSION=18.6
@@ -159,7 +159,7 @@ patches-verify:
 	@node scripts/patches.js verify
 
 patches-apply:
-	@$(if $(VERSION),,$(error VERSION=<x.y> TARGET=native|wasm are required, e.g. tools/dc make patches-apply VERSION=18.6 TARGET=native))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/$(TARGET)/$(VERSION)/src --target $(TARGET) $(shell node scripts/resolve.js $(VERSION) --allow-missing-builder --patch-args)
+	@$(if $(VERSION),,$(error VERSION=<x.y> TARGET=native|wasm are required, e.g. tools/dc make patches-apply VERSION=18.6 TARGET=native))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/$(TARGET)/$(VERSION)/src --target $(TARGET) --version $(VERSION)
 
 test-patches:
 	@node tests/patches/run.js

@@ -15,7 +15,7 @@ check('v18.6 is releasable, newest of its major and newest overall', r.status ==
 
 r = run(['v17.11']);
 plan = r.status === 0 ? JSON.parse(r.stdout) : {};
-check('v17.11 uses the pg17 range and its patch folder and is not the newest overall', r.status === 0 && plan.range === 'pg17' && plan.newestInMajor === true && plan.newestOverall === false && plan.patchDirs.includes('17.11'), r.stderr);
+check('v17.11 uses the pg17 range and its patch folder and is not the newest overall', r.status === 0 && plan.range === 'pg17' && plan.newestInMajor === true && plan.newestOverall === false && plan.patchFolders.includes('17'), r.stderr);
 
 r = run(['v17.10']);
 plan = r.status === 0 ? JSON.parse(r.stdout) : {};

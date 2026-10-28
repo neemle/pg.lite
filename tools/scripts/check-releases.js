@@ -7,7 +7,7 @@
 //                     [--recheck] [--keep] [--no-syntax]
 //
 // For each release: fetch and verify it (scripts/fetch.sh, so the pinned SHA-256 decides), apply the common+native and the
-// common+wasm patches (the folder patches/<version> or the nearest tested one) exactly as `make native-src` / `make wasm-src` do (scripts/patches.js, fuzz 0), record
+// common+wasm patches of the cascading tree (patches/, the family, the span) exactly as `make native-src` / `make wasm-src` do (scripts/patches.js, fuzz 0), record
 // the result, check that the files the series touches still compile (scripts/syntax-check.sh: configure and the generated
 // headers on a pristine copy, then gcc -fsyntax-only on the patched files; needs gcc, so run it in the check builder:
 // DC_NET=1 tools/dcb check node scripts/check-releases.js ...; --no-syntax skips this), and delete the tree and the archive again (one release at a time costs about 150 MB; --keep keeps them).
@@ -97,8 +97,6 @@ async function check(version) {
   if (f.code !== 0) { res.fetch = `exit ${f.code}: ${f.out.trim().split('\n').slice(-2).join(' | ')}`; return res; }
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `chk-${version}-`));
   try {
-    const series = await run('node', ['scripts/resolve.js', version, '--allow-missing-builder', '--patch-args']);
-    const sargs = series.out.trim().split(/\s+/).filter(Boolean);
     let cfg = null;
     if (opt.syntax) {
       cfg = path.join(tmp, 'cfg');
@@ -109,12 +107,12 @@ async function check(version) {
     const syntax = [];
     for (const name of ['native', 'wasm']) {
       const out = path.join(tmp, name);
-      const r = await run('node', ['scripts/patches.js', 'apply', '--src', `cache/src/${version}`, '--out', out, '--target', name, ...sargs]);
+      const r = await run('node', ['scripts/patches.js', 'apply', '--src', `cache/src/${version}`, '--out', out, '--target', name, '--version', version]);
       res[name] = r.code === 0 ? 'ok' : failure(r.out);
-      if (r.code === 0) res[`${name}Patches`] = JSON.parse(r.out).patchDir;
+      if (r.code === 0) res.patches = JSON.parse(r.out).folders.join(' + ');
       if (r.code === 0 && cfg) {
         const rep = JSON.parse(r.out);
-        const files = [...new Set(rep.applied.flatMap((a) => touchedFiles(path.join(root, 'patches', rep.patchDir, a.patch))))];
+        const files = [...new Set(rep.applied.flatMap((a) => touchedFiles(path.join(root, 'patches', a.folder === '.' ? '' : a.folder, a.patch))))];
         const s = await run('sh', ['scripts/syntax-check.sh', cfg, out, name, ...files]);
         if (s.code !== 0) syntax.push(`${name}: ${s.code === 3 ? 'nothing could be checked' : s.out.trim().split('\n').slice(0, 6).join(' | ')}`);
       }
@@ -148,7 +146,7 @@ async function check(version) {
     for (let v = queue.shift(); v; v = queue.shift()) {
       let res;
       try { res = await check(v); } catch (e) { res = { error: String(e.message || e) }; }
-      report[v] = good(res) ? { range: res.range, native: 'ok', wasm: 'ok', patches: res.nativePatches === res.wasmPatches ? res.nativePatches : [res.nativePatches, res.wasmPatches], ...(opt.syntax ? { syntax: 'ok' } : {}) } : res;
+      report[v] = good(res) ? { range: res.range, native: 'ok', wasm: 'ok', patches: res.patches, ...(opt.syntax ? { syntax: 'ok' } : {}) } : res;
       save();
       done++;
       const bad = !good(res);

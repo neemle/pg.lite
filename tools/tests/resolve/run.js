@@ -27,7 +27,7 @@ check('18.6 resolves to the pg18 range with both builder digests', !!plan && pla
   && plan.builders.native.key === 'musl-18' && plan.builders.wasm.key === 'wasm-18', r.stderr);
 check('18.6 plan carries the locked commit and checksum', !!plan && plan.commit === '724edf9bde9d356724ad384a2e196edc3c9f80f7'
   && plan.archive.sha256 === '555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f');
-check('plan names the patch folder of the release first', !!plan && plan.patchDirs[0] === '18.6' && plan.patchDirs.length === 1);
+check('plan names the patch folders of the release, outermost first', !!plan && plan.patchFolders[0] === '.' && plan.patchFolders[1] === '18');
 check('plan is deterministic (two runs are byte-identical)', run(['18.6']).stdout === r.stdout);
 
 // a release the builder lock does not reach yet (here: the lock starts at 9.1) resolves with its patch folders, but not without a builder
@@ -35,8 +35,8 @@ const tc = loadJson('toolchain.lock.json'); tc.ranges[0].from = '9.1.0';
 const tcFile = withFile('toolchain-from-9-1.json', tc);
 r = run(['9.0.23', '--allow-missing-builder', '--toolchain', tcFile]);
 plan = r.status === 0 ? JSON.parse(r.stdout) : null;
-check('9.0.23 resolves to pg9-0 with its own patch folder and no builder when the lock starts at 9.1', !!plan && plan.range === 'pg9-0' && plan.builders === null
-  && plan.patchDirs[0] === '9.0.23', r.stderr);
+check('9.0.23 resolves to pg9-0 with its patch folders and no builder when the lock starts at 9.1', !!plan && plan.range === 'pg9-0' && plan.builders === null
+  && plan.patchFolders[1] === '9' && plan.patchFolders[2] === '9/9.0', r.stderr);
 r = run(['9.0.23', '--toolchain', tcFile]);
 check('9.0.23 without --allow-missing-builder fails with exit 5 then', r.status === 5 && r.stderr.includes('no builder range'), `${r.status} ${r.stderr}`);
 r = run(['9.0.23']);
@@ -83,7 +83,7 @@ fs.mkdirSync(path.join(tmp, 'empty-patches'));
 r = run(['18.6', '--patches', path.join(tmp, 'empty-patches')]);
 check('a major without a patch folder fails with exit 6', r.status === 6 && r.stderr.includes('no patch folder'), `${r.status} ${r.stderr}`);
 r = run(['12.18', '--allow-missing-builder']);
-check('a release without a folder of its own gets the nearest tested ones of its major first', r.status === 0 && JSON.parse(r.stdout).patchDirs[0] === '12.19' && JSON.parse(r.stdout).patchDirs.every((x) => x.startsWith('12.')), `${r.status} ${r.stderr}`);
+check('a 12.x release takes the root, the 12 family and a span folder', r.status === 0 && JSON.parse(r.stdout).patchFolders.slice(0, 2).join('|') === '.|12' && (JSON.parse(r.stdout).patchFolders[2] || '').startsWith('12/12.'), `${r.status} ${r.stderr} ${r.stdout}`);
 
 // validate-locks proves the model tiles the index (and catches a hole)
 const vl = (rangesFile) => spawnSync(process.execPath, [path.join(root, 'scripts', 'validate-locks.js'), '--ranges', rangesFile], { encoding: 'utf8' });

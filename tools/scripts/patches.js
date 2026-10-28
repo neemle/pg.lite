@@ -3,17 +3,16 @@
 // Patch tooling. Runs inside the tools container (needs GNU patch).
 //
 //   patches.js verify [--patches DIR] [--third-party FILE]
-//   patches.js apply --src DIR --out DIR --target native|wasm --patch-dir VERSION [--patch-dir VERSION ...]
-//                    [--patches DIR] [--fuzz N]
+//   patches.js apply --src DIR --out DIR --target native|wasm --version X.Y [--patches DIR] [--fuzz N]
 //
-// Layout: patches/<version>/NNNN-name.patch, one folder per tested PostgreSQL version. The four digits are the order the
-// patches are applied in; every patch has a header line "Targets: common|native|wasm" (comma separated): "common" patches go into
-// every build, "native" ones into the static image only, "wasm" ones into the WebAssembly build only. The last native patch
-// (9xxx) is the wrapper that links the server, initdb, the entrypoint and the data files into one executable.
+// Layout: patches/ is a tree of folders that cascade (scripts/patchtree.js says how): the patches of a release are collected from
+// patches/, patches/<family>/, (for 9.x patches/9/<series>/,) and the span folder that holds the release, and applied in the order
+// of their four-digit numbers. A patch lives at the outermost level at which it is the same for every release below.
+// Every patch has a header line "Targets: common|native|wasm" (comma separated): "common" patches go into every build, "native"
+// ones into the static image only, "wasm" ones into the WebAssembly build only. The last native patch (9xxx) is the wrapper that
+// links the server, initdb, the entrypoint and the data files into one executable.
 //
-// apply copies the source tree and applies the folder for the target. With several --patch-dir (the exact version's folder
-// first, then the nearest tested versions of the same major) the first folder that applies completely at the fuzz limit
-// wins, so a release without a folder of its own uses the nearest one that fits. Fuzz is refused by default (--fuzz 0).
+// apply copies the source tree and applies the patches of the release for the target at fuzz 0 (fuzz is refused by default).
 //
 // Exit codes: 0 ok, 1 verification/apply failure, 2 usage error.
 
@@ -21,18 +20,17 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
+const pt = require('./patchtree');
 
 const root = path.resolve(__dirname, '..');
 const TARGETS = ['common', 'native', 'wasm'];
 const REQUIRED = ['Subject', 'Purpose', 'Components', 'Checks', 'Origin', 'Targets'];
 const BORROWED = ['Source-URL', 'Source-Commit', 'Source-License', 'Adaptation'];
-const PATCH_NAME = /^(\d{4})-[a-z0-9]+(-[a-z0-9]+)*\.patch$/;
-const VERSION_DIR = /^\d+(\.\d+){1,2}$/;
 
 function usage(msg) { if (msg) console.error(msg); console.error('usage: patches.js verify|apply [options] (see header of this file)'); process.exit(2); }
 
 const [cmd, ...rest] = process.argv.slice(2);
-const opt = { patches: path.join(root, 'patches'), thirdParty: path.join(root, 'THIRD_PARTY.md'), fuzz: 0, dirs: [] };
+const opt = { patches: path.join(root, 'patches'), thirdParty: path.join(root, 'THIRD_PARTY.md'), fuzz: 0 };
 for (let i = 0; i < rest.length; i++) {
   const a = rest[i];
   if (a === '--patches') opt.patches = path.resolve(rest[++i] || usage('--patches needs a value'));
@@ -40,7 +38,7 @@ for (let i = 0; i < rest.length; i++) {
   else if (a === '--src') opt.src = path.resolve(rest[++i] || usage('--src needs a value'));
   else if (a === '--out') opt.out = path.resolve(rest[++i] || usage('--out needs a value'));
   else if (a === '--target') opt.target = rest[++i];
-  else if (a === '--patch-dir') opt.dirs.push(rest[++i] || usage('--patch-dir needs a value'));
+  else if (a === '--version') opt.version = rest[++i] || usage('--version needs a value');
   else if (a === '--fuzz') opt.fuzz = Number(rest[++i]);
   else usage(`unknown argument ${a}`);
 }
@@ -77,40 +75,74 @@ function checkHeader(label, h, thirdParty, errors) {
   }
 }
 
-// The patches of one version folder, in order, each with its parsed header.
-function readFolder(name, errors) {
-  const dir = path.join(opt.patches, name);
-  if (!fs.existsSync(dir)) { errors.push(`${name}: no such patch folder (${path.relative(root, dir)})`); return []; }
-  const entries = [];
-  const numbers = new Map();
-  for (const f of fs.readdirSync(dir).sort()) {
-    const full = path.join(dir, f);
-    if (fs.statSync(full).isDirectory()) { errors.push(`${name}/${f}: folders are not allowed inside a version folder`); continue; }
-    const m = PATCH_NAME.exec(f);
-    if (!m) { errors.push(`${name}/${f}: a patch is named NNNN-name.patch (four digits, then lower-case words joined by hyphens)`); continue; }
-    if (numbers.has(m[1])) errors.push(`${name}/${f}: number ${m[1]} is already used by ${numbers.get(m[1])}`);
-    numbers.set(m[1], f);
-    const header = parseHeader(fs.readFileSync(full, 'utf8'));
-    entries.push({ name: f, file: full, header, targets: (header.Targets || '').split(',').map((x) => x.trim()) });
-  }
-  return entries;
-}
-
+// ---- verify: shape of the tree, names, numbers on every path, headers
 function verify() {
   const errors = [];
   const thirdParty = fs.existsSync(opt.thirdParty) ? fs.readFileSync(opt.thirdParty, 'utf8') : '';
-  let count = 0;
-  let folders = 0;
-  for (const d of fs.readdirSync(opt.patches, { withFileTypes: true })) {
-    if (!d.isDirectory()) { errors.push(`${d.name}: only version folders belong in patches/`); continue; }
-    if (!VERSION_DIR.test(d.name)) { errors.push(`${d.name}: a folder in patches/ is named after a PostgreSQL version, e.g. 17.11 or 9.6.24`); continue; }
-    folders++;
-    const entries = readFolder(d.name, errors);
-    if (!entries.length) errors.push(`${d.name}: the folder has no patch`);
-    for (const e of entries) { count++; checkHeader(`${d.name}/${e.name}`, e.header, thirdParty, errors); }
+  const base = opt.patches;
+  const nodes = [];   // { rel, depth, kind, children spans }
+  const walk = (rel, kind, parentFamily) => {
+    const dir = path.join(base, rel);
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const where = rel || 'patches';
+      if (e.isFile()) {
+        if (!pt.PATCH_NAME.test(e.name)) errors.push(`${where}/${e.name}: a patch is named NNNN-name.patch (four digits, then lower-case words joined by hyphens)`);
+        continue;
+      }
+      const sub = rel ? `${rel}/${e.name}` : e.name;
+      if (kind === 'root') {
+        if (!/^\d+$/.test(e.name)) { errors.push(`${sub}: a folder in patches/ is a PostgreSQL major version, such as 9, 10 or 18`); continue; }
+        nodes.push({ rel: sub, kind: 'family' }); walk(sub, 'family', e.name);
+      } else if (kind === 'family' || kind === 'series') {
+        const m = pt.SPAN.exec(e.name);
+        if (kind === 'family' && parentFamily === '9' && /^9\.\d+$/.test(e.name)) { nodes.push({ rel: sub, kind: 'series' }); walk(sub, 'series', parentFamily); continue; }
+        if (!m) { errors.push(`${sub}: a folder here is a version (17.4) or a span of versions (17.4-17.9)`); continue; }
+        const [from, to] = [m[1], m[2] || m[1]];
+        if (pt.family(from) !== parentFamily || pt.family(to) !== parentFamily) errors.push(`${sub}: the span leaves the ${parentFamily} family`);
+        if (pt.cmpVer(from, to) > 0) errors.push(`${sub}: the span runs backwards`);
+        if (parentFamily === '9' && pt.series(from) !== pt.series(to)) errors.push(`${sub}: a span stays inside one series`);
+        nodes.push({ rel: sub, kind: 'span', from, to, parent: rel });
+        if (fs.readdirSync(path.join(base, sub), { withFileTypes: true }).some((x) => x.isDirectory())) errors.push(`${sub}: nothing nests inside a span`);
+      }
+    }
+  };
+  walk('', 'root', null);
+  // spans of one parent do not overlap
+  const byParent = new Map();
+  for (const n of nodes.filter((x) => x.kind === 'span')) { if (!byParent.has(n.parent)) byParent.set(n.parent, []); byParent.get(n.parent).push(n); }
+  for (const list of byParent.values()) {
+    list.sort((a, b) => pt.cmpVer(a.from, b.from));
+    for (let i = 1; i < list.length; i++) if (pt.cmpVer(list[i].from, list[i - 1].to) <= 0) errors.push(`${list[i].rel}: overlaps ${list[i - 1].rel}`);
   }
-  if (errors.length) { console.error('patches verify: FAIL'); errors.forEach((e) => console.error(`  - ${e}`)); process.exit(1); }
-  console.log(`patches verify: PASS (${count} patch(es) in ${folders} version folder(s))`);
+  // every patch: header; a number occurs once on every path (outer folder + inner folder)
+  let count = 0;
+  const filesOf = (rel) => pt.patchFiles(path.join(base, rel));
+  const own = new Map();
+  for (const rel of ['', ...nodes.map((n) => n.rel)]) {
+    const names = filesOf(rel);
+    own.set(rel, names);
+    for (const f of names) {
+      count++;
+      checkHeader(`${rel || 'patches'}/${f}`, parseHeader(fs.readFileSync(path.join(base, rel, f), 'utf8')), thirdParty, errors);
+    }
+  }
+  const numbersOn = (chain) => {
+    const seen = new Map();
+    for (const rel of chain) for (const f of own.get(rel) || []) {
+      const n = f.slice(0, 4);
+      if (seen.has(n)) errors.push(`${rel || 'patches'}/${f}: number ${n} is already used on this path by ${seen.get(n)}`);
+      else seen.set(n, `${rel || 'patches'}/${f}`);
+    }
+  };
+  for (const n of nodes) {
+    const parts = n.rel.split('/');
+    const chain = [''];
+    for (let i = 0; i < parts.length; i++) chain.push(parts.slice(0, i + 1).join('/'));
+    if (n.kind === 'span' || n.kind === 'series' || n.kind === 'family') numbersOn(chain);
+  }
+  if (!count) errors.push('patches/ holds no patch');
+  if (errors.length) { console.error('patches verify: FAIL'); [...new Set(errors)].forEach((e) => console.error(`  - ${e}`)); process.exit(1); }
+  console.log(`patches verify: PASS (${count} patch(es) in ${nodes.length + 1} folder(s))`);
 }
 
 function treeHash(dir) {
@@ -129,52 +161,43 @@ function treeHash(dir) {
 function apply() {
   if (!opt.src || !opt.out) usage('apply needs --src and --out');
   if (!TARGETS.includes(opt.target) || opt.target === 'common') usage('apply needs --target native or wasm');
-  if (!opt.dirs.length) usage('apply needs at least one --patch-dir');
+  if (!opt.version) usage('apply needs --version');
   if (!fs.existsSync(opt.src)) { console.error(`apply: source ${opt.src} does not exist`); process.exit(1); }
   if (path.resolve(opt.out) === path.resolve(opt.src)) { console.error('apply: --out must differ from --src (the fetched tree is never patched in place)'); process.exit(1); }
 
   const thirdParty = fs.existsSync(opt.thirdParty) ? fs.readFileSync(opt.thirdParty, 'utf8') : '';
+  const { folders, files } = pt.collect(opt.patches, opt.version);
+  if (folders.length < 2) { console.error(`apply: no patch folder for PostgreSQL ${opt.version} (patches/${pt.family(opt.version)})`); process.exit(1); }
+  const errors = [];
+  const entries = [];
+  for (const f of files) {
+    const header = parseHeader(fs.readFileSync(f.file, 'utf8'));
+    checkHeader(`${f.folder || 'patches'}/${f.name}`, header, thirdParty, errors);
+    const targets = (header.Targets || '').split(',').map((x) => x.trim());
+    if (targets.includes('common') || targets.includes(opt.target)) entries.push({ ...f, header });
+  }
+  if (errors.length) { console.error('apply: patches are not valid:'); errors.forEach((e) => console.error(`  - ${e}`)); process.exit(1); }
+
+  fs.rmSync(opt.out, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(opt.out), { recursive: true });
+  fs.cpSync(opt.src, opt.out, { recursive: true, preserveTimestamps: true, filter: (s) => path.basename(s) !== '.compactdb-verified' });
   const patchArgs = ['-p1', '-N', '--no-backup-if-mismatch', '-r', '-', '-F', String(opt.fuzz)];
-  const tryPatch = (file) => {
-    const r = spawnSync('patch', [...patchArgs, '-i', file], { cwd: opt.out, encoding: 'utf8' });
+  const applied = [];
+  for (const e of entries) {
+    const r = spawnSync('patch', [...patchArgs, '-i', e.file], { cwd: opt.out, encoding: 'utf8' });
     const out = `${r.stdout || ''}${r.stderr || ''}`;
     const fuzzy = /succeeded at \d+ with fuzz (\d+)/.exec(out);
     const bad = r.status !== 0 || /FAILED|rejected/i.test(out);
-    return { out, status: r.status, ok: !bad && !(fuzzy && Number(fuzzy[1]) > opt.fuzz), fuzzy };
-  };
-
-  let firstFailure = null;
-  for (const dirName of opt.dirs) {
-    const errors = [];
-    const all = readFolder(dirName, errors);
-    for (const e of all) checkHeader(`${dirName}/${e.name}`, e.header, thirdParty, errors);
-    if (errors.length) { console.error('apply: patch folder is not valid:'); errors.forEach((x) => console.error(`  - ${x}`)); process.exit(1); }
-    const entries = all.filter((e) => e.targets.includes('common') || e.targets.includes(opt.target));
-
-    fs.rmSync(opt.out, { recursive: true, force: true });
-    fs.mkdirSync(path.dirname(opt.out), { recursive: true });
-    fs.cpSync(opt.src, opt.out, { recursive: true, preserveTimestamps: true, filter: (s) => path.basename(s) !== '.compactdb-verified' });
-    const applied = [];
-    let failed = null;
-    for (const e of entries) {
-      const r = tryPatch(e.file);
-      if (!r.ok) {
-        const why = r.fuzzy && Number(r.fuzzy[1]) > opt.fuzz && r.status === 0 ? `: fuzz ${r.fuzzy[1]} exceeds limit ${opt.fuzz}` : ` (patch exit ${r.status})`;
-        failed = `${dirName}/${e.name}${why}\n${r.out}`;
-        break;
-      }
-      applied.push({ patch: e.name, subject: e.header.Subject });
+    if (bad || (fuzzy && Number(fuzzy[1]) > opt.fuzz)) {
+      const why = fuzzy && Number(fuzzy[1]) > opt.fuzz && r.status === 0 ? `: fuzz ${fuzzy[1]} exceeds limit ${opt.fuzz}` : ` (patch exit ${r.status})`;
+      console.error(`apply: FAIL at ${e.folder || 'patches'}/${e.name}${why}\n${out}`);
+      fs.rmSync(opt.out, { recursive: true, force: true });
+      process.exit(1);
     }
-    if (!failed) {
-      const report = { src: opt.src, out: opt.out, target: opt.target, fuzzLimit: opt.fuzz, patchDir: dirName, applied, treeSha256: treeHash(opt.out) };
-      console.log(JSON.stringify(report, null, 2));
-      return;
-    }
-    if (!firstFailure) firstFailure = failed;
+    applied.push({ patch: e.name, folder: e.folder || '.', subject: e.header.Subject });
   }
-  fs.rmSync(opt.out, { recursive: true, force: true });
-  console.error(`apply: FAIL at ${firstFailure}${opt.dirs.length > 1 ? `\napply: none of the ${opt.dirs.length} patch folders (${opt.dirs.join(', ')}) applies` : ''}`);
-  process.exit(1);
+  const report = { src: opt.src, out: opt.out, target: opt.target, version: opt.version, fuzzLimit: opt.fuzz, folders: folders.map((f) => f || '.'), applied, treeSha256: treeHash(opt.out) };
+  console.log(JSON.stringify(report, null, 2));
 }
 
 if (cmd === 'verify') verify();
