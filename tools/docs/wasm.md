@@ -112,3 +112,18 @@ the WebAssembly module and the static image of that exact release, publishes `co
 checksum as a GitHub release and the image to Docker Hub as `<DOCKERHUB_REPOSITORY>:18.6` (also `:18` when 18.6 is the newest 18.x,
 `:latest` for the newest release overall). `DOCKERHUB_REPOSITORY` (variable) and `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN`
 (secrets) must be set; a tag build fails at once without them.
+
+## Which releases the browser tests have run on
+
+The 19 Chromium tests (`tools/dc make test-wasm VERSION=...`, run by `./builder.sh test <v> wasm`) are the gate for a release. Status:
+
+| Release | Result |
+| --- | --- |
+| 18.6, 17.11, 16.15 | 19 of 19 |
+| 12.22 | 18 of 19. **Known limit:** a runaway recursion (`f(100000)` in plpgsql) is meant to end with SQLSTATE 54001 and a running engine. On 12.22 the browser engine's native call stack is exhausted before PostgreSQL's own depth check fires (even at the smallest `max_stack_depth`, 100 kB), so the engine stops ("Maximum call stack size exceeded") instead. Fixing it needs a change in the engine, not a setting. |
+| everything else | not run yet: `tools/scripts/overnight.sh --targets wasm` ([overnight.md](overnight.md)) produces the table |
+
+Two things this run found and fixed, worth knowing when a release misbehaves in the browser: releases up to 14 need an empty `pg_stat_tmp`
+in the data directory for crash recovery, and the Worker has to recreate the empty directories after it loads a stored database (they are
+not stored); and the embedded-protocol patch has to reset `PqCommReadingMsg` in `pq_init_embedded()` on every release that has that
+variable (all but 9.0.0 to 9.0.18, 9.1.0 to 9.1.14, 9.2.0 to 9.2.9, 9.3.0 to 9.3.5 and 9.4.0).

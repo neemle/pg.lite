@@ -62,7 +62,7 @@ test('the SQL console shows exact values and SQLSTATE errors', async ({ page }) 
   await page.getByTestId('run').click();                       // default query: notes per category
   await expect(page.getByTestId('sql-row')).toHaveText(['a2']);
 
-  await page.getByTestId('sql').fill("select 9223372036854775807::bigint as big, (2::numeric ^ 64) + 1 as n");
+  await page.getByTestId('sql').fill("select 9223372036854775807::bigint as big, trunc((2::numeric ^ 64) + 1) as n");
   await page.getByTestId('run').click();
   await expect(page.getByTestId('sql-row').first()).toHaveText('922337203685477580718446744073709551617');
 

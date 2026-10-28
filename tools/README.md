@@ -7,6 +7,7 @@ to PostgreSQL) and `demo/` (the WebAssembly side); `builder.sh` calls into this 
 | --- | --- |
 | `dc` | run any command in the tools container: `tools/dc make selftest`, `tools/dc make fetch VERSION=18.6`, `tools/dc sh` |
 | `dcb` | the same inside a builder container: `tools/dcb musl ...` (static image), `wasm`, `web` (Chromium tests), `ref` (unmodified reference build), `check` |
+| `scripts/overnight.sh` | the unattended whole-night run: builds and tests many releases one after another, resumable ([overnight.md](docs/overnight.md)) |
 | `Makefile` | the build steps and checks that `dc` runs (`tools/dc make help`) |
 | `scripts/` | fetch and verify a release, apply patches, build (`build-native.sh`, `build-wasm.sh`), assemble the image (`native-image.sh`), tests |
 | `docker/` | the builder images and what goes into the final image |

@@ -121,9 +121,13 @@ async function start({ engineUrl, config, storage }) {
   FS.mkdirTree('/pgsql/bin');
   FS.writeFile('/pgsql/bin/postgres', '', { mode: 0o755 });
   FS.chmod('/pgdata', 0o700);                              // the server refuses a data directory others can read
-  for (const dir of manifest.emptyDirs || []) FS.mkdirTree('/pgdata' + dir, 0o700);   // the packaged files carry no empty directories
+  const makeEmptyDirs = () => { for (const dir of manifest.emptyDirs || []) FS.mkdirTree('/pgdata' + dir, 0o700); };   // the packaged files carry no empty directories
+  makeEmptyDirs();
   if (store) {
-    if (hadData) { removeTree(FS, '/pgdata'); await store.load(FS, '/pgdata'); }   // the stored database replaces the template
+    if (hadData) {
+      removeTree(FS, '/pgdata'); await store.load(FS, '/pgdata');                  // the stored database replaces the template
+      makeEmptyDirs();                                                              // and holds no empty directories either (pg_stat_tmp: releases up to 14 need it in crash recovery)
+    }
     trackChanges(FS, store, '/pgdata');
   }
   FS.writeFile('/pgdata/postgresql.auto.conf', configText(config));

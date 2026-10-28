@@ -38,7 +38,7 @@ test('engine starts in a Worker and answers SQL', async ({ page }) => {
 
 test('bigint and numeric stay exact (W07)', async ({ page }) => {
   const out = await withDb(page, `
-    const r = await db.query("select 9223372036854775807::bigint as big, 123456789012345678901234567890.123456789::numeric as num, (2::numeric ^ 64) + 1 as p");
+    const r = await db.query("select 9223372036854775807::bigint as big, 123456789012345678901234567890.123456789::numeric as num, trunc((2::numeric ^ 64) + 1) as p");
     return r.rows[0];
   `);
   expect(out.big).toBe('9223372036854775807');

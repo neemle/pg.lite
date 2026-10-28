@@ -146,6 +146,8 @@ proves it: exactly one file, and no shell, loader or shared object.
 * `tools/scripts/native-production-test.sh <v>`: concurrency, crash recovery, replication and load, under a read-only root file system and tight limits
   ([docs/production-tests.md](tools/docs/production-tests.md)).
 * `./builder.sh test <v> wasm`: SQL under node, then Chromium tests of the engine, persistence, offline use and the demo.
+* `tools/scripts/overnight.sh`: builds and tests many releases one after another with no one watching, resumable night after night, with a
+  table of results ([docs/overnight.md](tools/docs/overnight.md)).
 
 ## Licence
 
