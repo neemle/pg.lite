@@ -80,15 +80,20 @@ tools/dc make test-patches                            # tooling tests (fixtures 
 
 ```sh
 tools/dc make fetch VERSION=17.12
-tools/dc node scripts/new-patch-folder.js --from 17.11 --to 17.12
+tools/dc node scripts/new-patch-folder.js --to 17.12
 ```
 
-The tool copies the nearest folder, applies it, and says which patch no longer fits. When the copy applies unchanged the new
-folder is deleted again (the nearest tested version serves that release already). When a patch does not fit, edit it in the new
-folder (`patch -p1 --dry-run -i patches/17.12/0100-no-shell-spawn.patch` in a copy of the tree shows what moved), run the tool with
-`--check`, then run the build and its tests. Contexts change between minor releases (a security fix next to a patched line is
-enough), which is why a major has several folders: the patches differ only in their context, and `check-releases` finds the
-releases that need another one.
+The tool first asks whether the folders that can already serve the release apply to it (native and wasm); if so it adds nothing. If not,
+it puts a folder together from what the other folders of the major hold. Contexts change between minor releases (a security fix next to a
+patched line is enough), so the same patch exists in several variants, one per span of releases. For every patch, in number order, the tool
+tries the variants on the release at fuzz 0 and takes the first that applies. A patch that fits no variant is left out only when the lines it
+removes are gone from the release (a later minor fixed the problem itself); otherwise the release needs a patch written by hand: the tool
+names it, and the new folder is the nearest one with that patch edited (`patch -p1 --dry-run -i patches/17.12/0100-no-shell-spawn.patch`
+in a copy of the tree shows what moved). The folder is checked with `patches.js apply` for both targets and is not kept when an existing
+folder is identical. Then run the build and its tests.
+
+Of the 351 releases, 50 have a folder of their own; the others are served by the nearest one. `check-releases` (below) proves that every
+release applies, and names the ones that need a new folder.
 
 ## Every release: the proof
 
