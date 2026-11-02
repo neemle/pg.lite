@@ -70,9 +70,49 @@ function pgWrite(ptr, len) {
   return len;
 }
 
-function configText(config) {
-  return Object.entries({ ...BASE_CONFIG, ...config })
+// 9.6.24 -> 906, 18.6 -> 1800: releases before 10 have a two-part major version
+function releaseNumber(pg) {
+  const [a, b] = String(pg).split('.').map(Number);
+  return a >= 10 ? a * 100 : a * 100 + b;
+}
+
+// The settings BASE_CONFIG means, spelled the way the release takes them:
+//   before 9.5   no max_wal_size/min_wal_size (checkpoint_segments, 16 MB each, is the same limit)
+//   9.5 and 9.6  the two are counted in 16 MB segments and may not be below 2, so '16MB' and '4MB' are refused
+//   before 9.4   no dynamic_shared_memory_type
+//   before 9.1   wal_sync_method defaults to open_datasync on Linux: WAL is written with O_DSYNC and fsync/fdatasync never run, so the
+//                storage barrier (which is the wrapped fsync) would never be reached at a commit; fdatasync is what 9.1 and later use
+function settingsFor(pg, config) {
+  const n = releaseNumber(pg);
+  const settings = { ...BASE_CONFIG, ...config };
+  if (n < 905) {
+    delete settings.max_wal_size; delete settings.min_wal_size;
+    if (!('checkpoint_segments' in settings)) settings.checkpoint_segments = 3;
+  } else if (n < 1000) {
+    if (!(config && 'max_wal_size' in config)) settings.max_wal_size = '32MB';
+    if (!(config && 'min_wal_size' in config)) settings.min_wal_size = '32MB';
+  }
+  if (n < 904) delete settings.dynamic_shared_memory_type;
+  if (n < 901 && !(config && 'wal_sync_method' in config)) settings.wal_sync_method = 'fdatasync';
+  return settings;
+}
+
+function configText(settings) {
+  return Object.entries(settings)
     .map(([k, v]) => `${k} = '${String(v).replace(/'/g, "''")}'`).join('\n') + '\n';
+}
+
+// The settings go to postgresql.auto.conf, which overrides postgresql.conf; releases before 9.4 have no such file, so
+// the same text is kept at the end of postgresql.conf, replacing what an earlier start wrote.
+const CONF_MARK = '# --- compact.db settings (rewritten at every start) ---\n';
+function writeSettings(FS, pg, config) {
+  const text = configText(settingsFor(pg, config));
+  if (releaseNumber(pg) >= 904) { FS.writeFile('/pgdata/postgresql.auto.conf', text); return; }
+  const file = '/pgdata/postgresql.conf';
+  let conf = FS.readFile(file, { encoding: 'utf8' });
+  const at = conf.indexOf(CONF_MARK);
+  if (at >= 0) conf = conf.slice(0, at);
+  FS.writeFile(file, conf + (conf.endsWith('\n') ? '' : '\n') + CONF_MARK + text);
 }
 
 // Exclusive ownership of a stored database: one Web Lock per name, held until this Worker is gone.
@@ -130,7 +170,7 @@ async function start({ engineUrl, config, storage }) {
     }
     trackChanges(FS, store, '/pgdata');
   }
-  FS.writeFile('/pgdata/postgresql.auto.conf', configText(config));
+  writeSettings(FS, manifest.pg, config);
   if (store && !hadData) await store.initialize(FS, '/pgdata');           // a new database is stored before open() returns
   activeStore = store;
   if (store) {

@@ -38,7 +38,7 @@ diff --git a/src/backend/port/wasm_sema.c b/src/backend/port/wasm_sema.c
 new file mode 100644
 --- a/src/backend/port/wasm_sema.c
 +++ b/src/backend/port/wasm_sema.c
-@@ -0,0 +1,268 @@
+@@ -0,0 +1,288 @@
 +/*-------------------------------------------------------------------------
 + *
 + * wasm_sema.c
@@ -131,8 +131,6 @@ new file mode 100644
 +#include <sys/ipc.h>
 +#include <sys/sem.h>
 +
-+#define WASM_SEM_SETS 256
-+
 +typedef struct WasmSemSet
 +{
 +	bool		used;
@@ -148,17 +146,37 @@ new file mode 100644
 +	void	   *ptr;
 +};
 +
-+static WasmSemSet wasm_sem_sets[WASM_SEM_SETS];
++/*
++ * The table grows on demand.  Before 9.3 a build without spinlocks (this one) gives every LWLock and every buffer header a
++ * semaphore of its own (SpinlockSemas() = NumLWLocks() + NBuffers + 10), which is thousands with a few megabytes of
++ * shared_buffers, so no fixed size is safe.
++ */
++static WasmSemSet *wasm_sem_sets = NULL;
++static int	wasm_sem_nsets = 0;
 +
 +static WasmSemSet *
 +wasm_sem_find(int semid)
 +{
-+	if (semid < 0 || semid >= WASM_SEM_SETS || !wasm_sem_sets[semid].used)
++	if (semid < 0 || semid >= wasm_sem_nsets || !wasm_sem_sets[semid].used)
 +	{
 +		errno = EINVAL;
 +		return NULL;
 +	}
 +	return &wasm_sem_sets[semid];
++}
++
++static bool
++wasm_sem_grow(void)
++{
++	int			n = wasm_sem_nsets ? wasm_sem_nsets * 2 : 64;
++	WasmSemSet *grown = realloc(wasm_sem_sets, n * sizeof(WasmSemSet));
++
++	if (grown == NULL)
++		return false;
++	memset(grown + wasm_sem_nsets, 0, (n - wasm_sem_nsets) * sizeof(WasmSemSet));
++	wasm_sem_sets = grown;
++	wasm_sem_nsets = n;
++	return true;
 +}
 +
 +int
@@ -168,7 +186,7 @@ new file mode 100644
 +
 +	if (key != IPC_PRIVATE)
 +	{
-+		for (i = 0; i < WASM_SEM_SETS; i++)
++		for (i = 0; i < wasm_sem_nsets; i++)
 +		{
 +			if (wasm_sem_sets[i].used && wasm_sem_sets[i].key == key)
 +			{
@@ -191,8 +209,10 @@ new file mode 100644
 +			return -1;
 +		}
 +	}
-+	for (i = 0; i < WASM_SEM_SETS; i++)
++	for (i = 0; i <= wasm_sem_nsets; i++)
 +	{
++		if (i == wasm_sem_nsets && !wasm_sem_grow())
++			break;
 +		if (!wasm_sem_sets[i].used)
 +		{
 +			wasm_sem_sets[i].value = calloc(nsems > 0 ? nsems : 1, sizeof(int));

@@ -61,7 +61,7 @@ export class DatabaseService {
     this.categories.set(await this.dataSource.getRepository<Category>(CategorySchema).find({ order: { name: 'ASC' } }));
     const row = await this.dataSource.getRepository<Note>(NoteSchema).createQueryBuilder('n')
       .select('count(*)', 'total')
-      .addSelect('count(*) filter (where n.done)', 'done')
+      .addSelect('count(case when n.done then 1 end)', 'done')
       .getRawOne<{ total: string; done: string }>();
     const total = Number(row?.total ?? 0);
     const done = Number(row?.done ?? 0);

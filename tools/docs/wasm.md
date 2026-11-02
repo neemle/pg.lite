@@ -121,7 +121,19 @@ The 19 Chromium tests (`tools/dc make test-wasm VERSION=...`, run by `./builder.
 | --- | --- |
 | 18.6, 17.11, 16.15 | 19 of 19 |
 | 12.22 | 18 of 19. **Known limit:** a runaway recursion (`f(100000)` in plpgsql) is meant to end with SQLSTATE 54001 and a running engine. On 12.22 the browser engine's native call stack is exhausted before PostgreSQL's own depth check fires (even at the smallest `max_stack_depth`, 100 kB), so the engine stops ("Maximum call stack size exceeded") instead. Fixing it needs a change in the engine, not a setting. |
+| 9.6.24, 9.5.0, 9.4.0, 9.3.14, 9.2.0, 9.2.24, 9.1.24, 9.0.23 | 18 of 19, the same known limit as 12.22 |
+| 9.0.0, 9.1.0 | 18 of 19 and 18 of 19: the offline demo test fails because of an **upstream bug of those two releases**, not of this build. `nextval()` does not WAL-log the first value of a new sequence (`if (log < fetch)` without `|| !seq->is_called`, fixed upstream in a later release), so after a crash in the same session the sequence hands out its first value a second time: the demo reloads the page right after its first note, inserts a second category and gets a duplicate key. 9.0.23 and 9.1.24 have the fix and pass like the rest; the releases in between were not run (the first minors of a major may or may not have it) |
 | everything else | not run yet: `tools/scripts/overnight.sh --targets wasm` ([overnight.md](overnight.md)) produces the table |
+
+What 9.x needed in the browser module (all found by running it, see the commit that added this row):
+
+* The Worker's settings follow the release (`settingsFor()` in `demo/src/engine-worker.js`): before 9.5 there is no `max_wal_size` (`checkpoint_segments`
+  instead), 9.5 and 9.6 count WAL size in 16 MB segments (`16MB` is 1, below the minimum of 2, and the engine stopped at start-up), before 9.4 there is
+  no `dynamic_shared_memory_type` and no `postgresql.auto.conf` (the settings are kept at the end of `postgresql.conf`), and before 9.1 the default
+  `wal_sync_method` writes WAL with `O_DSYNC` and never calls `fsync`, so the commit barrier would never run (`fdatasync` is set).
+* Before 9.3 a build without spinlocks gives every LWLock and buffer header a semaphore of its own (`SpinlockSemas()`), thousands with the browser's
+  16 MB of `shared_buffers`; the semaphore emulation of 9.0 to 9.2 (`0240-wasm-semaphores.patch`) had a fixed table of 256 sets and now grows.
+* The demo counts finished notes with `count(case when ... end)` instead of `count(*) filter (where ...)` (FILTER is 9.4 and later).
 
 Two things this run found and fixed, worth knowing when a release misbehaves in the browser: releases up to 14 need an empty `pg_stat_tmp`
 in the data directory for crash recovery, and the Worker has to recreate the empty directories after it loads a stored database (they are

@@ -11,6 +11,8 @@ tools/scripts/overnight.sh --versions newest                        # the newest
 tools/scripts/overnight.sh --versions 12,9.6.24 --targets cli,wasm  # a whole major and one release
 tools/scripts/overnight.sh --shard 1/3                              # a third of the list; run 2/3 and 3/3 on other machines
 tools/scripts/overnight.sh --dry-run                                # print the list and stop
+tools/scripts/overnight.sh --hours 0                                # no time limit: all 351 releases, image and WebAssembly, until done
+tools/scripts/overnight.sh --report-only                            # build nothing, only write tools/reports/overnight/report.md
 ```
 
 Run it from a POSIX shell (Git Bash, WSL, Linux, macOS) with Docker running. `--help` lists every option.
@@ -45,6 +47,7 @@ upstream release of each version as the client instead: more faithful, much slow
 
 ## Reading the result
 
+* `tools/reports/overnight/report.md`: the Markdown report, written when the run ends, is interrupted or is asked for with `--report-only`: a verdict, a table per major with build and test of the image and of WebAssembly for every release (status and time), the failures with the log lines that say why, and the time spent. Built by `scripts/overnight-report.js` from the results table.
 * `tools/reports/overnight/summary.txt` (also printed at the end): per target how many releases are built and tested ok, failed, or
   not run yet, and the failures with the path of the log.
 * `tools/reports/overnight/results.tsv`: one line per step: time, release, target, step, `ok`/`fail`/`timeout`, seconds, log.

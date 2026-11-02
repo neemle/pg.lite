@@ -5,7 +5,7 @@
 #
 #   --versions SPEC   all (default), newest (the newest release of every major), or a comma list: 12.22,9.6.24,17 (a bare major = all of it)
 #   --targets LIST    cli, wasm or cli,wasm (default both)
-#   --hours N         stop starting new work after N hours (default 8); what is running is finished first
+#   --hours N         stop starting new work after N hours (default 8, 0 = no limit); what is running is finished first
 #   --order O         spread (default: newest and oldest of every major first, then bisection) or ascending
 #   --shard K/N       take every Nth release from the Kth, to split the list over N machines
 #   --client C        official (default): the cli tests use the postgres:18-alpine client image; source: build the unmodified upstream
@@ -14,6 +14,11 @@
 #   --retry-failed    run again what failed in an earlier run (by default a failure is recorded and skipped)
 #   --keep            keep archives, images and build trees of finished releases (by default they are removed to bound the disk)
 #   --dry-run         print the plan and stop
+#   --report-only     build nothing: only write the Markdown report from the results recorded so far
+#
+# The long run over every release (9.0.0 to the newest, image and WebAssembly, no time limit, a few days) is
+#   FETCH_HTTP_FALLBACK=1 tools/scripts/overnight.sh --hours 0
+# and it ends with a Markdown report, tools/reports/overnight/report.md (written also when the run is interrupted).
 #
 # What it does for every release and target, in the order of the list:  builder.sh build <v> <t>  then  builder.sh test <v> <t>.
 # A step that fails only for a network reason (download, npm) is tried once more after a minute. After each release the build trees,
@@ -27,7 +32,7 @@ set -u
 root=$(cd "$(dirname "$0")/../.." && pwd)
 cd "$root" || exit 1
 
-versions=all; targets=cli,wasm; hours=8; order=spread; shard=1/1; client=official; step_hours=3; retry=0; keep=0; dry=0
+versions=all; targets=cli,wasm; hours=8; order=spread; shard=1/1; client=official; step_hours=3; retry=0; keep=0; dry=0; report_only=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --versions) versions="${2:?--versions needs a value}"; shift ;;
@@ -40,6 +45,7 @@ while [ $# -gt 0 ]; do
         --retry-failed) retry=1 ;;
         --keep) keep=1 ;;
         --dry-run) dry=1 ;;
+        --report-only) report_only=1 ;;
         -h|--help) sed -n '2,/^set -u/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "overnight: unknown option $1 (--help)" >&2; exit 2 ;;
     esac
@@ -53,6 +59,15 @@ mkdir -p "$out/logs"
 results="$out/results.tsv"
 [ -f "$results" ] || printf 'time\trelease\ttarget\tstep\tstatus\tseconds\tlog\n' > "$results"
 
+# the Markdown report: in the tools container, or with a node on the host when docker is not reachable
+write_report() {
+    if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then tools/dc node scripts/overnight-report.js >/dev/null
+    elif command -v node >/dev/null 2>&1; then node tools/scripts/overnight-report.js >/dev/null
+    else echo "overnight: no docker and no node, cannot write the report" >&2; return 1; fi
+    echo "overnight: report: $out/report.md"
+}
+if [ "$report_only" = 1 ]; then write_report; exit $?; fi
+
 list=$(tools/dc node scripts/overnight-order.js --versions "$versions" --order "$order" --shard "$shard") || exit 2
 total=$(echo "$list" | grep -c .)
 echo "overnight: $total release(s), targets $targets, up to $hours h, order $order, shard $shard, client $client"
@@ -61,7 +76,8 @@ if [ "$dry" = 1 ]; then echo "$list" | tr '\n' ' '; echo; exit 0; fi
 command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 || { echo "overnight: docker is not reachable" >&2; exit 1; }
 lock="$out/.lock"
 mkdir "$lock" 2>/dev/null || { echo "overnight: another run is active (or died: remove $lock)" >&2; exit 1; }
-trap 'rmdir "$lock" 2>/dev/null' EXIT INT TERM
+trap 'rmdir "$lock" 2>/dev/null; write_report' EXIT
+trap 'exit 130' INT TERM
 
 if [ "$client" = official ]; then
     export CLIENT_IMAGE="${CLIENT_IMAGE:-postgres:18-alpine}"
@@ -74,6 +90,7 @@ now() { date +%s; }
 stamp() { date +%Y-%m-%dT%H:%M:%S; }
 start=$(now)
 deadline=$((start + $(awk -v h="$hours" 'BEGIN { printf "%d", h * 3600 }')))
+[ "$hours" = 0 ] && deadline=9999999999
 
 # last recorded status of a release/target/step ('' when none)
 last_status() { awk -F'\t' -v r="$1" -v t="$2" -v s="$3" '$2 == r && $3 == t && $4 == s { st = $5 } END { print st }' "$results"; }

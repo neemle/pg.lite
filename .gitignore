@@ -25,3 +25,4 @@ playwright-report/
 /tools/reports/overnight/.lock/
 /tools/reports/overnight/results.tsv
 /tools/reports/overnight/summary.txt
+/tools/reports/overnight/report.md
