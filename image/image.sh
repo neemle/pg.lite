@@ -66,6 +66,8 @@ image)
     major=$(echo "$ver" | awk -F. '{ if ($1 + 0 >= 10) print $1; else print $1 "." $2 }')
     revision=$(cd "$root/.." && git rev-parse HEAD 2>/dev/null || echo unknown)
     created=$(cd "$root/.." && git log -1 --format=%cI 2>/dev/null || echo unknown)
+    # the packer is fetched into the build volume (checked against a pinned SHA-256) the first time it is asked for
+    if [ "$pack" = xsfx ]; then (unset MSYS_NO_PATHCONV; DC_NET=1 "$root/dc" sh image/fetch-xsfx.sh); fi
     docker run --rm --network none -e VDIR="$ver$bvs" -e PACK="$pack" -e XSFX="$xsfx_bin" -v compactdb-build:/b:ro -v "$root/../image/docker/native:/n:ro" "$builder" sh -c '
          set -e
          bin=/b/native/$VDIR/image/postgres
