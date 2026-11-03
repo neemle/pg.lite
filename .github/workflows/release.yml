@@ -160,7 +160,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ vars.DOCKERHUB_REPOSITORY }}
-          short-description: PostgreSQL in one static file (FROM scratch, ~11 MB) with the environment of the official image
+          short-description: PostgreSQL in one static file (FROM scratch, ~15 MB) with the environment of the official image
           readme-filepath: image/DOCKERHUB.md
 
   release:

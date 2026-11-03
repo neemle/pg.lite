@@ -2,3 +2,4 @@
 #   version  major  git tag  commit  sha256 of the source archive  archive url  git url
 # scripts/fetch.sh downloads the archive, checks the sha256 (and, with a trusted TLS connection, that the tag points at the commit).
 9.0.0 9.0 REL9_0_0 861861edcc04a6e3ebdfe363311f122e2b226196 7dcc381603c02595adc96a8fc5c9d067d3b39aaa44987e7a524a7504a10ff676 https://ftp.postgresql.org/pub/source/v9.0.0/postgresql-9.0.0.tar.bz2 https://git.postgresql.org/git/postgresql.git
+9.0.1 9.0 REL9_0_1 a0ccae7ed41201251c0da51a91b84eb9d13c4ab1 5310cd490127845f1473a0f73f7b0d18277d81d51534ddfe17ea3e78286a3196 https://ftp.postgresql.org/pub/source/v9.0.1/postgresql-9.0.1.tar.bz2 https://git.postgresql.org/git/postgresql.git

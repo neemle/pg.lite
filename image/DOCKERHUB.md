@@ -1,6 +1,6 @@
 # pg.lite
 
-**PostgreSQL as one static executable in a `FROM scratch` image.** The real PostgreSQL, built from the official source with a few patches: about 11 MB, no shell, no loader, no other file. It reads the environment of the [official `postgres` image](https://hub.docker.com/_/postgres), so it can replace it for development, CI and tests.
+**PostgreSQL as one static executable in a `FROM scratch` image.** The real PostgreSQL, built from the official source with a few patches: about 15 MB (about 4.7 MB compressed), no shell, no loader, no other file. It reads the environment of the [official `postgres` image](https://hub.docker.com/_/postgres), so it can replace it for development, CI and tests.
 
 Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.lite>
 
@@ -8,21 +8,22 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 
 | Tag | PostgreSQL | Executable |
 | --- | --- | --- |
-| `9.0.0` | 9.0.0 | compressed (about 2.3 MB) |
+| `9.0.1` | 9.0.1 | compressed (about 4.7 MB) |
+| `9.0.0` | 9.0.0 | compressed |
 | `9.0` | the newest 9.0.x built here | compressed |
 | `9` | the newest 9.x built here | compressed |
 | `latest` | the newest release built here | compressed |
-| `9.0.0-uncompressed`, `9.0-uncompressed`, `9-uncompressed` | the same releases | plain (about 11 MB) |
+| `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
 
-One tag is one PostgreSQL release, nothing else. The executable of the default tags is compressed with a self-extracting packer: the image is about a fifth of the size and a start is about 0.4 s slower; the `-uncompressed` tags hold the same server without it. Platform: `linux/amd64`.
+One tag is one PostgreSQL release, nothing else. The executable of the default tags is compressed with a self-extracting packer: the image is about a third of the size and a start is about 0.4 s slower; the `-uncompressed` tags hold the same server without it. Platform: `linux/amd64`.
 
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.0.0
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.0.1
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:9.0.0 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:9.0.1 -c max_connections=200`.
 
 ## Environment
 
