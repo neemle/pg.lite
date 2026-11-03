@@ -44,7 +44,7 @@ jobs:
       newestOverall: ${{ steps.plan.outputs.newestOverall }}
       publish: ${{ steps.publish.outputs.publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: plan
         name: The tag must be an upstream PostgreSQL release this repository can build
         env:
@@ -87,8 +87,8 @@ jobs:
       NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
       DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: image-${{ env.VERSION }}
           path: image
@@ -131,7 +131,7 @@ jobs:
       # description. A failure here does not undo the release (the image is already published and checked).
       - name: Docker Hub page (README and short description)
         continue-on-error: true
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -143,7 +143,7 @@ jobs:
     needs: [plan, publish]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: pg.lite-wasm-${{ needs.plan.outputs.version }}
           path: assets

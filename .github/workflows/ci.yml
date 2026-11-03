@@ -28,7 +28,7 @@ jobs:
   repo:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Nothing runs on the runner but docker and git: every target runs in the project's tools container.
       - name: Self-tests (patch headers, wasm checks, no upstream source committed)
         run: tools/dc make selftest
@@ -36,7 +36,7 @@ jobs:
   typescript:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Browser module (TypeScript 7): types, oxlint, vitest"
         run: |
           DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
@@ -59,12 +59,12 @@ jobs:
     env:
       VERSION: ${{ matrix.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # The tests use the UNMODIFIED upstream build of the same release as their external client (image/reference.sh). It does not
       # depend on the patches, so it is built on the first run only and kept in the cache.
       - name: Cache of the reference image (unmodified upstream, the external test client)
         id: refcache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: reference-image.tar
           key: reference-${{ matrix.version }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
@@ -92,7 +92,7 @@ jobs:
             docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION.txt"
           done
           docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" | gzip -9 > "image-$VERSION.tar.gz"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: image-${{ env.VERSION }}
           path: |
@@ -112,7 +112,7 @@ jobs:
       # the types, oxlint and vitest of the browser module run in the "typescript" job, in parallel; not again here
       SKIP_TS_CHECKS: '1'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Free disk space (the builder images and trees are several GB)
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
       - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
@@ -121,7 +121,7 @@ jobs:
         run: ./builder.sh build "$VERSION" wasm
       - name: Test (SQL under node; Chromium with a real Worker and real IndexedDB)
         run: ./builder.sh test "$VERSION" wasm
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: pg.lite-wasm-${{ env.VERSION }}
           path: |
@@ -132,7 +132,7 @@ jobs:
           retention-days: 14
       - name: Browser test report (reports, videos and screenshots of every test)
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-tests-${{ env.VERSION }}
           path: tools/reports/browser
