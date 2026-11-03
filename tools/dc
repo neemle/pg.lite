@@ -1,5 +1,5 @@
 #!/bin/sh
-# dc - run any command inside the compact.db tools container. The host only runs docker.
+# dc - run any command inside the pg.lite tools container. The host only runs docker.
 #
 #   tools/dc make selftest
 #   tools/dc make fetch             (network is enabled automatically for 'fetch')

@@ -11,7 +11,7 @@
 //   - if the transaction fails (quota, storage error) barrier() rejects, the engine's fsync fails, PostgreSQL
 //     PANICs and the instance stops: the caller sees an error, never a success that was not stored.
 //
-// Layout (database "compactdb:<name>"): store "meta" {key:'format', ...}; store "files" keyed by path
+// Layout (database "pg-lite:<name>"): store "meta" {key:'format', ...}; store "files" keyed by path
 // {path, kind:'file'|'dir', size, mode}; store "chunks" keyed by [path, index] -> ArrayBuffer of up to CHUNK bytes.
 
 /** The parts of Emscripten's file system this module uses. */
@@ -66,7 +66,7 @@ export class IdbStore {
   static async open(name: string, info: StoreInfo): Promise<IdbStore> {
     const store = new IdbStore(name, info);
     store.db = await new Promise<IDBDatabase>((resolve, reject) => {
-      const r = indexedDB.open(`compactdb:${name}`, 1);
+      const r = indexedDB.open(`pg-lite:${name}`, 1);
       r.addEventListener('upgradeneeded', () => {
         r.result.createObjectStore('meta', { keyPath: 'key' });
         r.result.createObjectStore('files', { keyPath: 'path' });

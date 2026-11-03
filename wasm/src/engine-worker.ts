@@ -84,7 +84,7 @@ function pgWrite(ptr: number, len: number): number {
 
 // The settings go to postgresql.auto.conf, which overrides postgresql.conf; releases before 9.4 have no such file, so
 // the same text is kept at the end of postgresql.conf, replacing what an earlier start wrote.
-const CONF_MARK = '# --- compact.db settings (rewritten at every start) ---\n';
+const CONF_MARK = '# --- pg.lite settings (rewritten at every start) ---\n';
 function writeSettings(FS: EngineModule['FS'], pg: string, config?: Settings): void {
   const text = configText(settingsFor(pg, config));
   if (releaseNumber(pg) >= 904) { FS.writeFile('/pgdata/postgresql.auto.conf', text); return; }
@@ -99,7 +99,7 @@ function writeSettings(FS: EngineModule['FS'], pg: string, config?: Settings): v
 function takeLock(name: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (!scope.navigator?.locks) { resolve(); return; }      // no Web Locks: no cross-tab protection
-    void scope.navigator.locks.request(`compactdb:${name}`, { ifAvailable: true }, (lock) => {
+    void scope.navigator.locks.request(`pg-lite:${name}`, { ifAvailable: true }, (lock) => {
       if (!lock) { reject(Object.assign(new Error(`the database "${name}" is open in another tab or window`), { code: 'busy' })); return undefined; }
       resolve();
       return new Promise<void>(() => { /* hold the lock for the lifetime of the Worker */ });

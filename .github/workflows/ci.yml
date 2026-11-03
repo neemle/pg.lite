@@ -24,13 +24,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Browser module (TypeScript 7): types, oxlint, vitest
+      - name: "Browser module (TypeScript 7): types, oxlint, vitest"
         run: |
           DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
           tools/dcb web sh wasm/web-lib.sh typecheck
           tools/dcb web sh wasm/web-lib.sh lint
           tools/dcb web sh wasm/web-lib.sh test
-      - name: Demo (Angular 22): oxlint, vitest
+      - name: "Demo (Angular 22): oxlint, vitest"
         run: |
           DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm/demo
           tools/dcb web sh wasm/web-demo.sh lint
@@ -53,5 +53,5 @@ jobs:
         run: ./builder.sh patch "${{ matrix.version }}" "${{ matrix.target }}"
       - name: Build
         run: ./builder.sh build "${{ matrix.version }}" "${{ matrix.target }}"
-      - name: Test (cli: SQL, restart, authentication, one file in the image; wasm: SQL under node, then Chromium with a real Worker and IndexedDB)
+      - name: "Test (cli: SQL, restart, authentication, one file in the image; wasm: SQL under node, then Chromium with a real Worker and IndexedDB)"
         run: ./builder.sh test "${{ matrix.version }}" "${{ matrix.target }}"

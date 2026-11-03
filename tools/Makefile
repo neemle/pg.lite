@@ -1,4 +1,4 @@
-# compact.db - build scripts for minimal PostgreSQL (static musl Docker image + WASM).
+# pg.lite - build scripts for minimal PostgreSQL (static musl Docker image + WASM).
 #
 # The build steps and checks of the project. ../builder.sh runs them in order; each can also be run alone.
 #

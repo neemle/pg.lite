@@ -1,6 +1,6 @@
 #!/bin/sh
 # Package the browser module of one release as a downloadable archive (tools container):
-#   tools/dc make package-wasm VERSION=18.6      ->  dist/compact-db-wasm-18.6.tar.gz  (+ .sha256, + sizes in dist/compact-db-wasm-18.6.sizes.txt)
+#   tools/dc make package-wasm VERSION=18.6      ->  dist/pg-lite-wasm-18.6.tar.gz  (+ .sha256, + sizes in dist/pg-lite-wasm-18.6.sizes.txt)
 #
 # The archive is what a web project needs, with the same file names the demo uses:
 #   engine/   postgres.mjs, postgres.wasm, postgres.data (data files and bootstrap data directory), manifest.json
@@ -12,7 +12,7 @@ set -eu
 ver="${VERSION:?usage: VERSION=<x.y> package-wasm.sh}"
 web="/w/build/wasm/$ver/web"
 [ -f "$web/postgres.wasm" ] || { echo "package-wasm: no browser module for $ver ($web)" >&2; exit 2; }
-name="compact-db-wasm-$ver"
+name="pg-lite-wasm-$ver"
 stage="/tmp/$name"
 rm -rf "$stage"; mkdir -p "$stage/engine" "$stage/worker" "$stage/lib" /w/dist
 cp "$web/postgres.mjs" "$web/postgres.wasm" "$web/postgres.data" "$web/manifest.json" "$stage/engine/"
@@ -22,7 +22,7 @@ for f in engine-worker idb-store settings; do cp "$lib/$f.js" "$stage/worker/"; 
 for f in index client protocol types pg-driver; do cp "$lib/$f.js" "$lib/$f.d.ts" "$stage/lib/"; done
 [ -d "/w/build/wasm/$ver/demo" ] && cp -a "/w/build/wasm/$ver/demo" "$stage/demo"
 cat > "$stage/README.txt" <<EOF
-compact.db WebAssembly build of PostgreSQL $ver (single-user engine in a Worker, data in IndexedDB).
+pg.lite WebAssembly build of PostgreSQL $ver (single-user engine in a Worker, data in IndexedDB).
 
 Serve engine/ and worker/ as static files from one directory (keep postgres.mjs, postgres.wasm, postgres.data and
 manifest.json together; engine-worker.js and idb-store.js together), then:
@@ -42,7 +42,7 @@ EOF
 tar -C /tmp -cf - "$name" | gzip -9 > "/w/dist/$name.tar.gz"
 (cd /w/dist && sha256sum "$name.tar.gz" > "$name.tar.gz.sha256")
 {
-  echo "compact.db WebAssembly build $ver: payload sizes (bytes)"
+  echo "pg.lite WebAssembly build $ver: payload sizes (bytes)"
   for f in postgres.wasm postgres.data; do
     printf '%-16s raw %10s  gzip -9 %10s\n' "$f" "$(wc -c < "$web/$f")" "$(gzip -9 -c "$web/$f" | wc -c)"
   done

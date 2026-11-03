@@ -1,13 +1,17 @@
 name: release
 
-# A tag is a PostgreSQL version: v18.6 builds PostgreSQL 18.6 (checksum-pinned in tools/releases.txt) with this
+# A tag is a PostgreSQL version: v9.0.0 builds PostgreSQL 9.0.0 (checksum-pinned in tools/releases.txt) with this
 # repository's patches, and publishes
 #   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
 #   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
-#     Configure the repository variable DOCKERHUB_REPOSITORY (for example "org/postgres") and the secrets
-#     DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (an access token with write permission); a tag build fails at once without them.
-# Image tags: the exact version (18.6) and, when it is the newest release of its major, the major (18); "latest" only
-# for the newest release of all.  v16.x, v17.x and v18.x are parallel lines of drop-in replacements.
+# Nothing is published unless BOTH products were built and tested: the image is built and tested in the "cli" job and kept as a
+# workflow artifact; the "publish" job pushes it only after "wasm" and "cli" succeeded.
+#
+# Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg-lite") and the secrets DOCKERHUB_USERNAME and
+# DOCKERHUB_TOKEN (an access token of Docker Hub with read and write permission on that repository); a tag build fails at once
+# without them.
+# Image tags: the exact version (9.0.0) and, when it is the newest release of its major in tools/releases.txt, the major (9.0).
+# There is no "latest" tag yet: it comes with the newest PostgreSQL release.
 on:
   push:
     tags: ['v[0-9]*']
@@ -16,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: PostgreSQL version to build and test, for example 17.11, or latest (dry run, nothing is published)
+        description: PostgreSQL version to build and test, for example 9.0.0 (dry run, nothing is published)
         required: true
 
 permissions:
@@ -33,7 +37,6 @@ jobs:
       version: ${{ steps.plan.outputs.version }}
       major: ${{ steps.plan.outputs.major }}
       newestInMajor: ${{ steps.plan.outputs.newestInMajor }}
-      newestOverall: ${{ steps.plan.outputs.newestOverall }}
       publish: ${{ steps.publish.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
@@ -54,7 +57,7 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           if [ "$IS_TAG" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
-            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example org/postgres) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
+            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example myorg/pg-lite) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
             exit 1
           fi
           echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
@@ -76,19 +79,25 @@ jobs:
         run: ./builder.sh test "$VERSION" wasm
       - uses: actions/upload-artifact@v4
         with:
-          name: compact-db-wasm-${{ env.VERSION }}
+          name: pg-lite-wasm-${{ env.VERSION }}
           path: |
-            tools/dist/compact-db-wasm-${{ env.VERSION }}.tar.gz
-            tools/dist/compact-db-wasm-${{ env.VERSION }}.tar.gz.sha256
-            tools/dist/compact-db-wasm-${{ env.VERSION }}.sizes.txt
+            tools/dist/pg-lite-wasm-${{ env.VERSION }}.tar.gz
+            tools/dist/pg-lite-wasm-${{ env.VERSION }}.tar.gz.sha256
+            tools/dist/pg-lite-wasm-${{ env.VERSION }}.sizes.txt
           if-no-files-found: error
+      - name: Browser test report (reports, videos and screenshots of every test)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-tests-${{ env.VERSION }}
+          path: tools/reports/browser
+          if-no-files-found: ignore
 
   cli:
     needs: plan
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.plan.outputs.version }}
-      MAJOR: ${{ needs.plan.outputs.major }}
     steps:
       - uses: actions/checkout@v4
       - name: Free disk space
@@ -96,47 +105,70 @@ jobs:
       - name: Fetch the pinned upstream source and apply the patches
         run: ./builder.sh patch "$VERSION" cli
       - name: Build the static one-file server and the FROM scratch image
-        run: ./builder.sh build "$VERSION" cli --tag "compactdb-native:$VERSION"
-      - name: Test (SQL, modules, authentication, restart, non-empty data directory, one file in the image)
+        run: ./builder.sh build "$VERSION" cli --tag "pg-lite-image:$VERSION"
+      - name: Test (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
         run: ./builder.sh test "$VERSION" cli
-      - name: Image tags
-        id: tags
-        env:
-          NEWEST_IN_MAJOR: ${{ needs.plan.outputs.newestInMajor }}
-          NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
+      - name: Keep the tested image for the publish job
         run: |
+          docker image inspect "pg-lite-image:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
+          docker save "pg-lite-image:$VERSION" | gzip -9 > "image-$VERSION.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ env.VERSION }}
+          path: |
+            image-${{ env.VERSION }}.tar.gz
+            image-${{ env.VERSION }}.txt
+          if-no-files-found: error
+
+  publish:
+    needs: [plan, wasm, cli]
+    if: ${{ needs.plan.outputs.publish == 'true' }}
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+      MAJOR: ${{ needs.plan.outputs.major }}
+      NEWEST_IN_MAJOR: ${{ needs.plan.outputs.newestInMajor }}
+      DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-${{ env.VERSION }}
+          path: image
+      - name: Load the tested image and give it its tags
+        id: tags
+        run: |
+          gunzip -c "image/image-$VERSION.tar.gz" | docker load
           tags="$VERSION"
           [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
-          [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
+          for t in $tags; do docker tag "pg-lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
           echo "tags=$tags" >> "$GITHUB_OUTPUT"
       - name: Push to Docker Hub
-        if: ${{ needs.plan.outputs.publish == 'true' }}
         env:
-          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           TAGS: ${{ steps.tags.outputs.tags }}
         run: |
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          for t in $TAGS; do docker push "$DOCKERHUB_REPOSITORY:$t"; done
+      - name: Check what was published (pull it back and look at it)
+        env:
+          TAGS: ${{ steps.tags.outputs.tags }}
+        run: |
           for t in $TAGS; do
-            docker tag "compactdb-native:$VERSION" "$DOCKERHUB_REPOSITORY:$t"
-            docker push "$DOCKERHUB_REPOSITORY:$t"
+            docker rmi "$DOCKERHUB_REPOSITORY:$t" >/dev/null
+            docker pull -q "$DOCKERHUB_REPOSITORY:$t"
+            docker run --rm --entrypoint /usr/local/pgsql/bin/postgres "$DOCKERHUB_REPOSITORY:$t" --version | tee /dev/stderr | grep -q "(PostgreSQL) $VERSION"
+            [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "$VERSION" ]
+            echo "published $DOCKERHUB_REPOSITORY:$t"
           done
-      - name: Image report
-        run: docker image inspect "compactdb-native:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: image-report-${{ env.VERSION }}
-          path: image-${{ env.VERSION }}.txt
 
   release:
-    needs: [plan, wasm, cli]
-    if: ${{ needs.plan.outputs.publish == 'true' }}
+    needs: [plan, publish]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: compact-db-wasm-${{ needs.plan.outputs.version }}
+          name: pg-lite-wasm-${{ needs.plan.outputs.version }}
           path: assets
       - name: GitHub release with the browser module
         env:
