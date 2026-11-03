@@ -19,7 +19,7 @@
 # Options (after the target):
 #   --test            build only: run the tests right after the build
 #   --pack            cli: compress the executable with xsfx (about half the size, slower start)
-#   --variant NAME    cli: compiler flavour of the static build, default min3 (smallest); see tools/docs/size-experiments.md
+#   --variant NAME    cli: compiler flavour of the static build, default min3 (smallest)
 #   --tag NAME        cli: also tag the finished image as NAME (for example myorg/postgres:18.6)
 #
 # test builds first when there is nothing to test yet, so on a laptop one command is enough: ./builder.sh test 17.11 cli
@@ -102,7 +102,7 @@ done
 [ "$command" = build ] || [ "$test_it" = 0 ] || die "--test belongs to the build command"
 echo "builder.sh: $command PostgreSQL $version ($target)"
 
-# ---- patch: the verified upstream source plus the patches of the release (patches/ cascades, see tools/docs/patches.md)
+# ---- patch: the verified upstream source plus the patches of the release
 do_patch() {
     src=native; [ "$target" = wasm ] && src=wasm
     step "fetch PostgreSQL $version (verified against the pinned SHA-256)"
@@ -118,8 +118,8 @@ build_cli() {
     step "build the static server with initdb, the entrypoint and the data files linked in (variant $variant)"
     tools/dcb musl make native-build VERSION="$version"
     step "assemble the image: one file"
-    PACK="$pack" tools/scripts/native-image.sh image "$version"
-    tools/scripts/native-image.sh manifest "$version"
+    PACK="$pack" scripts/native-image.sh image "$version"
+    scripts/native-image.sh manifest "$version"
     tag=$(image_tag)
     [ -z "$extra_tag" ] || { docker tag "$tag" "$extra_tag"; echo "builder.sh: also tagged $extra_tag"; }
     echo
@@ -140,10 +140,10 @@ test_cli() {
         step "the unmodified upstream build of the same release, whose psql is the external test client"
         tools/dcb ref make builder-check
         tools/dcb ref make reference VERSION="$version"
-        tools/scripts/reference.sh image "$version"
+        scripts/reference.sh image "$version"
     fi
     step "image tests: cold init, SQL, modules, authentication, restart, non-empty data directory"
-    PACK="$pack" tools/scripts/native-image.sh test "$version"
+    PACK="$pack" scripts/native-image.sh test "$version"
 }
 
 # ---- wasm

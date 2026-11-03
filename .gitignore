@@ -17,10 +17,10 @@ node_modules/
 .local/
 
 # Playwright output
-tools/tests/browser/test-results/
+tests/browser/test-results/
 playwright-report/
 
-# Unattended runs (tools/scripts/overnight.sh): results, summary and logs are local to the machine that ran them
+# Unattended runs (scripts/overnight.sh): results, summary and logs are local to the machine that ran them
 /tools/reports/overnight/logs/
 /tools/reports/overnight/.lock/
 /tools/reports/overnight/results.tsv

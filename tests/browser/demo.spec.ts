@@ -1,6 +1,6 @@
 // The Angular + TypeORM demo (demo/demo) on the built engine: real browser, real Worker, real IndexedDB, driven like a person
 // (ui.ts: visible cursor, keystroke-level typing, a screenshot per step; the video of every test is recorded by the configuration).
-// Every test is a use case of docs/spec.md and carries its [UC-###] in the title.
+// Every test is a use case of the project spec (kept in the project tracker, not in this repository) and carries its [UC-###] in the title.
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import path from 'node:path';

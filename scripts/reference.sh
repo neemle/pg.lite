@@ -7,7 +7,7 @@
 #   scripts/reference.sh test  [version]   up, SELECT 1 from an external client, wrong password, down
 # Prerequisite: tools/dc make fetch VERSION=<v> and tools/dcb ref make reference VERSION=<v>.
 set -eu
-root=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$0")/../tools" && pwd)
 cmd="${1:?usage: reference.sh image|up|psql|down|test [version]}"; shift
 ver="${1:-18.6}"; [ $# -gt 0 ] && shift || true
 img="compactdb-reference:$ver"

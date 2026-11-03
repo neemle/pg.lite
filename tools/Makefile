@@ -15,7 +15,7 @@ SHELL := /bin/sh
         validate-locks test-locks test-fetch selftest \
         patches-verify patches-apply test-patches \
         builder-check capture-toolchain update-toolchain-lock reference \
-        feature-check feature-matrix test-feature release-index test-release-index \
+        feature-check test-feature release-index test-release-index \
         resolve resolve-check test-resolve probe probe-all test-probe \
         check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node web-demo package-wasm \
         native-build native-src test-noshell test-release-plan check-releases
@@ -47,7 +47,7 @@ validate-locks:
 test-locks:
 	@node tests/lock/run.js
 
-# Builder images (docs/builders.md). Run inside a builder: tools/dcb musl make builder-check
+# Builder images . Run inside a builder: tools/dcb musl make builder-check
 builder-check:
 	@scripts/check-builder.sh
 
@@ -67,11 +67,11 @@ wasm-src:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --target wasm --version $(VERSION)
 	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/wasm/$(VERSION) --target wasm
 
-# WebAssembly build of one release (docs/wasm.md): tools/dcb wasm make wasm-build VERSION=18.6
+# WebAssembly build of one release : tools/dcb wasm make wasm-build VERSION=18.6
 wasm-build:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-wasm.sh $(VERSION)
 
-# Angular + TypeORM demo on the browser module (docs/wasm.md): tools/dcb web make web-demo VERSION=18.6
+# Angular + TypeORM demo on the browser module : tools/dcb web make web-demo VERSION=18.6
 web-demo:
 	@scripts/web-demo.sh
 
@@ -83,7 +83,7 @@ package-wasm:
 test-wasm-node:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))tests/wasm/test-wasm-node.sh $(VERSION)
 
-# Static musl build of one release (docs/native.md): tools/dcb musl make native-build VERSION=18.6
+# Static musl build of one release : tools/dcb musl make native-build VERSION=18.6
 native-build:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-native.sh $(VERSION)
 
@@ -91,7 +91,7 @@ native-build:
 test-noshell:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))tests/native/test-noshell.sh $(VERSION)
 
-# Output checks (docs/checks.md). check-static needs readelf: tools/dcb musl make check-static DIR=<path>
+# Output checks . check-static needs readelf: tools/dcb musl make check-static DIR=<path>
 check-static:
 	@$(if $(DIR),,$(error DIR=<path> is required))scripts/check-static.sh $(CHECK_OPTS) $(DIR)
 
@@ -104,7 +104,7 @@ check-wasm:
 test-check-wasm:
 	@node tests/checks/run.js
 
-# Configure probing (docs/probe.md): tools/dc make probe VERSION=18.6; probe-all needs network the first time.
+# Configure probing : tools/dc make probe VERSION=18.6; probe-all needs network the first time.
 probe:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/probe.js $(VERSION)
 
@@ -114,7 +114,7 @@ probe-all:
 test-probe:
 	@node tests/probe/run.js
 
-# Version-range model (docs/ranges.md): tools/dc make resolve VERSION=13.4 [RESOLVE_OPTS=--allow-missing-builder]
+# Version-range model : tools/dc make resolve VERSION=13.4 [RESOLVE_OPTS=--allow-missing-builder]
 resolve:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/resolve.js $(VERSION) $(RESOLVE_OPTS)
 
@@ -129,7 +129,7 @@ test-resolve:
 release-index:
 	@node scripts/release-index.js
 
-# Do the patch folders apply to every release? (docs/patches.md) Needs network: tools/dc enables it for
+# Do the patch folders apply to every release?  Needs network: tools/dc enables it for
 # 'check-releases'. Example: tools/dc make check-releases ARGS="--range pg12 --recheck"
 check-releases:
 	@node scripts/check-releases.js $(if $(ARGS),$(ARGS),--all)
@@ -137,22 +137,19 @@ check-releases:
 test-release-index:
 	@node tests/release/run.js
 
-# Feature profile (docs/feature-matrix.md is generated from feature-profile.json).
+# Feature profile.
 # feature-check needs the fetched tree (tools/dc make fetch); the others do not.
 feature-check:
 	@node scripts/feature-profile.js check $(if $(VERSION),--version $(VERSION))
 
-feature-matrix:
-	@node scripts/feature-profile.js matrix
-
 test-feature:
 	@node tests/feature/run.js
 
-# Unmodified upstream reference build (docs/reference.md): tools/dcb ref make reference VERSION=18.6
+# Unmodified upstream reference build : tools/dcb ref make reference VERSION=18.6
 reference:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required, e.g. tools/dcb ref make reference VERSION=18.6))scripts/build-reference.sh $(VERSION)
 
-# Patch folders (docs/patches.md). VERSION defaults to the baseline in sources.lock.json.
+# Patch folders . VERSION defaults to the baseline in sources.lock.json.
 TARGETS ?= common,native
 
 patches-verify:

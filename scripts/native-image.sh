@@ -8,7 +8,7 @@
 # Prerequisites (./builder.sh build <v> cli does all of it): tools/dc make native-src VERSION=<v>; tools/dcb musl make native-build VERSION=<v>;
 #                scripts/reference.sh image <v>  (its psql is the external client).
 set -eu
-root=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$0")/../tools" && pwd)
 cmd="${1:?usage: native-image.sh image|up|psql|down|test [version]}"; shift
 ver="${1:-18.6}"; [ $# -gt 0 ] && shift || true
 bvs="${VARIANT:+-$VARIANT}"   # size/compiler variant (build/native/<ver>-<variant>), see build-native.sh

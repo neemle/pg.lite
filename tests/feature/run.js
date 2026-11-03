@@ -54,7 +54,6 @@ run('matrix generates', ['matrix', '--out', out], 0, 'wrote');
 run('fresh matrix passes --check', ['matrix', '--check', '--out', out], 0, 'up to date');
 fs.appendFileSync(out, 'stale edit\n');
 run('stale matrix fails --check', ['matrix', '--check', '--out', out], 1, 'out of date');
-run('committed docs/feature-matrix.md is current', ['matrix', '--check'], 0, 'up to date');
 
 fs.rmSync(tmp, { recursive: true, force: true });
 console.log(failed ? `\n${failed} test(s) FAILED` : '\nall feature-profile tests passed');
