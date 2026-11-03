@@ -8,7 +8,8 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 
 | Tag | PostgreSQL | Executable |
 | --- | --- | --- |
-| `9.0.5` | 9.0.5 | compressed (about 4.7 MB) |
+| `9.0.6` | 9.0.6 | compressed (about 4.7 MB) |
+| `9.0.5` | 9.0.5 | compressed |
 | `9.0.4` | 9.0.4 | compressed |
 | `9.0.3` | 9.0.3 | compressed |
 | `9.0.2` | 9.0.2 | compressed |
@@ -17,17 +18,17 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | `9.0` | the newest 9.0.x built here | compressed |
 | `9` | the newest 9.x built here | compressed |
 | `latest` | the newest release built here | compressed |
-| `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
+| `9.0.6-uncompressed`, `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
 
 One tag is one PostgreSQL release, nothing else. The executable of the default tags is compressed with a self-extracting packer: the image is about a third of the size and a start is about 0.4 s slower; the `-uncompressed` tags hold the same server without it. Platform: `linux/amd64`.
 
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.0.5
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.0.6
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:9.0.5 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:9.0.6 -c max_connections=200`.
 
 ## Environment
 
