@@ -1,5 +1,5 @@
 Targets: common
-Releases: 9.0.5-9.0.8
+Releases: 9.0.5-9.0.6
 Subject: Backport: fix the crash-safety bug of newly created or reset sequences
 Purpose: If a crash occurred right after the first nextval() of a new sequence, WAL replay restored the sequence to a state in which that nextval() had not happened, so the first value was handed out a second time (a duplicate key for a serial column). Sequence creation wrote a WAL record that claimed is_called = true while the stored tuple said log_cnt = 1, and ALTER SEQUENCE (which every serial column runs once) wrote a record with the real state. The fix logs the real state, makes nextval() log at the first call, resets log_cnt where ALTER SEQUENCE changes anything that affects future values, and logs the tuple itself (t_data, t_len) instead of the page contents. This build is a browser database that can be killed at any time, and the offline-use test of the demo hit exactly this duplicate key. PostgreSQL has the fix from 9.0.9.
 Components: src/backend/commands/sequence.c
@@ -8,7 +8,7 @@ Origin: borrowed
 Source-URL: https://github.com/postgres/postgres/commit/2d7045db0fed2be986e2fc3bc0bb0c3f44badd96
 Source-Commit: 2d7045db0fed2be986e2fc3bc0bb0c3f44badd96
 Source-License: PostgreSQL License
-Adaptation: The commit of the 9.0 branch (REL9_0_STABLE, Tom Lane, 2012-07-25, bug #6748), reduced to sequence.c and applied to the 9.0.x releases from 9.0.5, which already have the xmax cleanup in read_seq_tuple() that the commit builds on; there the cleanup works on the sequence tuple the commit introduces (seqtuple), as in 9.0.9. The local page copy in sequence redo, which the commit also builds on, is not part of those releases and is not ported. Patch 0040 for 9.0.0 to 9.0.4 is the sibling of this one.
+Adaptation: The commit of the 9.0 branch (REL9_0_STABLE, Tom Lane, 2012-07-25, bug #6748), reduced to sequence.c and applied to 9.0.5 and 9.0.6, which have the xmax cleanup in read_seq_tuple() that the commit builds on but not yet the local page copy in sequence redo (9.0.7); the cleanup works on the sequence tuple the commit introduces (seqtuple), as in 9.0.9. The siblings of this patch are 0040 for 9.0.0 to 9.0.4 (neither piece) and for 9.0.7 to 9.0.8 (both).
 
 diff --git a/src/backend/commands/sequence.c b/src/backend/commands/sequence.c
 --- a/src/backend/commands/sequence.c

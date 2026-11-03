@@ -8,7 +8,7 @@ Origin: borrowed
 Source-URL: https://github.com/postgres/postgres/commit/2d7045db0fed2be986e2fc3bc0bb0c3f44badd96
 Source-Commit: 2d7045db0fed2be986e2fc3bc0bb0c3f44badd96
 Source-License: PostgreSQL License
-Adaptation: The commit of the 9.0 branch (REL9_0_STABLE, Tom Lane, 2012-07-25, bug #6748), reduced to sequence.c and applied to 9.0.0 to 9.0.4, which lack the later xmax cleanup in read_seq_tuple() and the local page copy in sequence redo; those two changes are not part of it. The regression test expectations of the commit are not brought over.
+Adaptation: The commit of the 9.0 branch (REL9_0_STABLE, Tom Lane, 2012-07-25, bug #6748), reduced to sequence.c and applied to 9.0.0 to 9.0.4, which lack both the later xmax cleanup in read_seq_tuple() (9.0.5) and the local page copy in sequence redo (9.0.7); those two changes are not part of it. The regression test expectations of the commit are not brought over.
 
 diff --git a/src/backend/commands/sequence.c b/src/backend/commands/sequence.c
 --- a/src/backend/commands/sequence.c
