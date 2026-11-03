@@ -152,11 +152,11 @@ build_wasm() {
     step "package the archive"
     tools/dc make package-wasm VERSION="$version"
     echo
-    echo "builder.sh: tools/dist/pg-lite-wasm-$version.tar.gz (+ .sha256, .sizes.txt)"
+    echo "builder.sh: tools/dist/pg.lite-wasm-$version.tar.gz (+ .sha256, .sizes.txt)"
 }
 test_wasm() {
     unset VARIANT
-    if [ ! -f "tools/dist/pg-lite-wasm-$version.tar.gz" ]; then
+    if [ ! -f "tools/dist/pg.lite-wasm-$version.tar.gz" ]; then
         echo "builder.sh: no browser module for $version yet, building it first"
         do_patch
         build_wasm

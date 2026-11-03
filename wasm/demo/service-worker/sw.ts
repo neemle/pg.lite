@@ -13,7 +13,7 @@ interface AssetManifest { version: string; files: string[] }
 
 const worker = self as unknown as ServiceWorkerGlobalScope;
 
-const PREFIX = 'pg-lite-demo-';
+const PREFIX = 'pg.lite-demo-';
 const META = `${PREFIX}meta`;
 
 worker.addEventListener('install', (event) => {

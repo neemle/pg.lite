@@ -99,7 +99,7 @@ function writeSettings(FS: EngineModule['FS'], pg: string, config?: Settings): v
 function takeLock(name: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (!scope.navigator?.locks) { resolve(); return; }      // no Web Locks: no cross-tab protection
-    void scope.navigator.locks.request(`pg-lite:${name}`, { ifAvailable: true }, (lock) => {
+    void scope.navigator.locks.request(`pg.lite:${name}`, { ifAvailable: true }, (lock) => {
       if (!lock) { reject(Object.assign(new Error(`the database "${name}" is open in another tab or window`), { code: 'busy' })); return undefined; }
       resolve();
       return new Promise<void>(() => { /* hold the lock for the lifetime of the Worker */ });

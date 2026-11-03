@@ -1,6 +1,6 @@
 #!/bin/sh
 # Package the browser module of one release as a downloadable archive (tools container):
-#   tools/dc make package-wasm VERSION=18.6      ->  dist/pg-lite-wasm-18.6.tar.gz  (+ .sha256, + sizes in dist/pg-lite-wasm-18.6.sizes.txt)
+#   tools/dc make package-wasm VERSION=9.0.0      ->  dist/pg.lite-wasm-9.0.0.tar.gz  (+ .sha256, + sizes in dist/pg.lite-wasm-9.0.0.sizes.txt)
 #
 # The archive is what a web project needs, with the same file names the demo uses:
 #   engine/   postgres.mjs, postgres.wasm, postgres.data (data files and bootstrap data directory), manifest.json
@@ -12,7 +12,7 @@ set -eu
 ver="${VERSION:?usage: VERSION=<x.y> package-wasm.sh}"
 web="/w/build/wasm/$ver/web"
 [ -f "$web/postgres.wasm" ] || { echo "package-wasm: no browser module for $ver ($web)" >&2; exit 2; }
-name="pg-lite-wasm-$ver"
+name="pg.lite-wasm-$ver"
 stage="/tmp/$name"
 rm -rf "$stage"; mkdir -p "$stage/engine" "$stage/worker" "$stage/lib" /w/dist
 cp "$web/postgres.mjs" "$web/postgres.wasm" "$web/postgres.data" "$web/manifest.json" "$stage/engine/"

@@ -7,7 +7,7 @@ name: release
 # Nothing is published unless BOTH products were built and tested: the image is built and tested in the "cli" job and kept as a
 # workflow artifact; the "publish" job pushes it only after "wasm" and "cli" succeeded.
 #
-# Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg-lite") and the secrets DOCKERHUB_USERNAME and
+# Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg.lite") and the secrets DOCKERHUB_USERNAME and
 # DOCKERHUB_TOKEN (an access token of Docker Hub with read and write permission on that repository); a tag build fails at once
 # without them.
 # Image tags: the exact version (9.0.0) and, when it is the newest release of its major in tools/releases.txt, the major (9.0).
@@ -57,7 +57,7 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           if [ "$IS_TAG" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
-            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example myorg/pg-lite) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
+            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example myorg/pg.lite) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
             exit 1
           fi
           echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
@@ -79,11 +79,11 @@ jobs:
         run: ./builder.sh test "$VERSION" wasm
       - uses: actions/upload-artifact@v4
         with:
-          name: pg-lite-wasm-${{ env.VERSION }}
+          name: pg.lite-wasm-${{ env.VERSION }}
           path: |
-            tools/dist/pg-lite-wasm-${{ env.VERSION }}.tar.gz
-            tools/dist/pg-lite-wasm-${{ env.VERSION }}.tar.gz.sha256
-            tools/dist/pg-lite-wasm-${{ env.VERSION }}.sizes.txt
+            tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz
+            tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz.sha256
+            tools/dist/pg.lite-wasm-${{ env.VERSION }}.sizes.txt
           if-no-files-found: error
       - name: Browser test report (reports, videos and screenshots of every test)
         if: ${{ always() }}
@@ -105,13 +105,13 @@ jobs:
       - name: Fetch the pinned upstream source and apply the patches
         run: ./builder.sh patch "$VERSION" cli
       - name: Build the static one-file server and the FROM scratch image
-        run: ./builder.sh build "$VERSION" cli --tag "pg-lite-image:$VERSION"
+        run: ./builder.sh build "$VERSION" cli --tag "pg.lite-image:$VERSION"
       - name: Test (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
         run: ./builder.sh test "$VERSION" cli
       - name: Keep the tested image for the publish job
         run: |
-          docker image inspect "pg-lite-image:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
-          docker save "pg-lite-image:$VERSION" | gzip -9 > "image-$VERSION.tar.gz"
+          docker image inspect "pg.lite-image:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
+          docker save "pg.lite-image:$VERSION" | gzip -9 > "image-$VERSION.tar.gz"
       - uses: actions/upload-artifact@v4
         with:
           name: image-${{ env.VERSION }}
@@ -140,7 +140,7 @@ jobs:
           gunzip -c "image/image-$VERSION.tar.gz" | docker load
           tags="$VERSION"
           [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
-          for t in $tags; do docker tag "pg-lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
+          for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
           echo "tags=$tags" >> "$GITHUB_OUTPUT"
       - name: Push to Docker Hub
         env:
@@ -168,7 +168,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: pg-lite-wasm-${{ needs.plan.outputs.version }}
+          name: pg.lite-wasm-${{ needs.plan.outputs.version }}
           path: assets
       - name: GitHub release with the browser module
         env:
