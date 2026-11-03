@@ -28,7 +28,7 @@ A git tag is a PostgreSQL version: `v9.0.1` is PostgreSQL 9.0.1 with these patch
 | PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
 | 9.0.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The fix of the crash-safety bug of new sequences (PostgreSQL 9.0.9) is backported, because a browser database can be killed at any time. |
-| 9.0.1 | 🚧 in progress | 🚧 in progress | The same patches as 9.0.0 apply unchanged. |
+| 9.0.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.2 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
