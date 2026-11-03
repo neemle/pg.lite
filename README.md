@@ -33,7 +33,7 @@ A git tag is a PostgreSQL version: `v18.6` is PostgreSQL 18.6 with these patches
 
 | PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
-| 9.0.0 | ✅ built and tested | ✅ built, 18 of 19 browser tests | The 19th test (offline use of the demo) fails because of a bug of the upstream 9.0.0 itself (the first value of a new sequence is not WAL-logged); it is kept as upstream has it. |
+| 9.0.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The fix of the crash-safety bug of new sequences (PostgreSQL 9.0.9) is backported, because a browser database can be killed at any time. |
 | 9.0.1 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
