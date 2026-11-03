@@ -1,0 +1,29 @@
+Targets: wasm
+Releases: 9.0.8-
+Subject: Set the reference point of the stack depth check in the single-user server
+Purpose: check_stack_depth() compares the address of a local variable with stack_base_ptr and ends a runaway recursion with SQLSTATE 54001 (stack depth limit exceeded) once the distance passes max_stack_depth. stack_base_ptr is set by the postmaster and by its child processes, never by the stand-alone backend ("postgres --single"), the only mode of this build; while it is NULL the check does nothing ("this prevents us from erroring out if called during process setup or in a non-backend process"). In the browser the recursion therefore ran until the host's own call stack (about 1 MB under JavaScript Promise Integration) was gone, and the whole engine stopped with "Maximum call stack size exceeded" instead of the query failing with 54001. main() now sets the reference point itself; the distance is measured on the shadow stack in linear memory (-sSTACK_SIZE), where the variable whose address is taken lives, and max_stack_depth (400kB in the Worker) is far below what the host stack carries.
+Components: src/backend/main/main.c
+Checks: wasm/tests/browser/engine.spec.ts "runaway recursion is stopped by PostgreSQL (54001) and the engine keeps running" (f(100) works, f(100000) ends with 54001 and the engine keeps running)
+Origin: own
+
+diff --git a/src/backend/main/main.c b/src/backend/main/main.c
+--- a/src/backend/main/main.c
++++ b/src/backend/main/main.c
+@@ -77,4 +77,17 @@
+ 	startup_hacks(progname);
+ 
++#ifdef __EMSCRIPTEN__
++	{
++		/*
++		 * The stand-alone backend never sets the reference point of check_stack_depth(), so the check never fired and a
++		 * runaway recursion used up the host's call stack instead of ending with SQLSTATE 54001.
++		 */
++		extern char *stack_base_ptr;
++		char		stack_base;
++
++		stack_base_ptr = &stack_base;
++	}
++#endif
++
+ 	/*
+ 	 * Remember the physical location of the initially given argv[] array for
