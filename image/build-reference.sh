@@ -10,7 +10,7 @@
 #   build.log; and reports/reference-size[-<version>].json (no suffix for the baseline release) with the byte totals and the method.
 set -eu
 ver="${1:?usage: build-reference.sh <version>}"
-baseline=$(sed -n 's/.*"baseline": "\([^"]*\)".*/\1/p' /w/sources.lock.json | head -1)
+baseline=$(awk '!/^#/ && NF { print $1; exit }' /w/releases.txt)
 report=/w/reports/reference-size-$ver.json; [ "$ver" = "$baseline" ] && report=/w/reports/reference-size.json
 src="/w/cache/src/$ver"
 marker="$src/.compactdb-verified"
@@ -27,9 +27,9 @@ cd "$out/obj"
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-reference: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 : > "$log"
 echo "build-reference: configure (default options, prefix $prefix), then make, install, install-strip"
-# Old sources need the compiler flags of their range (data in ranges.json, written next to the native build by
-# make native-src) to compile with a current gcc; the rest is the default configuration.
-range_cflags=$(tr '\n' ' ' < "/w/build/native/$ver/range-cflags" 2>/dev/null || true)
+# Old sources need the compiler flags of the release (tools/release.env) to compile with a current gcc; the rest is the default configuration.
+. /w/release.env
+range_cflags="$RELEASE_NATIVE_CFLAGS"
 # The first minors of some majors define a static copy_file_range() in pg_rewind, which a libc that declares the
 # function (glibc 2.27, musl 1.2) turns into an error: move the name aside for this build only (the product has no pg_rewind).
 cppflags=""

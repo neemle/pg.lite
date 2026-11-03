@@ -12,11 +12,10 @@ endif
 SHELL := /bin/sh
 
 .PHONY: help fetch test-wasm check-repo \
-        validate-locks selftest \
+        selftest \
         patches-verify \
-        builder-check capture-toolchain update-toolchain-lock reference \
+        builder-check reference \
         feature-check release-index \
-        resolve resolve-check \
         check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node web-demo package-wasm \
         native-build native-src test-noshell
 
@@ -25,7 +24,7 @@ help:
 	@echo "  fetch native-src native-build wasm-src wasm-build package-wasm test-wasm test-wasm-node"
 	@echo "Checks: selftest (no network), check-repo (no PostgreSQL source committed), patches-verify"
 
-# tools/dc make fetch [VERSION=18.6]  - downloads only the release pinned in sources.lock.json.
+# tools/dc make fetch [VERSION=18.6]  - downloads only the release pinned in releases.txt.
 fetch:
 	@scripts/fetch.sh "$(VERSION)"
 
@@ -37,29 +36,17 @@ test-wasm:
 check-repo:
 	@scripts/check-no-pg-source.sh .
 
-# Lock files (schemas in schemas/, validator in scripts/validate-locks.js).
-validate-locks:
-	@node scripts/validate-locks.js
-
 # Builder images . Run inside a builder: tools/dcb musl make builder-check
 builder-check:
 	@scripts/check-builder.sh
 
-capture-toolchain:
-	@scripts/capture-toolchain.sh
-
-update-toolchain-lock:
-	@node scripts/update-toolchain-lock.js
-
 # Apply the common+native patches of the release into build/native/<v>/src (tools container):
 native-src:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/native/$(VERSION)/src native
-	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/native/$(VERSION) --target native
 
 # Apply the common+wasm patches of the release into build/wasm/<v>/src (tools container):
 wasm-src:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/wasm/$(VERSION)/src wasm
-	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/wasm/$(VERSION) --target wasm
 
 # WebAssembly build of one release : tools/dcb wasm make wasm-build VERSION=18.6
 wasm-build:
@@ -98,13 +85,6 @@ check-wasm:
 test-check-wasm:
 	@node wasm/tests/check-wasm.test.cjs
 
-# Version-range model : tools/dc make resolve VERSION=13.4 [RESOLVE_OPTS=--allow-missing-builder]
-resolve:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/resolve.js $(VERSION) $(RESOLVE_OPTS)
-
-resolve-check:
-	@node scripts/resolve.js --check-all --allow-missing-builder
-
 # Unmodified upstream reference build : tools/dcb ref make reference VERSION=18.6
 reference:
 	@$(if $(VERSION),,$(error VERSION=<x.y> is required, e.g. tools/dcb ref make reference VERSION=18.6))image/build-reference.sh $(VERSION)
@@ -114,5 +94,5 @@ patches-verify:
 	@scripts/patches.sh verify
 
 # All repo self-tests that need no network.
-selftest: check-repo patches-verify validate-locks resolve-check test-check-wasm
+selftest: check-repo patches-verify test-check-wasm
 

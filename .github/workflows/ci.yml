@@ -17,10 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Nothing runs on the runner but docker and git: every target runs in the project's tools container.
-      - name: Self-tests (patch headers, lock files, wasm checks, no upstream source committed)
+      - name: Self-tests (patch headers, wasm checks, no upstream source committed)
         run: tools/dc make selftest
-      - name: Lock files
-        run: tools/dc make validate-locks
 
   typescript:
     runs-on: ubuntu-24.04

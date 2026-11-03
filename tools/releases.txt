@@ -1,0 +1,4 @@
+# The upstream releases this repository builds, one per line (the first line is the default):
+#   version  major  git tag  commit  sha256 of the source archive  archive url  git url
+# scripts/fetch.sh downloads the archive, checks the sha256 (and, with a trusted TLS connection, that the tag points at the commit).
+9.0.0 9.0 REL9_0_0 861861edcc04a6e3ebdfe363311f122e2b226196 7dcc381603c02595adc96a8fc5c9d067d3b39aaa44987e7a524a7504a10ff676 https://ftp.postgresql.org/pub/source/v9.0.0/postgresql-9.0.0.tar.bz2 https://git.postgresql.org/git/postgresql.git

@@ -2,7 +2,7 @@
 
 Every borrowed change, file or idea that lands in this repository is recorded here.
 Upstream PostgreSQL itself is NOT stored in this repository: it is fetched at build time
-(see `sources.lock.json`) and its own license text is copied into the build output from the
+(see `releases.txt`) and its own license text is copied into the build output from the
 fetched tree (see `licenses/postgresql/README.md`).
 
 Entry fields (all required):

@@ -94,9 +94,10 @@ if [ "$resume" = 0 ]; then
     opts="--prefix=$prefix --without-readline --without-zlib --without-icu"
     help=$("$src/configure" --help)
     echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
-    # the release range's own configure options and compiler flags (data in ranges.json, written by make wasm-src)
-    range_configure=$(tr '\n' ' ' < "$base/range-configure" 2>/dev/null || true)
-    range_cflags=$(tr '\n' ' ' < "$base/range-cflags" 2>/dev/null || true)
+    # the configure options and compiler flags this release needs (tools/release.env)
+    . /w/release.env
+    range_configure="$RELEASE_WASM_CONFIGURE"
+    range_cflags="$RELEASE_WASM_CFLAGS"
     [ -z "$range_configure" ] || opts="$opts $range_configure"
     [ -z "$range_cflags" ] || cflags="$cflags $range_cflags"
     # Spinlocks: from 16 on, and in the later minors of 10 to 15, s_lock.h has a generic gcc/clang section (the __sync

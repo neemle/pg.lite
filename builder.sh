@@ -3,7 +3,7 @@
 #
 #   ./builder.sh <command> <version> <target> [options]
 #
-#   command   patch   fetch the upstream source of that exact release (SHA-256 checked against tools/sources.lock.json) and
+#   command   patch   fetch the upstream source of that exact release (SHA-256 checked against tools/releases.txt) and
 #                     apply the patches of that release (patches/, its family and span folders) to a copy of it
 #             build   patch, then build: cli  -> the static one-file server and its Docker image
 #                                        wasm -> the WebAssembly engine, the browser module, the demo, tools/dist/*.tar.gz
@@ -45,32 +45,22 @@ esac
 shift
 
 # ---- version arguments: latest, a bare major, or a release
+releases=tools/releases.txt
+known_versions() { awk '!/^#/ && NF { print $1 }' "$releases"; }
 newest_of() { # $1 = major, or empty for any
-    tools/dc node -e "
-const l = require('/w/sources.lock.json').releases.filter((r) => !process.argv[1] || r.major === process.argv[1]);
-if (!l.length) process.exit(3);
-const key = (v) => v.split('.').map(Number);
-l.sort((a, b) => { const x = key(a.version), y = key(b.version); for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (y[i] || 0) - (x[i] || 0); return 0; });
-console.log(l[0].version);
-" "$1"
+    awk -v m="$1" '!/^#/ && NF && (m == "" || $2 "" == m "") { print $1 }' "$releases" | sort -t. -k1,1n -k2,2n -k3,3n | tail -n 1 | grep .
 }
 resolve_version() {
     case "$1" in
-        latest) newest_of "" || die "no release in tools/sources.lock.json" ;;
-        *.*.*|[1-9][0-9].*) tools/dc node -e "process.exit(require('/w/sources.lock.json').releases.some((r) => r.version === process.argv[1]) ? 0 : 3)" "$1" \
-            || die "PostgreSQL $1 is not a release known to tools/sources.lock.json (./builder.sh list)"; echo "$1" ;;
+        latest) newest_of "" || die "no release in $releases" ;;
+        *.*.*|[1-9][0-9].*) known_versions | grep -qx "$1" || die "PostgreSQL $1 is not a release known to $releases (./builder.sh list)"; echo "$1" ;;
         *) newest_of "$1" || die "no release of major '$1' (./builder.sh list)" ;;
     esac
 }
 
 case "$command" in
     list)
-        tools/dc node -e "
-const l = require('/w/sources.lock.json').releases;
-const by = {};
-for (const r of l) (by[r.major] = by[r.major] || []).push(r.version);
-for (const m of Object.keys(by).sort((a, b) => parseFloat(b) - parseFloat(a))) console.log(m.padEnd(5), by[m].length + ' releases:', by[m].join(' '));
-"
+        awk '!/^#/ && NF { v[$2] = v[$2] " " $1; n[$2]++ } END { for (m in v) printf "%-5s %d releases:%s\n", m, n[m], v[m] }' "$releases" | sort -rn
         exit 0 ;;
     version)
         [ $# -ge 1 ] || usage

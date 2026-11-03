@@ -2,8 +2,7 @@
 # running the browser tests (wasm/tests/browser, W01-W09). Use it through tools/dcb web <command>.
 #
 # The Playwright version is pinned here and in wasm/tests/browser/package.json: the image carries exactly the
-# browser builds that version drives. Base pinned by tag; the digest is recorded in toolchain.lock.json by
-# scripts/update-toolchain-lock.js once that learns about this builder (CDB-17).
+# browser builds that version drives. Base pinned by tag.
 FROM mcr.microsoft.com/playwright:v1.64.1-noble
 
 RUN apt-get update \

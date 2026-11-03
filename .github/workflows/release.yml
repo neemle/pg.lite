@@ -1,6 +1,6 @@
 name: release
 
-# A tag is a PostgreSQL version: v18.6 builds PostgreSQL 18.6 (checksum-pinned in sources.lock.json) with this
+# A tag is a PostgreSQL version: v18.6 builds PostgreSQL 18.6 (checksum-pinned in tools/releases.txt) with this
 # repository's patches, and publishes
 #   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
 #   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
@@ -44,7 +44,7 @@ jobs:
         run: |
           # a tag is v<version>; a manual run may say "latest" or a bare major, which builder.sh turns into a release
           [ "${TAG#v}" = "$TAG" ] || TAG="v$(./builder.sh version "${TAG#v}")"
-          tools/dc node scripts/release-plan.js --github "$TAG" | tee -a "$GITHUB_OUTPUT"
+          tools/dc sh scripts/release-plan.sh --github "$TAG" | tee -a "$GITHUB_OUTPUT"
       - id: publish
         name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
         env:
@@ -146,4 +146,4 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" assets/* --repo "$GITHUB_REPOSITORY" \
             --title "PostgreSQL $VERSION (pg.lite)" \
-            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in sources.lock.json."
+            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in tools/releases.txt."

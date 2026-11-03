@@ -119,9 +119,10 @@ echo "$help" | grep -q -- '--without-readline' && opts="$opts --without-readline
 echo "$help" | grep -qE -- '--(with|without)-icu' && opts="$opts --without-icu"
 echo "$help" | grep -q -- '--disable-rpath' && opts="$opts --disable-rpath"
 if [ -n "$extra_opts" ]; then opts="$opts $extra_opts"; fi
-# the release range's own configure options and compiler flags (data in ranges.json, written by make native-src)
-range_configure=$(tr '\n' ' ' < "$base/range-configure" 2>/dev/null || true)
-range_cflags=$(tr '\n' ' ' < "$base/range-cflags" 2>/dev/null || true)
+# the configure options and compiler flags this release needs (tools/release.env)
+. /w/release.env
+range_configure="$RELEASE_NATIVE_CONFIGURE"
+range_cflags="$RELEASE_NATIVE_CFLAGS"
 [ -z "$range_configure" ] || opts="$opts $range_configure"
 [ -z "$range_cflags" ] || cflags="${cflags:--O2} $range_cflags"
 

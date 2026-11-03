@@ -1,10 +1,8 @@
 # Native builder: fully static x86_64 binaries against musl (Alpine is musl-native, so gcc and
-# the libc headers/archives all come from the same musl). Used for the 18.x baseline.
-# Base pinned by digest (tag is informational); recorded in toolchain.lock.json by
-# scripts/update-toolchain-lock.js. Use through tools/dcb musl <command>.
+# the libc headers/archives all come from the same musl). Used for the static image.
+# Base pinned by digest (tag is informational). Use through tools/dcb musl <command>.
 #
-# NOTE: apk packages come from the Alpine 3.24 repositories as of build time; the exact
-# versions that were built are captured into toolchain.lock.json by scripts/capture-toolchain.sh.
+# NOTE: apk packages come from the Alpine 3.24 repositories as of build time.
 FROM alpine:3.24.3@sha256:b3413572228e34bd1c9245f5565e6cd127005655e8a7899aef33d8e83255c9e6
 
 # The optional build secret "corpca" (tools/dc passes .local/corp-ca.pem when it exists) is the root certificate of a

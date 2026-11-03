@@ -27,7 +27,7 @@ if [ ! -f "$archive" ]; then
     rm -f "$archive.part"
     if [ "${FETCH_HTTP_FALLBACK:-0}" = 1 ]; then
         # Opt-in for networks that intercept TLS with a CA the container does not trust: transport without TLS,
-        # integrity from the SHA-256 pinned in sources.lock.json (checked below; a mismatch rejects the archive).
+        # integrity from the SHA-256 pinned in tools/releases.txt (checked below; a mismatch rejects the archive).
         echo "fetch: FETCH_HTTP_FALLBACK=1, downloading over plain http; integrity rests on the pinned SHA-256 only"
         curl -fsSL --retry 3 --proto '=http' -o "$archive.part" "http://${ARCHIVE_URL#https://}"
     else
