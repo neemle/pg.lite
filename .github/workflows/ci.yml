@@ -3,12 +3,15 @@ name: ci
 # A pipeline with stages; a stage starts when the one before it passed, so nothing expensive runs on a broken tree, and nothing is
 # built or tested twice:
 #
+#   plan     is there already a run that built and tested these very files? then everything below is skipped
 #   checks   repo (self-tests) | typescript (types, oxlint, vitest)  | reference (the unmodified upstream image, cached)
 #   build    build-cli (plain + compressed image, unit tests) | build-wasm (engine, browser module, demo, archive)
 #   test     test-image (plain, compressed) | test-wasm (SQL under node, Chromium)
 #
-# What was built and tested is kept as workflow artifacts (image-<version>, pg.lite-wasm-<version>). A release tag does not build
-# again: release.yml calls this workflow for the tagged version and publishes these artifacts (publishing: release.yml).
+# What was built and tested is kept as workflow artifacts (image-<version>, pg.lite-wasm-<version>). The same files are never built
+# again: merging a tested branch into main, tagging it, or changing only documentation finds the earlier run (scripts/ci-reuse.sh)
+# and skips the build; release.yml publishes the artifacts of that run (publishing: release.yml). The artifacts live 7 days; after
+# that, or when the files differ, a run builds.
 on:
   push:
     branches: ['**']
@@ -32,10 +35,47 @@ concurrency:
 env:
   DC_CACHE_VOLUME: /home/runner/pglite-cache
   DC_BUILD_VOLUME: /home/runner/pglite-build
+  # the releases this branch covers; each next branch adds the next ones
+  DEFAULT_VERSIONS: '["9.0.0"]'
 
 jobs:
+  # ---- stage 0: is there anything to do?
+  plan:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read       # to list the runs and their artifacts
+    outputs:
+      versions: ${{ steps.versions.outputs.versions }}
+      reuse: ${{ steps.reuse.outputs.run }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0       # the commits of the other branches, to compare their files with these
+      - id: versions
+        env:
+          VERSIONS: ${{ inputs.versions || env.DEFAULT_VERSIONS }}
+        run: echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
+      - id: reuse
+        name: Earlier run that built and tested the same files (nothing is built then)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSIONS: ${{ steps.versions.outputs.versions }}
+        run: |
+          list=$(echo "$VERSIONS" | tr -d '[]" ' | tr ',' ' ')     # ["9.0.0","9.0.1"] -> 9.0.0 9.0.1
+          # shellcheck disable=SC2086
+          run=$(sh scripts/ci-reuse.sh $list)
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          if [ -n "$run" ]; then
+            echo "Run $run built and tested these files: nothing is built again." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No earlier run for these files: building."
+          fi
+
   # ---- stage 1: checks
   repo:
+    needs: plan
+    if: ${{ needs.plan.outputs.reuse == '' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -44,6 +84,8 @@ jobs:
         run: tools/dc make selftest
 
   typescript:
+    needs: plan
+    if: ${{ needs.plan.outputs.reuse == '' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -68,10 +110,12 @@ jobs:
   # The tests use the UNMODIFIED upstream build of the same release as their external client (image/reference.sh). It does not
   # depend on the patches, so it is built on the first run only and kept in the cache; the test jobs restore it.
   reference:
+    needs: plan
+    if: ${{ needs.plan.outputs.reuse == '' }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+        version: ${{ fromJSON(needs.plan.outputs.versions) }}
     steps:
       - uses: actions/checkout@v7
       - name: Cache of the reference image
@@ -94,13 +138,12 @@ jobs:
 
   # ---- stage 2: build
   build-cli:
-    needs: [repo, typescript]
+    needs: [plan, repo, typescript]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        # the releases this branch covers; each next branch adds the next ones
-        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+        version: ${{ fromJSON(needs.plan.outputs.versions) }}
     env:
       VERSION: ${{ matrix.version }}
     steps:
@@ -146,12 +189,12 @@ jobs:
           retention-days: 7
 
   build-wasm:
-    needs: [repo, typescript]
+    needs: [plan, repo, typescript]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+        version: ${{ fromJSON(needs.plan.outputs.versions) }}
     env:
       VERSION: ${{ matrix.version }}
     steps:
@@ -199,12 +242,12 @@ jobs:
 
   # ---- stage 3: test
   test-image:
-    needs: [build-cli, reference]
+    needs: [plan, build-cli, reference]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+        version: ${{ fromJSON(needs.plan.outputs.versions) }}
         image: [plain, compressed]
     env:
       VERSION: ${{ matrix.version }}
@@ -228,12 +271,12 @@ jobs:
         run: ./builder.sh test "$VERSION" cli ${{ matrix.image == 'compressed' && '--pack' || '' }}
 
   test-wasm:
-    needs: build-wasm
+    needs: [plan, build-wasm]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+        version: ${{ fromJSON(needs.plan.outputs.versions) }}
     env:
       VERSION: ${{ matrix.version }}
       # the types, oxlint and vitest of the browser module ran in the "typescript" job; not again here

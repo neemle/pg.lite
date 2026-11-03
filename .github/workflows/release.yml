@@ -4,8 +4,11 @@ name: release
 # repository's patches, and publishes
 #   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
 #   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
-# Nothing is built twice: the "ci" job calls ci.yml for the tagged version (checks, TypeScript, the image and WebAssembly built and
-# tested once, kept as workflow artifacts), and the "publish" job pushes exactly those artifacts, only after all of it succeeded.
+# Nothing is built twice. The "plan" job looks for a successful run of ci.yml on the same files (the tested branch that was merged
+# and tagged: scripts/ci-reuse.sh) and, when there is one, "publish" and "release" take the image and the WebAssembly archive from
+# its artifacts. Only when there is none (the files differ, or the artifacts are older than their 7 days) the "ci" job calls ci.yml
+# for the tagged version, which builds and tests once. The "publish" job pushes exactly those artifacts, only after all of it
+# succeeded.
 #
 # Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg.lite") and the secrets DOCKERHUB_USERNAME and
 # DOCKERHUB_TOKEN (an access token of Docker Hub with read and write permission on that repository); a tag build fails at once
@@ -27,6 +30,7 @@ on:
 
 permissions:
   contents: write     # create the release and upload its files
+  actions: read       # find the earlier run and download its artifacts
 
 concurrency:
   group: release-${{ github.ref_name }}-${{ inputs.version }}
@@ -43,8 +47,11 @@ jobs:
       newestInFamily: ${{ steps.plan.outputs.newestInFamily }}
       newestOverall: ${{ steps.plan.outputs.newestOverall }}
       publish: ${{ steps.publish.outputs.publish }}
+      ciRun: ${{ steps.reuse.outputs.run }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0       # the commits of the other branches, to compare their files with these
       - id: plan
         name: The tag must be an upstream PostgreSQL release this repository can build
         env:
@@ -66,17 +73,32 @@ jobs:
             exit 1
           fi
           echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
+      - id: reuse
+        name: Earlier run of ci.yml that built and tested the same files (nothing is built then)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.plan.outputs.version }}
+        run: |
+          run=$(sh scripts/ci-reuse.sh "$VERSION")
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          if [ -n "$run" ]; then
+            echo "The image and the WebAssembly archive of the run $run are published: nothing is built again." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No earlier run for these files: building and testing first."
+          fi
 
-  # The build and the tests of both products are ci.yml, called for this version: built once, tested once, kept as artifacts.
+  # The build and the tests of both products are ci.yml, called for this version when no earlier run has them: built once, tested once.
   ci:
     needs: plan
+    if: ${{ needs.plan.outputs.ciRun == '' }}
     uses: ./.github/workflows/ci.yml
     with:
       versions: ${{ format('["{0}"]', needs.plan.outputs.version) }}
 
   publish:
     needs: [plan, ci]
-    if: ${{ needs.plan.outputs.publish == 'true' }}
+    # ci is skipped when an earlier run is reused; a failed or cancelled one stops the release
+    if: ${{ !cancelled() && needs.plan.outputs.publish == 'true' && (needs.ci.result == 'success' || needs.ci.result == 'skipped') }}
     runs-on: ubuntu-24.04
     env:
       VERSION: ${{ needs.plan.outputs.version }}
@@ -92,6 +114,8 @@ jobs:
         with:
           name: image-${{ env.VERSION }}
           path: image
+          run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}      # the reused run, or this one
+          github-token: ${{ github.token }}
       - name: Load the tested image and give it its tags
         id: tags
         run: |
@@ -147,6 +171,8 @@ jobs:
         with:
           name: pg.lite-wasm-${{ needs.plan.outputs.version }}
           path: assets
+          run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}      # the reused run, or this one
+          github-token: ${{ github.token }}
       - name: GitHub release with the browser module
         env:
           GH_TOKEN: ${{ github.token }}
