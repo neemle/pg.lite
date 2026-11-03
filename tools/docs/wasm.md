@@ -114,11 +114,8 @@ checksum as a GitHub release and the image to Docker Hub as `<DOCKERHUB_REPOSITO
 
 ## PostgreSQL 9.0.0 in the browser
 
-The 19 Chromium tests (`tools/dcb web make test-wasm VERSION=9.0.0`, run by `./builder.sh test 9.0.0 wasm`) are the gate. Result: 18 of 19.
-The offline-use test of the demo fails because of an **upstream bug of 9.0.0**, not of this build: `nextval()` does not WAL-log the first value
-of a new sequence (`if (log < fetch)` without `|| !seq->is_called`, fixed upstream in 9.0.9), so after a crash in the same session the sequence
-hands out its first value a second time. The demo reloads the page right after its first note, inserts a second category and gets a duplicate
-key. The behaviour of the original release is kept.
+The 19 Chromium tests (`tools/dcb web make test-wasm VERSION=9.0.0`, run by `./builder.sh test 9.0.0 wasm`) are the gate.
+The offline-use test of the demo found an **upstream bug of 9.0.0**: `nextval()` did not WAL-log the first value of a new sequence, so after a crash in the same session the sequence handed out its first value a second time (the demo reloads the page right after its first note, inserts a second category and got a duplicate key). PostgreSQL fixed it in 9.0.9; patch `0040-sequence-wal-log` is that fix (commit 2d7045db0fed2be986e2fc3bc0bb0c3f44badd96 of the 9.0 branch, recorded in THIRD_PARTY.md), because a browser database can be killed at any time.
 
 What 9.0.0 needs in the browser module, found by running it:
 
