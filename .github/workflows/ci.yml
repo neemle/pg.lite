@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Nothing runs on the runner but docker and git: every target runs in the project's tools container.
-      - name: Self-tests (locks, patch series, probes, no upstream source committed)
+      - name: Self-tests (patch headers, lock files, wasm checks, no upstream source committed)
         run: tools/dc make selftest
       - name: Lock files
         run: tools/dc make validate-locks
@@ -28,15 +28,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Browser module (TypeScript 7): types, oxlint, vitest
         run: |
-          DC_NET=1 tools/dcb web sh scripts/web-install.sh web
-          tools/dcb web sh scripts/web-lib.sh typecheck
-          tools/dcb web sh scripts/web-lib.sh lint
-          tools/dcb web sh scripts/web-lib.sh test
+          DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
+          tools/dcb web sh wasm/web-lib.sh typecheck
+          tools/dcb web sh wasm/web-lib.sh lint
+          tools/dcb web sh wasm/web-lib.sh test
       - name: Demo (Angular 22): oxlint, vitest
         run: |
-          DC_NET=1 tools/dcb web sh scripts/web-install.sh web/demo
-          tools/dcb web sh scripts/web-demo.sh lint
-          tools/dcb web sh scripts/web-demo.sh test
+          DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm/demo
+          tools/dcb web sh wasm/web-demo.sh lint
+          tools/dcb web sh wasm/web-demo.sh test
 
   build:
     needs: [repo, typescript]

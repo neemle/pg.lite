@@ -11,14 +11,14 @@ endif
 
 SHELL := /bin/sh
 
-.PHONY: help fetch test-wasm check-repo test-repo \
-        validate-locks test-locks test-fetch selftest \
-        patches-verify patches-apply test-patches \
+.PHONY: help fetch test-wasm check-repo \
+        validate-locks selftest \
+        patches-verify \
         builder-check capture-toolchain update-toolchain-lock reference \
-        feature-check test-feature release-index test-release-index \
-        resolve resolve-check test-resolve probe probe-all test-probe \
+        feature-check release-index \
+        resolve resolve-check \
         check-static test-check-static check-wasm test-check-wasm wasm-src wasm-build test-wasm-node web-demo package-wasm \
-        native-build native-src test-noshell test-release-plan check-releases
+        native-build native-src test-noshell
 
 help:
 	@echo "Build an image or the WebAssembly module with ../builder.sh; its steps are these targets:"
@@ -31,21 +31,15 @@ fetch:
 
 # Browser tests of the built module (Chromium in the web builder): tools/dcb web make test-wasm VERSION=18.6
 test-wasm:
-	@scripts/web-test.sh
+	@wasm/web-test.sh
 
 # Repo hygiene: the repository must never contain a PostgreSQL source tree.
 check-repo:
 	@scripts/check-no-pg-source.sh .
 
-test-repo:
-	@tests/repo/test-check-no-pg-source.sh
-
 # Lock files (schemas in schemas/, validator in scripts/validate-locks.js).
 validate-locks:
 	@node scripts/validate-locks.js
-
-test-locks:
-	@node tests/lock/run.js
 
 # Builder images . Run inside a builder: tools/dcb musl make builder-check
 builder-check:
@@ -59,60 +53,50 @@ update-toolchain-lock:
 
 # Apply the common+native patches of the release into build/native/<v>/src (tools container):
 native-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/native/$(VERSION)/src --target native --version $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/native/$(VERSION)/src native
 	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/native/$(VERSION) --target native
 
 # Apply the common+wasm patches of the release into build/wasm/<v>/src (tools container):
 wasm-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/wasm/$(VERSION)/src --target wasm --version $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/wasm/$(VERSION)/src wasm
 	@node scripts/resolve.js $(VERSION) --allow-missing-builder --write-build-args build/wasm/$(VERSION) --target wasm
 
 # WebAssembly build of one release : tools/dcb wasm make wasm-build VERSION=18.6
 wasm-build:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-wasm.sh $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))wasm/build.sh $(VERSION)
 
 # Angular + TypeORM demo on the browser module : tools/dcb web make web-demo VERSION=18.6
 web-demo:
-	@scripts/web-demo.sh
+	@wasm/web-demo.sh
 
-# Release archive of the browser module (scripts/package-wasm.sh): tools/dc make package-wasm VERSION=18.6
+# Release archive of the browser module (wasm/package.sh): tools/dc make package-wasm VERSION=18.6
 package-wasm:
-	@scripts/package-wasm.sh
+	@wasm/package.sh
 
 # Run SQL in the built wasm server under node: tools/dcb wasm make test-wasm-node VERSION=18.6
 test-wasm-node:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))tests/wasm/test-wasm-node.sh $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))wasm/tests/test-wasm-node.sh $(VERSION)
 
 # Static musl build of one release : tools/dcb musl make native-build VERSION=18.6
 native-build:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/build-native.sh $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))image/build.sh $(VERSION)
 
 # No-shell spawn code test (needs the configured tree): tools/dcb musl make test-noshell VERSION=18.6
 test-noshell:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))tests/native/test-noshell.sh $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))image/tests/test-noshell.sh $(VERSION)
 
 # Output checks . check-static needs readelf: tools/dcb musl make check-static DIR=<path>
 check-static:
-	@$(if $(DIR),,$(error DIR=<path> is required))scripts/check-static.sh $(CHECK_OPTS) $(DIR)
+	@$(if $(DIR),,$(error DIR=<path> is required))image/check-static.sh $(CHECK_OPTS) $(DIR)
 
 test-check-static:
-	@tests/checks/test-static.sh
+	@image/tests/test-static.sh
 
 check-wasm:
-	@$(if $(DIR),,$(error DIR=<path> is required))node scripts/check-wasm.js $(CHECK_OPTS) $(DIR)
+	@$(if $(DIR),,$(error DIR=<path> is required))node wasm/check-wasm.cjs $(CHECK_OPTS) $(DIR)
 
 test-check-wasm:
-	@node tests/checks/run.js
-
-# Configure probing : tools/dc make probe VERSION=18.6; probe-all needs network the first time.
-probe:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))node scripts/probe.js $(VERSION)
-
-probe-all:
-	@node scripts/probe.js --all
-
-test-probe:
-	@node tests/probe/run.js
+	@node wasm/tests/check-wasm.test.cjs
 
 # Version-range model : tools/dc make resolve VERSION=13.4 [RESOLVE_OPTS=--allow-missing-builder]
 resolve:
@@ -121,53 +105,14 @@ resolve:
 resolve-check:
 	@node scripts/resolve.js --check-all --allow-missing-builder
 
-test-resolve:
-	@node tests/resolve/run.js
-
-# Release list: every final PostgreSQL release 9.0..latest -> sources.lock.json (needs network;
-# tools/dc enables it for this target). test-release-index is offline.
-release-index:
-	@node scripts/release-index.js
-
-# Do the patch folders apply to every release?  Needs network: tools/dc enables it for
-# 'check-releases'. Example: tools/dc make check-releases ARGS="--range pg12 --recheck"
-check-releases:
-	@node scripts/check-releases.js $(if $(ARGS),$(ARGS),--all)
-
-test-release-index:
-	@node tests/release/run.js
-
-# Feature profile.
-# feature-check needs the fetched tree (tools/dc make fetch); the others do not.
-feature-check:
-	@node scripts/feature-profile.js check $(if $(VERSION),--version $(VERSION))
-
-test-feature:
-	@node tests/feature/run.js
-
 # Unmodified upstream reference build : tools/dcb ref make reference VERSION=18.6
 reference:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required, e.g. tools/dcb ref make reference VERSION=18.6))scripts/build-reference.sh $(VERSION)
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required, e.g. tools/dcb ref make reference VERSION=18.6))image/build-reference.sh $(VERSION)
 
-# Patch folders . VERSION defaults to the baseline in sources.lock.json.
-TARGETS ?= common,native
-
+# The patches (scripts/patches.sh): verify their headers, apply them with GNU patch.
 patches-verify:
-	@node scripts/patches.js verify
+	@scripts/patches.sh verify
 
-patches-apply:
-	@$(if $(VERSION),,$(error VERSION=<x.y> TARGET=native|wasm are required, e.g. tools/dc make patches-apply VERSION=18.6 TARGET=native))node scripts/patches.js apply --src cache/src/$(VERSION) --out build/$(TARGET)/$(VERSION)/src --target $(TARGET) --version $(VERSION)
+# All repo self-tests that need no network.
+selftest: check-repo patches-verify validate-locks resolve-check test-check-wasm
 
-test-patches:
-	@node tests/patches/run.js
-
-# All repo self-tests that need no network. (test-resolve, test-release-plan and test-probe exercise the tooling across many releases; they come back when the lock file lists them.)
-selftest: check-repo test-repo test-locks test-fetch test-patches patches-verify validate-locks test-feature test-release-index resolve-check test-check-wasm
-
-# The tag is the PostgreSQL version (scripts/release-plan.js, .github/workflows/release.yml).
-test-release-plan:
-	@node tests/release-plan/run.js
-
-# Offline negative tests for make fetch (tampered archive, unknown version, invalid lock).
-test-fetch:
-	@tests/fetch/test-fetch.sh

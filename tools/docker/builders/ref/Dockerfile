@@ -3,7 +3,7 @@
 # and WASM builds are compared against; it must never get patches or size flags.
 # Base pinned by digest (tag informational). Use through tools/dcb ref <command>.
 #
-# NOTE: apt packages are not version-pinned; scripts/build-reference.sh records the installed
+# NOTE: apt packages are not version-pinned; image/build-reference.sh records the installed
 # versions in reports/reference-size.json.
 FROM debian:bookworm-slim@sha256:7ff6ba31527b9e336162fa061746c366c4b2032f4d2cff2078bea43f78efe3f8
 

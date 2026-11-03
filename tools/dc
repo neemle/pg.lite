@@ -6,14 +6,14 @@
 #   DC_NET=1 tools/dc sh -c 'curl -sI https://example.org'
 #   tools/dc sh                     (interactive shell)
 #
-# tools/ is mounted at /w, patches/, scripts/ and tests/ at /w/patches, /w/scripts and /w/tests and demo/ at /w/web, so the layout inside the container is a single tree. cache/ (fetched upstream sources) and build/ (patched trees and
+# tools/ is mounted at /w, patches/, scripts/, image/ and wasm/ at /w/patches, /w/scripts, /w/image and /w/wasm, so the layout inside the container is a single tree. cache/ (fetched upstream sources) and build/ (patched trees and
 # build output) live on named Docker volumes mounted over /w/cache and /w/build, because
 # thousands of small files are far too slow through a Windows/macOS bind mount. Inspect or
 # reset them with: docker volume ls | grep compactdb ; docker volume rm compactdb-cache compactdb-build
 # Network is OFF unless an argument is exactly 'fetch', 'release-index', 'probe-all' or 'check-releases', or DC_NET=1.
 set -eu
 root=$(cd "$(dirname "$0")" && pwd)   # tools/: docker files and locks (mounted at /w)
-repo=$(cd "$root/.." && pwd)    # the repository: patches/, scripts/, tests/ and demo/ are mounted into /w too
+repo=$(cd "$root/.." && pwd)    # the repository: patches/, scripts/, image/ and wasm/ are mounted into /w too
 image="${DC_IMAGE:-compactdb-tools:local}"
 context="${DC_CONTEXT:-$root/docker/tools}"
 cache_vol="${DC_CACHE_VOLUME:-compactdb-cache}"
@@ -58,5 +58,5 @@ ca=""
 # Build options reach the container only when they are set on the host (docker -e NAME passes it through).
 MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user $ca \
     -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_CONFIGURE -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e WEB -e WASM_LINK_EXTRA -e SRC -e FETCH_HTTP_FALLBACK \
-    -v "$root:/w" -v "$repo/patches:/w/patches" -v "$repo/scripts:/w/scripts" -v "$repo/tests:/w/tests" -v "$repo/demo:/w/web" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
+    -v "$root:/w" -v "$repo/patches:/w/patches" -v "$repo/scripts:/w/scripts" -v "$repo/image:/w/image" -v "$repo/wasm:/w/wasm" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
     -w /w "$image" "$@"

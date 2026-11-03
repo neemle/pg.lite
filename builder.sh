@@ -118,8 +118,8 @@ build_cli() {
     step "build the static server with initdb, the entrypoint and the data files linked in (variant $variant)"
     tools/dcb musl make native-build VERSION="$version"
     step "assemble the image: one file"
-    PACK="$pack" scripts/native-image.sh image "$version"
-    scripts/native-image.sh manifest "$version"
+    PACK="$pack" image/image.sh image "$version"
+    image/image.sh manifest "$version"
     tag=$(image_tag)
     [ -z "$extra_tag" ] || { docker tag "$tag" "$extra_tag"; echo "builder.sh: also tagged $extra_tag"; }
     echo
@@ -140,10 +140,10 @@ test_cli() {
         step "the unmodified upstream build of the same release, whose psql is the external test client"
         tools/dcb ref make builder-check
         tools/dcb ref make reference VERSION="$version"
-        scripts/reference.sh image "$version"
+        image/reference.sh image "$version"
     fi
     step "image tests: cold init, SQL, modules, authentication, restart, non-empty data directory"
-    PACK="$pack" scripts/native-image.sh test "$version"
+    PACK="$pack" image/image.sh test "$version"
 }
 
 # ---- wasm
@@ -154,10 +154,10 @@ build_wasm() {
     step "build the browser module"
     WEB=1 tools/dcb wasm make wasm-build VERSION="$version"
     step "compile the TypeScript browser module (TypeScript 7)"
-    DC_NET=1 tools/dcb web sh scripts/web-install.sh web
-    tools/dcb web sh scripts/web-lib.sh build
+    DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
+    tools/dcb web sh wasm/web-lib.sh build
     step "build the Angular + TypeORM demo"
-    DC_NET=1 tools/dcb web sh scripts/web-install.sh web/demo
+    DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm/demo
     tools/dcb web make web-demo VERSION="$version"
     step "package the archive"
     tools/dc make package-wasm VERSION="$version"
@@ -175,12 +175,12 @@ test_wasm() {
     step "SQL smoke test under node"
     tools/dcb wasm make test-wasm-node VERSION="$version"
     step "browser module: types, lint (oxlint) and unit tests (vitest)"
-    DC_NET=1 tools/dcb web sh scripts/web-install.sh web
-    tools/dcb web sh scripts/web-lib.sh typecheck
-    tools/dcb web sh scripts/web-lib.sh lint
-    tools/dcb web sh scripts/web-lib.sh test
+    DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
+    tools/dcb web sh wasm/web-lib.sh typecheck
+    tools/dcb web sh wasm/web-lib.sh lint
+    tools/dcb web sh wasm/web-lib.sh test
     step "browser tests (Chromium, real Worker, real IndexedDB) and the demo"
-    DC_NET=1 tools/dcb web sh scripts/web-install.sh tests/browser
+    DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm/tests/browser
     tools/dcb web make test-wasm VERSION="$version"
 }
 
