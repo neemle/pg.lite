@@ -33,7 +33,9 @@ if [ "$(uname -s)" = "Linux" ]; then
 fi
 
 # A new volume is root-owned; hand it to the invoking user on Linux hosts.
+# (A value that starts with / is a folder on the host, used as it is: CI keeps the cache there to save and restore it between runs.)
 for v in "$cache_vol" "$build_vol"; do
+    case "$v" in /*) mkdir -p "$v"; continue ;; esac
     if ! docker volume inspect "$v" >/dev/null 2>&1; then
         docker volume create "$v" >/dev/null
         if [ -n "$uid_gid" ]; then

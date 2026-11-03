@@ -11,10 +11,11 @@ name=$(echo "$dir" | tr '/' '-')
 case "$dir" in wasm) name=web ;; wasm/demo) name=web-demo ;; wasm/tests/browser) name=tests-browser ;; esac   # the names under build/node that the other scripts use
 work="/w/build/node/$name"
 mkdir -p "$work"
+export npm_config_cache=/w/cache/npm     # in the cache volume, so CI can keep it between runs
 cp "/w/$dir/package.json" "$work/"
 if [ -f "/w/$dir/package-lock.json" ]; then
     cp "/w/$dir/package-lock.json" "$work/"
-    (cd "$work" && npm ci --no-audit --no-fund)
+    (cd "$work" && npm ci --prefer-offline --no-audit --no-fund)
 else
     (cd "$work" && npm install --no-audit --no-fund && cp package-lock.json "/w/$dir/package-lock.json")
     echo "web-install: wrote $dir/package-lock.json (commit it)"
