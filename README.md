@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.0.4` is PostgreSQL 9.0.4 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v9.0.5` is PostgreSQL 9.0.5 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -32,7 +32,8 @@ A git tag is a PostgreSQL version: `v9.0.4` is PostgreSQL 9.0.4 with these patch
 | 9.0.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
-| 9.0.5 – 9.0.23 | ⬜ next | ⬜ next | |
+| 9.0.5 | 🚧 in progress | 🚧 in progress | The same patches as 9.0.0 apply unchanged. |
+| 9.0.6 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
@@ -64,7 +65,7 @@ The image runs as user and group 70 (build arguments `PG_UID` and `PG_GID`), dec
 builder.sh   one entry point: ./builder.sh <patch|build|test> <version> <cli|wasm>
 image/       the Docker image: building the static server and the image, the files that go into it, its tests
 wasm/        WebAssembly: building the module, the TypeScript module (src/), the Angular demo with TypeORM (demo/), its tests
-patches/     the patches to PostgreSQL; the header of each says whether it is for both products, the image or WebAssembly
+patches/     the patches to PostgreSQL; the header of each says whether it is for both products, the image or WebAssembly, and for which releases
 scripts/     what both products share: fetching and checking the source, applying the patches (shell only)
 tools/       the build containers, the list of releases and the settings of the release
 ```
@@ -77,11 +78,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.0.4 cli          # the one-file Docker image
-./builder.sh test 9.0.4 cli
-./builder.sh build 9.0.4 wasm         # node engine, browser module, demo
-./builder.sh test 9.0.4 wasm
-./builder.sh build 9.0.4 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 9.0.5 cli          # the one-file Docker image
+./builder.sh test 9.0.5 cli
+./builder.sh build 9.0.5 wasm         # node engine, browser module, demo
+./builder.sh test 9.0.5 wasm
+./builder.sh build 9.0.5 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License

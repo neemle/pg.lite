@@ -20,7 +20,7 @@ Entry fields (all required):
 
 | Name | Source URL | Commit SHA | License | Adaptation | Used in |
 | --- | --- | --- | --- | --- | --- |
-| Fix of the crash-safety bug of new or reset sequences (bug #6748) | https://github.com/postgres/postgres/commit/2d7045db0fed2be986e2fc3bc0bb0c3f44badd96 | 2d7045db0fed2be986e2fc3bc0bb0c3f44badd96 | PostgreSQL License | The 9.0 branch commit, reduced to sequence.c, applied to the 9.0.x releases before 9.0.9 | patches/9/9.0/0040-sequence-wal-log.patch |
+| Fix of the crash-safety bug of new or reset sequences (bug #6748) | https://github.com/postgres/postgres/commit/2d7045db0fed2be986e2fc3bc0bb0c3f44badd96 | 2d7045db0fed2be986e2fc3bc0bb0c3f44badd96 | PostgreSQL License | The 9.0 branch commit, reduced to sequence.c, applied to 9.0.0 to 9.0.8 in two variants (before and after the xmax cleanup of 9.0.5) | patches/9/9.0/0040-sequence-wal-log.patch |
 
 Nothing else yet. PGlite (https://github.com/electric-sql/pglite and
 https://github.com/electric-sql/postgres-pglite) is a planned reference for the WASM port;

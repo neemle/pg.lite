@@ -42,11 +42,11 @@ builder-check:
 
 # Apply the common+native patches of the release into build/native/<v>/src (tools container):
 native-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/native/$(VERSION)/src native
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/native/$(VERSION)/src native $(VERSION)
 
 # Apply the common+wasm patches of the release into build/wasm/<v>/src (tools container):
 wasm-src:
-	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/wasm/$(VERSION)/src wasm
+	@$(if $(VERSION),,$(error VERSION=<x.y> is required))scripts/patches.sh apply cache/src/$(VERSION) build/wasm/$(VERSION)/src wasm $(VERSION)
 
 # WebAssembly build of one release : tools/dcb wasm make wasm-build VERSION=18.6
 wasm-build:

@@ -1,4 +1,5 @@
 Targets: native
+Releases: 9.0.0-
 Subject: Register libpqwalreceiver as a module built into the server
 Purpose: Streaming replication and logical replication load the module libpqwalreceiver by name (load_file in walreceiver.c, the apply worker and the table sync worker). A static server cannot dlopen() it, so a standby started from a base backup failed with "could not load library libpqwalreceiver" and never streamed. The module and the libpq objects it calls are linked into the executable (scripts/build-native.sh) and registered here like plpgsql and dict_snowball. Behind PG_STATIC_MODULES, so without that define the code is upstream's.
 Components: src/backend/utils/fmgr/staticmods.c

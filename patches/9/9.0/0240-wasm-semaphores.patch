@@ -1,4 +1,5 @@
 Targets: wasm
+Releases: 9.0.0-
 Subject: Provide POSIX and System V semaphores for a single-process WebAssembly build
 Purpose: Emscripten without threads links sem_init(), sem_trywait() and the other semaphore calls, but they are stubs: sem_init() fails and sem_trywait() always succeeds, so PGSemaphoreReset() (called by InitProcess) calls sem_trywait() until it fails and never returns; postgres --boot and --single spin at full CPU right after set_max_safe_fds. With a single process a semaphore is only a counter, so the five calls PostgreSQL uses (sem_init, sem_destroy, sem_post, sem_trywait, sem_wait) are defined in wasm_sema.c under other names and posix_sema.c is given them by macros (the C library's own definitions cannot be replaced: they sit in an object the link needs for other symbols). A wait on a zero semaphore, which nothing could ever post, fails with EDEADLK (PostgreSQL reports it as a FATAL error) instead of hanging. Compiled only when __EMSCRIPTEN__ is defined.
 Components: src/backend/port/wasm_sema.c (new), src/include/port/wasm_sema.h (new), src/backend/port/posix_sema.c, src/backend/port/Makefile

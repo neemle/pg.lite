@@ -1,4 +1,5 @@
 Targets: common
+Releases: 9.0.0-
 Subject: Keep the encoding conversions in the static server
 Purpose: The conversions between UTF8, the server encodings and MULE_INTERNAL are modules (src/backend/utils/mb/conversion_procs, 26 of them) that initdb creates from conversion_create.sql with $libdir/<module> as their library. A static executable cannot load them, so they are linked into postgres like plpgsql and dict_snowball and registered in a second table that the same lookup consults (staticmods_conv.inc, generated from the PG_FUNCTION_INFO_V1 lists of the module sources); conversion_create.sql then stays as the release installs it. Without this patch the server would have no conversions: CREATE DATABASE with an encoding other than UTF8 and SQL_ASCII, and client_encoding other than the server's, would fail.
 Components: src/backend/utils/fmgr/staticmods.c, src/backend/utils/fmgr/staticmods_conv.inc (new)
