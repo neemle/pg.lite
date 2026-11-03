@@ -1,0 +1,36 @@
+name: dockerhub-page
+
+# The page of the image on Docker Hub (the README text and the short description) is image/DOCKERHUB.md. Docker Hub does not take it
+# from GitHub by itself, so it is sent here: whenever that file changes on main, and by hand (Actions > dockerhub-page > Run
+# workflow). A release does not send it.
+# Needs the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg.lite") and the secrets DOCKERHUB_USERNAME and
+# DOCKERHUB_TOKEN. Docker Hub lets only a token with the permission "Read, Write, Delete" change the page of a repository; a token
+# with "Read & Write" can push images but gets "Forbidden" here.
+on:
+  push:
+    branches: [main]
+    paths:
+      - image/DOCKERHUB.md
+      - .github/workflows/dockerhub-page.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dockerhub-page
+  cancel-in-progress: false
+
+jobs:
+  page:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Send the README and the short description to Docker Hub
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ vars.DOCKERHUB_REPOSITORY }}
+          short-description: PostgreSQL in one static file (FROM scratch, ~15 MB) with the environment of the official image
+          readme-filepath: image/DOCKERHUB.md

@@ -151,20 +151,11 @@ jobs:
             [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "io.github.neemle.pglite.packed"}}')" = "$want" ]
             echo "published $DOCKERHUB_REPOSITORY:$t"
           done
-      # The page of the repository on Docker Hub is not taken from GitHub by itself: this sends image/DOCKERHUB.md and the short
-      # description. A failure here does not undo the release (the image is already published and checked).
-      - name: Docker Hub page (README and short description)
-        continue-on-error: true
-        uses: peter-evans/dockerhub-description@v5
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: ${{ vars.DOCKERHUB_REPOSITORY }}
-          short-description: PostgreSQL in one static file (FROM scratch, ~15 MB) with the environment of the official image
-          readme-filepath: image/DOCKERHUB.md
 
   release:
     needs: [plan, publish]
+    # publish is skipped on a manual dry run; ci is skipped when an earlier run is reused, and a skipped job upstream would skip this one too
+    if: ${{ !cancelled() && needs.publish.result == 'success' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v8
