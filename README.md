@@ -23,14 +23,9 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## What is in this repository
 
-* **Build scripts.** `builder.sh <patch|build|test> <version> <cli|wasm>` downloads a release, patches it, and builds the image or the
-  WebAssembly module. Everything runs in Docker; the host needs only `docker` and `git`.
-* **Patches**, in folders that cascade by release (all releases, one major, a series, a span of minor releases), so a patch lives once
-  and each release gets exactly the ones it needs. Releases from 9.0 to 18.x are covered.
-* **Tests that show the patches are correct**: every patch is checked for its header and for applying to the release it is meant for;
-  the image is tested end to end (cold `initdb`, SQL, restart, authentication, refusal of a bad data directory, one file in the image);
-  the WebAssembly build is tested under node and in Chromium (engine, persistence, offline use, a demo app); and a long-running script
-  builds and tests every release and writes a Markdown report.
+* **Build scripts.** `builder.sh <patch|build|test> <version> <cli|wasm>` downloads a release, patches it, and builds the image or the WebAssembly module. Everything runs in Docker; the host needs only `docker` and `git`.
+* **Patches**, in folders that cascade by release (all releases, one major, a series, a span of minor releases), so a patch lives once and each release gets exactly the ones it needs. Releases from 9.0 to 18.x are covered.
+* **Tests that show the patches are correct**: every patch is checked for its header and for applying to the release it is meant for; the image is tested end to end (cold `initdb`, SQL, restart, authentication, refusal of a bad data directory, one file in the image); the WebAssembly build is tested under node and in Chromium (engine, persistence, offline use, a demo app); and a long-running script builds and tests every release and writes a Markdown report.
 
 ## Versions
 
