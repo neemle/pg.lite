@@ -169,11 +169,13 @@ test_wasm() {
     fi
     step "SQL smoke test under node"
     tools/dcb wasm make test-wasm-node VERSION="$version"
-    step "browser module: types, lint (oxlint) and unit tests (vitest)"
-    DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
-    tools/dcb web sh wasm/web-lib.sh typecheck
-    tools/dcb web sh wasm/web-lib.sh lint
-    tools/dcb web sh wasm/web-lib.sh test
+    if [ -z "${SKIP_TS_CHECKS:-}" ]; then      # CI runs these in its own job (SKIP_TS_CHECKS=1), once
+        step "browser module: types, lint (oxlint) and unit tests (vitest)"
+        DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
+        tools/dcb web sh wasm/web-lib.sh typecheck
+        tools/dcb web sh wasm/web-lib.sh lint
+        tools/dcb web sh wasm/web-lib.sh test
+    fi
     step "browser tests (Chromium, real Worker, real IndexedDB) and the demo"
     DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm/tests/browser
     tools/dcb web make test-wasm VERSION="$version"

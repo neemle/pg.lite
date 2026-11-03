@@ -68,7 +68,7 @@ tools/       the build containers, the list of releases and the settings of the 
 * **Everything runs in Docker.** The host needs only `docker` and `git`; sources and build trees live in Docker volumes.
 * **The tests of the image** build it from scratch and check it end to end: cold `initdb`, SQL, restart, authentication, the environment of the official image, `initdb.d` scripts, encodings and text search, the image metadata, and that the image holds one file.
 * **The tests of WebAssembly** run the engine under node, then in Chromium: the engine, persistence, offline use and the demo app. Each browser test leaves a Full HD video, step screenshots and an HTML report.
-* **CI** runs the checks, the TypeScript checks (types, oxlint, vitest) and the build and tests of both products for every release the branch covers; a release tag publishes the image to Docker Hub and the browser module as a GitHub release.
+* **CI** runs the checks, the TypeScript checks (types, oxlint, vitest) and the build and tests of both products for every release the branch covers; a release tag does not build again: it publishes what CI built and tested, the image to Docker Hub and the browser module as a GitHub release.
 
 ## Build
 

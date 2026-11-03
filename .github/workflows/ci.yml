@@ -1,15 +1,28 @@
 name: ci
 
-# Every push and pull request: the repository checks that need no PostgreSQL build (a few minutes), then a build and the
-# tests of every release this branch covers, as the static image (cli) and as WebAssembly (wasm).
-# Publishing (Docker Hub image, GitHub release) runs on release tags only: release.yml.
+# Every push: the repository checks that need no PostgreSQL build, the TypeScript checks, and ONE build with ONE run of the tests
+# of every release this branch covers, as the static image (cli, plain and compressed) and as WebAssembly (wasm). All jobs start
+# at once; nothing is built twice.
+# What was built and tested is kept as workflow artifacts (image-<version>, pg.lite-wasm-<version>). A release tag does not build
+# again: release.yml calls this workflow for the tagged version and publishes these artifacts (publishing: release.yml).
 on:
   push:
     branches: ['**']
-  pull_request:
+  workflow_call:
+    inputs:
+      versions:
+        description: JSON list of the releases to build and test; empty means the releases this branch covers
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # a newer push to a branch replaces the run in progress; a tag run is never cancelled
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
   repo:
@@ -36,22 +49,92 @@ jobs:
           tools/dcb web sh wasm/web-demo.sh lint
           tools/dcb web sh wasm/web-demo.sh test
 
-  build:
-    needs: [repo, typescript]
+  cli:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         # the releases this branch covers; each next branch adds the next ones
-        version: ['9.0.0']
-        target: [cli, wasm]
+        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+    env:
+      VERSION: ${{ matrix.version }}
+    steps:
+      - uses: actions/checkout@v4
+      # The tests use the UNMODIFIED upstream build of the same release as their external client (image/reference.sh). It does not
+      # depend on the patches, so it is built on the first run only and kept in the cache.
+      - name: Cache of the reference image (unmodified upstream, the external test client)
+        id: refcache
+        uses: actions/cache@v4
+        with:
+          path: reference-image.tar
+          key: reference-${{ matrix.version }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
+      - name: Free disk space (the builder images and trees are several GB)
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
+      - name: Load the reference image from the cache
+        if: ${{ steps.refcache.outputs.cache-hit == 'true' }}
+        run: docker load -i reference-image.tar
+      - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
+        run: ./builder.sh patch "$VERSION" cli
+      - name: Build the static one-file server and the FROM scratch images (plain and compressed), once
+        run: ./builder.sh build "$VERSION" cli --pack
+      - name: Test the plain image (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
+        run: ./builder.sh test "$VERSION" cli
+      - name: Test the compressed image
+        run: ./builder.sh test "$VERSION" cli --pack
+      - name: Keep the reference image for the next runs
+        if: ${{ steps.refcache.outputs.cache-hit != 'true' }}
+        run: docker save "compactdb-reference:$VERSION" -o reference-image.tar
+      - name: Keep the tested images
+        run: |
+          docker tag "compactdb-native:$VERSION-min3-xsfx" "pg.lite-image:$VERSION"
+          docker tag "compactdb-native:$VERSION-min3" "pg.lite-image:$VERSION-uncompressed"
+          for i in "$VERSION" "$VERSION-uncompressed"; do
+            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION.txt"
+          done
+          docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" | gzip -9 > "image-$VERSION.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ env.VERSION }}
+          path: |
+            image-${{ env.VERSION }}.tar.gz
+            image-${{ env.VERSION }}.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  wasm:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJSON(inputs.versions || '["9.0.0"]') }}
+    env:
+      VERSION: ${{ matrix.version }}
+      # the types, oxlint and vitest of the browser module run in the "typescript" job, in parallel; not again here
+      SKIP_TS_CHECKS: '1'
     steps:
       - uses: actions/checkout@v4
       - name: Free disk space (the builder images and trees are several GB)
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
       - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
-        run: ./builder.sh patch "${{ matrix.version }}" "${{ matrix.target }}"
-      - name: Build
-        run: ./builder.sh build "${{ matrix.version }}" "${{ matrix.target }}"
-      - name: "Test (cli: SQL, restart, authentication, one file in the image; wasm: SQL under node, then Chromium with a real Worker and IndexedDB)"
-        run: ./builder.sh test "${{ matrix.version }}" "${{ matrix.target }}"
+        run: ./builder.sh patch "$VERSION" wasm
+      - name: Build the engine, the browser module and the demo, and package them, once
+        run: ./builder.sh build "$VERSION" wasm
+      - name: Test (SQL under node; Chromium with a real Worker and real IndexedDB)
+        run: ./builder.sh test "$VERSION" wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pg.lite-wasm-${{ env.VERSION }}
+          path: |
+            tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz
+            tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz.sha256
+            tools/dist/pg.lite-wasm-${{ env.VERSION }}.sizes.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Browser test report (reports, videos and screenshots of every test)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-tests-${{ env.VERSION }}
+          path: tools/reports/browser
+          if-no-files-found: ignore
+          retention-days: 14

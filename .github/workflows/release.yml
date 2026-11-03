@@ -4,8 +4,8 @@ name: release
 # repository's patches, and publishes
 #   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
 #   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
-# Nothing is published unless BOTH products were built and tested: the image is built and tested in the "cli" job and kept as a
-# workflow artifact; the "publish" job pushes it only after "wasm" and "cli" succeeded.
+# Nothing is built twice: the "ci" job calls ci.yml for the tagged version (checks, TypeScript, the image and WebAssembly built and
+# tested once, kept as workflow artifacts), and the "publish" job pushes exactly those artifacts, only after all of it succeeded.
 #
 # Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg.lite") and the secrets DOCKERHUB_USERNAME and
 # DOCKERHUB_TOKEN (an access token of Docker Hub with read and write permission on that repository); a tag build fails at once
@@ -67,72 +67,15 @@ jobs:
           fi
           echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
 
-  wasm:
+  # The build and the tests of both products are ci.yml, called for this version: built once, tested once, kept as artifacts.
+  ci:
     needs: plan
-    runs-on: ubuntu-24.04
-    env:
-      VERSION: ${{ needs.plan.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Free disk space (the builder images and trees are several GB)
-        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
-      - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
-        run: ./builder.sh patch "$VERSION" wasm
-      - name: Build the engine, the browser module and the demo, and package them
-        run: ./builder.sh build "$VERSION" wasm
-      - name: Test (SQL under node; Chromium with a real Worker and real IndexedDB)
-        run: ./builder.sh test "$VERSION" wasm
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pg.lite-wasm-${{ env.VERSION }}
-          path: |
-            tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz
-            tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz.sha256
-            tools/dist/pg.lite-wasm-${{ env.VERSION }}.sizes.txt
-          if-no-files-found: error
-      - name: Browser test report (reports, videos and screenshots of every test)
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: browser-tests-${{ env.VERSION }}
-          path: tools/reports/browser
-          if-no-files-found: ignore
-
-  cli:
-    needs: plan
-    runs-on: ubuntu-24.04
-    env:
-      VERSION: ${{ needs.plan.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Free disk space
-        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
-      - name: Fetch the pinned upstream source and apply the patches
-        run: ./builder.sh patch "$VERSION" cli
-      - name: Build the static one-file server and the FROM scratch images (plain and compressed)
-        run: ./builder.sh build "$VERSION" cli --pack
-      - name: Test the plain image (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
-        run: ./builder.sh test "$VERSION" cli
-      - name: Test the compressed image
-        run: ./builder.sh test "$VERSION" cli --pack
-      - name: Keep the tested image for the publish job
-        run: |
-          docker tag "compactdb-native:$VERSION-min3-xsfx" "pg.lite-image:$VERSION"
-          docker tag "compactdb-native:$VERSION-min3" "pg.lite-image:$VERSION-uncompressed"
-          for i in "$VERSION" "$VERSION-uncompressed"; do
-            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION.txt"
-          done
-          docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" | gzip -9 > "image-$VERSION.tar.gz"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: image-${{ env.VERSION }}
-          path: |
-            image-${{ env.VERSION }}.tar.gz
-            image-${{ env.VERSION }}.txt
-          if-no-files-found: error
+    uses: ./.github/workflows/ci.yml
+    with:
+      versions: ${{ format('["{0}"]', needs.plan.outputs.version) }}
 
   publish:
-    needs: [plan, wasm, cli]
+    needs: [plan, ci]
     if: ${{ needs.plan.outputs.publish == 'true' }}
     runs-on: ubuntu-24.04
     env:
