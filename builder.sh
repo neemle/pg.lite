@@ -18,7 +18,8 @@
 #
 # Options (after the target):
 #   --test            build only: run the tests right after the build
-#   --pack            cli: compress the executable with xsfx (about half the size, slower start)
+#   --pack            cli: also build the image with the executable compressed by xsfx (about a fifth of the size, a start that is
+#                     about 0.4 s slower); the plain image is built as well. test --pack tests the compressed one
 #   --variant NAME    cli: compiler flavour of the static build, default min3 (smallest)
 #   --tag NAME        cli: also tag the finished image as NAME (for example myorg/postgres:18.6)
 #
@@ -108,7 +109,11 @@ build_cli() {
     step "build the static server with initdb, the entrypoint and the data files linked in (variant $variant)"
     tools/dcb musl make native-build VERSION="$version"
     step "assemble the image: one file"
-    PACK="$pack" image/image.sh image "$version"
+    PACK="" image/image.sh image "$version"
+    if [ -n "$pack" ]; then
+        step "the same image with the executable compressed (xsfx)"
+        PACK="$pack" image/image.sh image "$version"
+    fi
     image/image.sh manifest "$version"
     tag=$(image_tag)
     [ -z "$extra_tag" ] || { docker tag "$tag" "$extra_tag"; echo "builder.sh: also tagged $extra_tag"; }

@@ -10,8 +10,10 @@ name: release
 # Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg.lite") and the secrets DOCKERHUB_USERNAME and
 # DOCKERHUB_TOKEN (an access token of Docker Hub with read and write permission on that repository); a tag build fails at once
 # without them.
-# Image tags: the exact version (9.0.0) and, when it is the newest release of its major in tools/releases.txt, the major (9.0).
-# There is no "latest" tag yet: it comes with the newest PostgreSQL release.
+# Image tags, for the image with the executable compressed by xsfx: the exact version (9.0.0), the series when this is its newest
+# release in tools/releases.txt (9.0), the family when it is the newest of it (9), and "latest" for the newest release of all.
+# The same image with a plain executable has the same tags with the suffix -uncompressed (9.0.0-uncompressed, 9.0-uncompressed,
+# 9-uncompressed; no latest-uncompressed).
 on:
   push:
     tags: ['v[0-9]*']
@@ -36,7 +38,10 @@ jobs:
     outputs:
       version: ${{ steps.plan.outputs.version }}
       major: ${{ steps.plan.outputs.major }}
+      family: ${{ steps.plan.outputs.family }}
       newestInMajor: ${{ steps.plan.outputs.newestInMajor }}
+      newestInFamily: ${{ steps.plan.outputs.newestInFamily }}
+      newestOverall: ${{ steps.plan.outputs.newestOverall }}
       publish: ${{ steps.publish.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
@@ -104,14 +109,20 @@ jobs:
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
       - name: Fetch the pinned upstream source and apply the patches
         run: ./builder.sh patch "$VERSION" cli
-      - name: Build the static one-file server and the FROM scratch image
-        run: ./builder.sh build "$VERSION" cli --tag "pg.lite-image:$VERSION"
-      - name: Test (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
+      - name: Build the static one-file server and the FROM scratch images (plain and compressed)
+        run: ./builder.sh build "$VERSION" cli --pack
+      - name: Test the plain image (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
         run: ./builder.sh test "$VERSION" cli
+      - name: Test the compressed image
+        run: ./builder.sh test "$VERSION" cli --pack
       - name: Keep the tested image for the publish job
         run: |
-          docker image inspect "pg.lite-image:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
-          docker save "pg.lite-image:$VERSION" | gzip -9 > "image-$VERSION.tar.gz"
+          docker tag "compactdb-native:$VERSION-min3-xsfx" "pg.lite-image:$VERSION"
+          docker tag "compactdb-native:$VERSION-min3" "pg.lite-image:$VERSION-uncompressed"
+          for i in "$VERSION" "$VERSION-uncompressed"; do
+            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION.txt"
+          done
+          docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" | gzip -9 > "image-$VERSION.tar.gz"
       - uses: actions/upload-artifact@v4
         with:
           name: image-${{ env.VERSION }}
@@ -127,9 +138,13 @@ jobs:
     env:
       VERSION: ${{ needs.plan.outputs.version }}
       MAJOR: ${{ needs.plan.outputs.major }}
+      FAMILY: ${{ needs.plan.outputs.family }}
       NEWEST_IN_MAJOR: ${{ needs.plan.outputs.newestInMajor }}
+      NEWEST_IN_FAMILY: ${{ needs.plan.outputs.newestInFamily }}
+      NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
       DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: image-${{ env.VERSION }}
@@ -138,10 +153,16 @@ jobs:
         id: tags
         run: |
           gunzip -c "image/image-$VERSION.tar.gz" | docker load
+          # the compressed image: 9.0.0, 9.0, 9, latest; the plain one: 9.0.0-uncompressed, 9.0-uncompressed, 9-uncompressed
           tags="$VERSION"
           [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
+          [ "$NEWEST_IN_FAMILY" = true ] && tags="$tags $FAMILY"
+          plain=""
+          for t in $tags; do plain="$plain $t-uncompressed"; done
+          [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
           for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
-          echo "tags=$tags" >> "$GITHUB_OUTPUT"
+          for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t"; done
+          echo "tags=$tags $plain" >> "$GITHUB_OUTPUT"
       - name: Push to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -159,8 +180,21 @@ jobs:
             docker pull -q "$DOCKERHUB_REPOSITORY:$t"
             docker run --rm --entrypoint /usr/local/pgsql/bin/postgres "$DOCKERHUB_REPOSITORY:$t" --version | tee /dev/stderr | grep -q "(PostgreSQL) $VERSION"
             [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "$VERSION" ]
+            case "$t" in *-uncompressed) want=no ;; *) want=yes ;; esac
+            [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "io.github.neemle.pglite.packed"}}')" = "$want" ]
             echo "published $DOCKERHUB_REPOSITORY:$t"
           done
+      # The page of the repository on Docker Hub is not taken from GitHub by itself: this sends image/DOCKERHUB.md and the short
+      # description. A failure here does not undo the release (the image is already published and checked).
+      - name: Docker Hub page (README and short description)
+        continue-on-error: true
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ vars.DOCKERHUB_REPOSITORY }}
+          short-description: PostgreSQL in one static file (FROM scratch, ~11 MB) with the environment of the official image
+          readme-filepath: image/DOCKERHUB.md
 
   release:
     needs: [plan, publish]
