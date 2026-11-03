@@ -1,0 +1,622 @@
+Targets: common
+Subject: Keep the encoding conversions in the static server
+Purpose: The conversions between UTF8, the server encodings and MULE_INTERNAL are modules (src/backend/utils/mb/conversion_procs, 26 of them) that initdb creates from conversion_create.sql with $libdir/<module> as their library. A static executable cannot load them, so they are linked into postgres like plpgsql and dict_snowball and registered in a second table that the same lookup consults (staticmods_conv.inc, generated from the PG_FUNCTION_INFO_V1 lists of the module sources); conversion_create.sql then stays as the release installs it. Without this patch the server would have no conversions: CREATE DATABASE with an encoding other than UTF8 and SQL_ASCII, and client_encoding other than the server's, would fail.
+Components: src/backend/utils/fmgr/staticmods.c, src/backend/utils/fmgr/staticmods_conv.inc (new)
+Checks: scripts/native-image.sh test and tests/wasm/test-wasm-node.sh convert text between UTF8 and LATIN1, WIN1251 and EUC_JP through convert_to/convert_from and a client_encoding change
+Origin: own
+
+diff --git a/src/backend/utils/fmgr/staticmods.c b/src/backend/utils/fmgr/staticmods.c
+--- a/src/backend/utils/fmgr/staticmods.c
++++ b/src/backend/utils/fmgr/staticmods.c
+@@ -73,6 +73,8 @@
+ 	{NULL, NULL, false}
+ };
+ 
++#include "staticmods_conv.inc"
++
+ StaticModule *
+ static_module_find(const char *libname)
+ {
+@@ -95,6 +97,12 @@
+ 			m->syms[0].addr != NULL)
+ 			return m;
+ 	}
++	for (StaticModule *m = static_conversion_modules; m->name != NULL; m++)
++	{
++		if (strlen(m->name) == len && strncmp(m->name, base, len) == 0 &&
++			m->syms[0].addr != NULL)
++			return m;
++	}
+ 	return NULL;
+ }
+ 
+@@ -126,8 +134,10 @@
+ bool
+ static_module_is_handle(void *handle)
+ {
+-	return (StaticModule *) handle >= static_modules &&
+-		(StaticModule *) handle < static_modules + lengthof(static_modules);
++	return ((StaticModule *) handle >= static_modules &&
++			(StaticModule *) handle < static_modules + lengthof(static_modules)) ||
++		((StaticModule *) handle >= static_conversion_modules &&
++		 (StaticModule *) handle < static_conversion_modules + lengthof(static_conversion_modules));
+ }
+ 
+ const char *
+diff --git a/src/backend/utils/fmgr/staticmods_conv.inc b/src/backend/utils/fmgr/staticmods_conv.inc
+new file mode 100644
+--- /dev/null
++++ b/src/backend/utils/fmgr/staticmods_conv.inc
+@@ -0,0 +1,572 @@
++/*
++ * staticmods_conv.inc
++ *	  The encoding conversion modules (src/backend/utils/mb/conversion_procs) as static modules.
++ *
++ * Included by staticmods.c.  Every module has the same shape: Pg_magic_func (renamed at link preparation to
++ * <module>_Pg_magic_func) and one entry point with its info function per conversion.  All references are weak,
++ * so a server linked without the modules still builds.
++ */
++
++/* ascii_and_mic */
++extern const Pg_magic_struct *ascii_and_mic_Pg_magic_func(void) WEAK;
++extern Datum ascii_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_ascii_to_mic(void) WEAK;
++extern Datum mic_to_ascii(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_ascii(void) WEAK;
++static const StaticModuleSym ascii_and_mic_syms[] = {
++	{"Pg_magic_func", (void *) ascii_and_mic_Pg_magic_func},
++	{"ascii_to_mic", (void *) ascii_to_mic},
++	{"pg_finfo_ascii_to_mic", (void *) pg_finfo_ascii_to_mic},
++	{"mic_to_ascii", (void *) mic_to_ascii},
++	{"pg_finfo_mic_to_ascii", (void *) pg_finfo_mic_to_ascii},
++	{NULL, NULL}
++};
++
++/* cyrillic_and_mic */
++extern const Pg_magic_struct *cyrillic_and_mic_Pg_magic_func(void) WEAK;
++extern Datum koi8r_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_koi8r_to_mic(void) WEAK;
++extern Datum mic_to_koi8r(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_koi8r(void) WEAK;
++extern Datum iso_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_iso_to_mic(void) WEAK;
++extern Datum mic_to_iso(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_iso(void) WEAK;
++extern Datum win1251_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win1251_to_mic(void) WEAK;
++extern Datum mic_to_win1251(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_win1251(void) WEAK;
++extern Datum win866_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win866_to_mic(void) WEAK;
++extern Datum mic_to_win866(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_win866(void) WEAK;
++extern Datum koi8r_to_win1251(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_koi8r_to_win1251(void) WEAK;
++extern Datum win1251_to_koi8r(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win1251_to_koi8r(void) WEAK;
++extern Datum koi8r_to_win866(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_koi8r_to_win866(void) WEAK;
++extern Datum win866_to_koi8r(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win866_to_koi8r(void) WEAK;
++extern Datum win866_to_win1251(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win866_to_win1251(void) WEAK;
++extern Datum win1251_to_win866(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win1251_to_win866(void) WEAK;
++extern Datum iso_to_koi8r(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_iso_to_koi8r(void) WEAK;
++extern Datum koi8r_to_iso(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_koi8r_to_iso(void) WEAK;
++extern Datum iso_to_win1251(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_iso_to_win1251(void) WEAK;
++extern Datum win1251_to_iso(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win1251_to_iso(void) WEAK;
++extern Datum iso_to_win866(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_iso_to_win866(void) WEAK;
++extern Datum win866_to_iso(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win866_to_iso(void) WEAK;
++static const StaticModuleSym cyrillic_and_mic_syms[] = {
++	{"Pg_magic_func", (void *) cyrillic_and_mic_Pg_magic_func},
++	{"koi8r_to_mic", (void *) koi8r_to_mic},
++	{"pg_finfo_koi8r_to_mic", (void *) pg_finfo_koi8r_to_mic},
++	{"mic_to_koi8r", (void *) mic_to_koi8r},
++	{"pg_finfo_mic_to_koi8r", (void *) pg_finfo_mic_to_koi8r},
++	{"iso_to_mic", (void *) iso_to_mic},
++	{"pg_finfo_iso_to_mic", (void *) pg_finfo_iso_to_mic},
++	{"mic_to_iso", (void *) mic_to_iso},
++	{"pg_finfo_mic_to_iso", (void *) pg_finfo_mic_to_iso},
++	{"win1251_to_mic", (void *) win1251_to_mic},
++	{"pg_finfo_win1251_to_mic", (void *) pg_finfo_win1251_to_mic},
++	{"mic_to_win1251", (void *) mic_to_win1251},
++	{"pg_finfo_mic_to_win1251", (void *) pg_finfo_mic_to_win1251},
++	{"win866_to_mic", (void *) win866_to_mic},
++	{"pg_finfo_win866_to_mic", (void *) pg_finfo_win866_to_mic},
++	{"mic_to_win866", (void *) mic_to_win866},
++	{"pg_finfo_mic_to_win866", (void *) pg_finfo_mic_to_win866},
++	{"koi8r_to_win1251", (void *) koi8r_to_win1251},
++	{"pg_finfo_koi8r_to_win1251", (void *) pg_finfo_koi8r_to_win1251},
++	{"win1251_to_koi8r", (void *) win1251_to_koi8r},
++	{"pg_finfo_win1251_to_koi8r", (void *) pg_finfo_win1251_to_koi8r},
++	{"koi8r_to_win866", (void *) koi8r_to_win866},
++	{"pg_finfo_koi8r_to_win866", (void *) pg_finfo_koi8r_to_win866},
++	{"win866_to_koi8r", (void *) win866_to_koi8r},
++	{"pg_finfo_win866_to_koi8r", (void *) pg_finfo_win866_to_koi8r},
++	{"win866_to_win1251", (void *) win866_to_win1251},
++	{"pg_finfo_win866_to_win1251", (void *) pg_finfo_win866_to_win1251},
++	{"win1251_to_win866", (void *) win1251_to_win866},
++	{"pg_finfo_win1251_to_win866", (void *) pg_finfo_win1251_to_win866},
++	{"iso_to_koi8r", (void *) iso_to_koi8r},
++	{"pg_finfo_iso_to_koi8r", (void *) pg_finfo_iso_to_koi8r},
++	{"koi8r_to_iso", (void *) koi8r_to_iso},
++	{"pg_finfo_koi8r_to_iso", (void *) pg_finfo_koi8r_to_iso},
++	{"iso_to_win1251", (void *) iso_to_win1251},
++	{"pg_finfo_iso_to_win1251", (void *) pg_finfo_iso_to_win1251},
++	{"win1251_to_iso", (void *) win1251_to_iso},
++	{"pg_finfo_win1251_to_iso", (void *) pg_finfo_win1251_to_iso},
++	{"iso_to_win866", (void *) iso_to_win866},
++	{"pg_finfo_iso_to_win866", (void *) pg_finfo_iso_to_win866},
++	{"win866_to_iso", (void *) win866_to_iso},
++	{"pg_finfo_win866_to_iso", (void *) pg_finfo_win866_to_iso},
++	{NULL, NULL}
++};
++
++/* euc2004_sjis2004 */
++extern const Pg_magic_struct *euc2004_sjis2004_Pg_magic_func(void) WEAK;
++extern Datum euc_jis_2004_to_shift_jis_2004(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_jis_2004_to_shift_jis_2004(void) WEAK;
++extern Datum shift_jis_2004_to_euc_jis_2004(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_shift_jis_2004_to_euc_jis_2004(void) WEAK;
++static const StaticModuleSym euc2004_sjis2004_syms[] = {
++	{"Pg_magic_func", (void *) euc2004_sjis2004_Pg_magic_func},
++	{"euc_jis_2004_to_shift_jis_2004", (void *) euc_jis_2004_to_shift_jis_2004},
++	{"pg_finfo_euc_jis_2004_to_shift_jis_2004", (void *) pg_finfo_euc_jis_2004_to_shift_jis_2004},
++	{"shift_jis_2004_to_euc_jis_2004", (void *) shift_jis_2004_to_euc_jis_2004},
++	{"pg_finfo_shift_jis_2004_to_euc_jis_2004", (void *) pg_finfo_shift_jis_2004_to_euc_jis_2004},
++	{NULL, NULL}
++};
++
++/* euc_cn_and_mic */
++extern const Pg_magic_struct *euc_cn_and_mic_Pg_magic_func(void) WEAK;
++extern Datum euc_cn_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_cn_to_mic(void) WEAK;
++extern Datum mic_to_euc_cn(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_euc_cn(void) WEAK;
++static const StaticModuleSym euc_cn_and_mic_syms[] = {
++	{"Pg_magic_func", (void *) euc_cn_and_mic_Pg_magic_func},
++	{"euc_cn_to_mic", (void *) euc_cn_to_mic},
++	{"pg_finfo_euc_cn_to_mic", (void *) pg_finfo_euc_cn_to_mic},
++	{"mic_to_euc_cn", (void *) mic_to_euc_cn},
++	{"pg_finfo_mic_to_euc_cn", (void *) pg_finfo_mic_to_euc_cn},
++	{NULL, NULL}
++};
++
++/* euc_jp_and_sjis */
++extern const Pg_magic_struct *euc_jp_and_sjis_Pg_magic_func(void) WEAK;
++extern Datum euc_jp_to_sjis(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_jp_to_sjis(void) WEAK;
++extern Datum sjis_to_euc_jp(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_sjis_to_euc_jp(void) WEAK;
++extern Datum euc_jp_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_jp_to_mic(void) WEAK;
++extern Datum mic_to_euc_jp(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_euc_jp(void) WEAK;
++extern Datum sjis_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_sjis_to_mic(void) WEAK;
++extern Datum mic_to_sjis(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_sjis(void) WEAK;
++static const StaticModuleSym euc_jp_and_sjis_syms[] = {
++	{"Pg_magic_func", (void *) euc_jp_and_sjis_Pg_magic_func},
++	{"euc_jp_to_sjis", (void *) euc_jp_to_sjis},
++	{"pg_finfo_euc_jp_to_sjis", (void *) pg_finfo_euc_jp_to_sjis},
++	{"sjis_to_euc_jp", (void *) sjis_to_euc_jp},
++	{"pg_finfo_sjis_to_euc_jp", (void *) pg_finfo_sjis_to_euc_jp},
++	{"euc_jp_to_mic", (void *) euc_jp_to_mic},
++	{"pg_finfo_euc_jp_to_mic", (void *) pg_finfo_euc_jp_to_mic},
++	{"mic_to_euc_jp", (void *) mic_to_euc_jp},
++	{"pg_finfo_mic_to_euc_jp", (void *) pg_finfo_mic_to_euc_jp},
++	{"sjis_to_mic", (void *) sjis_to_mic},
++	{"pg_finfo_sjis_to_mic", (void *) pg_finfo_sjis_to_mic},
++	{"mic_to_sjis", (void *) mic_to_sjis},
++	{"pg_finfo_mic_to_sjis", (void *) pg_finfo_mic_to_sjis},
++	{NULL, NULL}
++};
++
++/* euc_kr_and_mic */
++extern const Pg_magic_struct *euc_kr_and_mic_Pg_magic_func(void) WEAK;
++extern Datum euc_kr_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_kr_to_mic(void) WEAK;
++extern Datum mic_to_euc_kr(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_euc_kr(void) WEAK;
++static const StaticModuleSym euc_kr_and_mic_syms[] = {
++	{"Pg_magic_func", (void *) euc_kr_and_mic_Pg_magic_func},
++	{"euc_kr_to_mic", (void *) euc_kr_to_mic},
++	{"pg_finfo_euc_kr_to_mic", (void *) pg_finfo_euc_kr_to_mic},
++	{"mic_to_euc_kr", (void *) mic_to_euc_kr},
++	{"pg_finfo_mic_to_euc_kr", (void *) pg_finfo_mic_to_euc_kr},
++	{NULL, NULL}
++};
++
++/* euc_tw_and_big5 */
++extern const Pg_magic_struct *euc_tw_and_big5_Pg_magic_func(void) WEAK;
++extern Datum euc_tw_to_big5(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_tw_to_big5(void) WEAK;
++extern Datum big5_to_euc_tw(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_big5_to_euc_tw(void) WEAK;
++extern Datum euc_tw_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_tw_to_mic(void) WEAK;
++extern Datum mic_to_euc_tw(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_euc_tw(void) WEAK;
++extern Datum big5_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_big5_to_mic(void) WEAK;
++extern Datum mic_to_big5(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_big5(void) WEAK;
++static const StaticModuleSym euc_tw_and_big5_syms[] = {
++	{"Pg_magic_func", (void *) euc_tw_and_big5_Pg_magic_func},
++	{"euc_tw_to_big5", (void *) euc_tw_to_big5},
++	{"pg_finfo_euc_tw_to_big5", (void *) pg_finfo_euc_tw_to_big5},
++	{"big5_to_euc_tw", (void *) big5_to_euc_tw},
++	{"pg_finfo_big5_to_euc_tw", (void *) pg_finfo_big5_to_euc_tw},
++	{"euc_tw_to_mic", (void *) euc_tw_to_mic},
++	{"pg_finfo_euc_tw_to_mic", (void *) pg_finfo_euc_tw_to_mic},
++	{"mic_to_euc_tw", (void *) mic_to_euc_tw},
++	{"pg_finfo_mic_to_euc_tw", (void *) pg_finfo_mic_to_euc_tw},
++	{"big5_to_mic", (void *) big5_to_mic},
++	{"pg_finfo_big5_to_mic", (void *) pg_finfo_big5_to_mic},
++	{"mic_to_big5", (void *) mic_to_big5},
++	{"pg_finfo_mic_to_big5", (void *) pg_finfo_mic_to_big5},
++	{NULL, NULL}
++};
++
++/* latin2_and_win1250 */
++extern const Pg_magic_struct *latin2_and_win1250_Pg_magic_func(void) WEAK;
++extern Datum latin2_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_latin2_to_mic(void) WEAK;
++extern Datum mic_to_latin2(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_latin2(void) WEAK;
++extern Datum win1250_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win1250_to_mic(void) WEAK;
++extern Datum mic_to_win1250(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_win1250(void) WEAK;
++extern Datum latin2_to_win1250(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_latin2_to_win1250(void) WEAK;
++extern Datum win1250_to_latin2(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win1250_to_latin2(void) WEAK;
++static const StaticModuleSym latin2_and_win1250_syms[] = {
++	{"Pg_magic_func", (void *) latin2_and_win1250_Pg_magic_func},
++	{"latin2_to_mic", (void *) latin2_to_mic},
++	{"pg_finfo_latin2_to_mic", (void *) pg_finfo_latin2_to_mic},
++	{"mic_to_latin2", (void *) mic_to_latin2},
++	{"pg_finfo_mic_to_latin2", (void *) pg_finfo_mic_to_latin2},
++	{"win1250_to_mic", (void *) win1250_to_mic},
++	{"pg_finfo_win1250_to_mic", (void *) pg_finfo_win1250_to_mic},
++	{"mic_to_win1250", (void *) mic_to_win1250},
++	{"pg_finfo_mic_to_win1250", (void *) pg_finfo_mic_to_win1250},
++	{"latin2_to_win1250", (void *) latin2_to_win1250},
++	{"pg_finfo_latin2_to_win1250", (void *) pg_finfo_latin2_to_win1250},
++	{"win1250_to_latin2", (void *) win1250_to_latin2},
++	{"pg_finfo_win1250_to_latin2", (void *) pg_finfo_win1250_to_latin2},
++	{NULL, NULL}
++};
++
++/* latin_and_mic */
++extern const Pg_magic_struct *latin_and_mic_Pg_magic_func(void) WEAK;
++extern Datum latin1_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_latin1_to_mic(void) WEAK;
++extern Datum mic_to_latin1(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_latin1(void) WEAK;
++extern Datum latin3_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_latin3_to_mic(void) WEAK;
++extern Datum mic_to_latin3(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_latin3(void) WEAK;
++extern Datum latin4_to_mic(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_latin4_to_mic(void) WEAK;
++extern Datum mic_to_latin4(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_mic_to_latin4(void) WEAK;
++static const StaticModuleSym latin_and_mic_syms[] = {
++	{"Pg_magic_func", (void *) latin_and_mic_Pg_magic_func},
++	{"latin1_to_mic", (void *) latin1_to_mic},
++	{"pg_finfo_latin1_to_mic", (void *) pg_finfo_latin1_to_mic},
++	{"mic_to_latin1", (void *) mic_to_latin1},
++	{"pg_finfo_mic_to_latin1", (void *) pg_finfo_mic_to_latin1},
++	{"latin3_to_mic", (void *) latin3_to_mic},
++	{"pg_finfo_latin3_to_mic", (void *) pg_finfo_latin3_to_mic},
++	{"mic_to_latin3", (void *) mic_to_latin3},
++	{"pg_finfo_mic_to_latin3", (void *) pg_finfo_mic_to_latin3},
++	{"latin4_to_mic", (void *) latin4_to_mic},
++	{"pg_finfo_latin4_to_mic", (void *) pg_finfo_latin4_to_mic},
++	{"mic_to_latin4", (void *) mic_to_latin4},
++	{"pg_finfo_mic_to_latin4", (void *) pg_finfo_mic_to_latin4},
++	{NULL, NULL}
++};
++
++/* utf8_and_ascii */
++extern const Pg_magic_struct *utf8_and_ascii_Pg_magic_func(void) WEAK;
++extern Datum ascii_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_ascii_to_utf8(void) WEAK;
++extern Datum utf8_to_ascii(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_ascii(void) WEAK;
++static const StaticModuleSym utf8_and_ascii_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_ascii_Pg_magic_func},
++	{"ascii_to_utf8", (void *) ascii_to_utf8},
++	{"pg_finfo_ascii_to_utf8", (void *) pg_finfo_ascii_to_utf8},
++	{"utf8_to_ascii", (void *) utf8_to_ascii},
++	{"pg_finfo_utf8_to_ascii", (void *) pg_finfo_utf8_to_ascii},
++	{NULL, NULL}
++};
++
++/* utf8_and_big5 */
++extern const Pg_magic_struct *utf8_and_big5_Pg_magic_func(void) WEAK;
++extern Datum big5_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_big5_to_utf8(void) WEAK;
++extern Datum utf8_to_big5(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_big5(void) WEAK;
++static const StaticModuleSym utf8_and_big5_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_big5_Pg_magic_func},
++	{"big5_to_utf8", (void *) big5_to_utf8},
++	{"pg_finfo_big5_to_utf8", (void *) pg_finfo_big5_to_utf8},
++	{"utf8_to_big5", (void *) utf8_to_big5},
++	{"pg_finfo_utf8_to_big5", (void *) pg_finfo_utf8_to_big5},
++	{NULL, NULL}
++};
++
++/* utf8_and_cyrillic */
++extern const Pg_magic_struct *utf8_and_cyrillic_Pg_magic_func(void) WEAK;
++extern Datum utf8_to_koi8r(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_koi8r(void) WEAK;
++extern Datum koi8r_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_koi8r_to_utf8(void) WEAK;
++extern Datum utf8_to_koi8u(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_koi8u(void) WEAK;
++extern Datum koi8u_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_koi8u_to_utf8(void) WEAK;
++static const StaticModuleSym utf8_and_cyrillic_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_cyrillic_Pg_magic_func},
++	{"utf8_to_koi8r", (void *) utf8_to_koi8r},
++	{"pg_finfo_utf8_to_koi8r", (void *) pg_finfo_utf8_to_koi8r},
++	{"koi8r_to_utf8", (void *) koi8r_to_utf8},
++	{"pg_finfo_koi8r_to_utf8", (void *) pg_finfo_koi8r_to_utf8},
++	{"utf8_to_koi8u", (void *) utf8_to_koi8u},
++	{"pg_finfo_utf8_to_koi8u", (void *) pg_finfo_utf8_to_koi8u},
++	{"koi8u_to_utf8", (void *) koi8u_to_utf8},
++	{"pg_finfo_koi8u_to_utf8", (void *) pg_finfo_koi8u_to_utf8},
++	{NULL, NULL}
++};
++
++/* utf8_and_euc2004 */
++extern const Pg_magic_struct *utf8_and_euc2004_Pg_magic_func(void) WEAK;
++extern Datum euc_jis_2004_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_jis_2004_to_utf8(void) WEAK;
++extern Datum utf8_to_euc_jis_2004(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_euc_jis_2004(void) WEAK;
++static const StaticModuleSym utf8_and_euc2004_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_euc2004_Pg_magic_func},
++	{"euc_jis_2004_to_utf8", (void *) euc_jis_2004_to_utf8},
++	{"pg_finfo_euc_jis_2004_to_utf8", (void *) pg_finfo_euc_jis_2004_to_utf8},
++	{"utf8_to_euc_jis_2004", (void *) utf8_to_euc_jis_2004},
++	{"pg_finfo_utf8_to_euc_jis_2004", (void *) pg_finfo_utf8_to_euc_jis_2004},
++	{NULL, NULL}
++};
++
++/* utf8_and_euc_cn */
++extern const Pg_magic_struct *utf8_and_euc_cn_Pg_magic_func(void) WEAK;
++extern Datum euc_cn_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_cn_to_utf8(void) WEAK;
++extern Datum utf8_to_euc_cn(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_euc_cn(void) WEAK;
++static const StaticModuleSym utf8_and_euc_cn_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_euc_cn_Pg_magic_func},
++	{"euc_cn_to_utf8", (void *) euc_cn_to_utf8},
++	{"pg_finfo_euc_cn_to_utf8", (void *) pg_finfo_euc_cn_to_utf8},
++	{"utf8_to_euc_cn", (void *) utf8_to_euc_cn},
++	{"pg_finfo_utf8_to_euc_cn", (void *) pg_finfo_utf8_to_euc_cn},
++	{NULL, NULL}
++};
++
++/* utf8_and_euc_jp */
++extern const Pg_magic_struct *utf8_and_euc_jp_Pg_magic_func(void) WEAK;
++extern Datum euc_jp_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_jp_to_utf8(void) WEAK;
++extern Datum utf8_to_euc_jp(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_euc_jp(void) WEAK;
++static const StaticModuleSym utf8_and_euc_jp_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_euc_jp_Pg_magic_func},
++	{"euc_jp_to_utf8", (void *) euc_jp_to_utf8},
++	{"pg_finfo_euc_jp_to_utf8", (void *) pg_finfo_euc_jp_to_utf8},
++	{"utf8_to_euc_jp", (void *) utf8_to_euc_jp},
++	{"pg_finfo_utf8_to_euc_jp", (void *) pg_finfo_utf8_to_euc_jp},
++	{NULL, NULL}
++};
++
++/* utf8_and_euc_kr */
++extern const Pg_magic_struct *utf8_and_euc_kr_Pg_magic_func(void) WEAK;
++extern Datum euc_kr_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_kr_to_utf8(void) WEAK;
++extern Datum utf8_to_euc_kr(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_euc_kr(void) WEAK;
++static const StaticModuleSym utf8_and_euc_kr_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_euc_kr_Pg_magic_func},
++	{"euc_kr_to_utf8", (void *) euc_kr_to_utf8},
++	{"pg_finfo_euc_kr_to_utf8", (void *) pg_finfo_euc_kr_to_utf8},
++	{"utf8_to_euc_kr", (void *) utf8_to_euc_kr},
++	{"pg_finfo_utf8_to_euc_kr", (void *) pg_finfo_utf8_to_euc_kr},
++	{NULL, NULL}
++};
++
++/* utf8_and_euc_tw */
++extern const Pg_magic_struct *utf8_and_euc_tw_Pg_magic_func(void) WEAK;
++extern Datum euc_tw_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_euc_tw_to_utf8(void) WEAK;
++extern Datum utf8_to_euc_tw(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_euc_tw(void) WEAK;
++static const StaticModuleSym utf8_and_euc_tw_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_euc_tw_Pg_magic_func},
++	{"euc_tw_to_utf8", (void *) euc_tw_to_utf8},
++	{"pg_finfo_euc_tw_to_utf8", (void *) pg_finfo_euc_tw_to_utf8},
++	{"utf8_to_euc_tw", (void *) utf8_to_euc_tw},
++	{"pg_finfo_utf8_to_euc_tw", (void *) pg_finfo_utf8_to_euc_tw},
++	{NULL, NULL}
++};
++
++/* utf8_and_gb18030 */
++extern const Pg_magic_struct *utf8_and_gb18030_Pg_magic_func(void) WEAK;
++extern Datum gb18030_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_gb18030_to_utf8(void) WEAK;
++extern Datum utf8_to_gb18030(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_gb18030(void) WEAK;
++static const StaticModuleSym utf8_and_gb18030_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_gb18030_Pg_magic_func},
++	{"gb18030_to_utf8", (void *) gb18030_to_utf8},
++	{"pg_finfo_gb18030_to_utf8", (void *) pg_finfo_gb18030_to_utf8},
++	{"utf8_to_gb18030", (void *) utf8_to_gb18030},
++	{"pg_finfo_utf8_to_gb18030", (void *) pg_finfo_utf8_to_gb18030},
++	{NULL, NULL}
++};
++
++/* utf8_and_gbk */
++extern const Pg_magic_struct *utf8_and_gbk_Pg_magic_func(void) WEAK;
++extern Datum gbk_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_gbk_to_utf8(void) WEAK;
++extern Datum utf8_to_gbk(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_gbk(void) WEAK;
++static const StaticModuleSym utf8_and_gbk_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_gbk_Pg_magic_func},
++	{"gbk_to_utf8", (void *) gbk_to_utf8},
++	{"pg_finfo_gbk_to_utf8", (void *) pg_finfo_gbk_to_utf8},
++	{"utf8_to_gbk", (void *) utf8_to_gbk},
++	{"pg_finfo_utf8_to_gbk", (void *) pg_finfo_utf8_to_gbk},
++	{NULL, NULL}
++};
++
++/* utf8_and_iso8859 */
++extern const Pg_magic_struct *utf8_and_iso8859_Pg_magic_func(void) WEAK;
++extern Datum iso8859_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_iso8859_to_utf8(void) WEAK;
++extern Datum utf8_to_iso8859(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_iso8859(void) WEAK;
++static const StaticModuleSym utf8_and_iso8859_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_iso8859_Pg_magic_func},
++	{"iso8859_to_utf8", (void *) iso8859_to_utf8},
++	{"pg_finfo_iso8859_to_utf8", (void *) pg_finfo_iso8859_to_utf8},
++	{"utf8_to_iso8859", (void *) utf8_to_iso8859},
++	{"pg_finfo_utf8_to_iso8859", (void *) pg_finfo_utf8_to_iso8859},
++	{NULL, NULL}
++};
++
++/* utf8_and_iso8859_1 */
++extern const Pg_magic_struct *utf8_and_iso8859_1_Pg_magic_func(void) WEAK;
++extern Datum iso8859_1_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_iso8859_1_to_utf8(void) WEAK;
++extern Datum utf8_to_iso8859_1(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_iso8859_1(void) WEAK;
++static const StaticModuleSym utf8_and_iso8859_1_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_iso8859_1_Pg_magic_func},
++	{"iso8859_1_to_utf8", (void *) iso8859_1_to_utf8},
++	{"pg_finfo_iso8859_1_to_utf8", (void *) pg_finfo_iso8859_1_to_utf8},
++	{"utf8_to_iso8859_1", (void *) utf8_to_iso8859_1},
++	{"pg_finfo_utf8_to_iso8859_1", (void *) pg_finfo_utf8_to_iso8859_1},
++	{NULL, NULL}
++};
++
++/* utf8_and_johab */
++extern const Pg_magic_struct *utf8_and_johab_Pg_magic_func(void) WEAK;
++extern Datum johab_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_johab_to_utf8(void) WEAK;
++extern Datum utf8_to_johab(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_johab(void) WEAK;
++static const StaticModuleSym utf8_and_johab_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_johab_Pg_magic_func},
++	{"johab_to_utf8", (void *) johab_to_utf8},
++	{"pg_finfo_johab_to_utf8", (void *) pg_finfo_johab_to_utf8},
++	{"utf8_to_johab", (void *) utf8_to_johab},
++	{"pg_finfo_utf8_to_johab", (void *) pg_finfo_utf8_to_johab},
++	{NULL, NULL}
++};
++
++/* utf8_and_sjis */
++extern const Pg_magic_struct *utf8_and_sjis_Pg_magic_func(void) WEAK;
++extern Datum sjis_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_sjis_to_utf8(void) WEAK;
++extern Datum utf8_to_sjis(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_sjis(void) WEAK;
++static const StaticModuleSym utf8_and_sjis_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_sjis_Pg_magic_func},
++	{"sjis_to_utf8", (void *) sjis_to_utf8},
++	{"pg_finfo_sjis_to_utf8", (void *) pg_finfo_sjis_to_utf8},
++	{"utf8_to_sjis", (void *) utf8_to_sjis},
++	{"pg_finfo_utf8_to_sjis", (void *) pg_finfo_utf8_to_sjis},
++	{NULL, NULL}
++};
++
++/* utf8_and_sjis2004 */
++extern const Pg_magic_struct *utf8_and_sjis2004_Pg_magic_func(void) WEAK;
++extern Datum shift_jis_2004_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_shift_jis_2004_to_utf8(void) WEAK;
++extern Datum utf8_to_shift_jis_2004(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_shift_jis_2004(void) WEAK;
++static const StaticModuleSym utf8_and_sjis2004_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_sjis2004_Pg_magic_func},
++	{"shift_jis_2004_to_utf8", (void *) shift_jis_2004_to_utf8},
++	{"pg_finfo_shift_jis_2004_to_utf8", (void *) pg_finfo_shift_jis_2004_to_utf8},
++	{"utf8_to_shift_jis_2004", (void *) utf8_to_shift_jis_2004},
++	{"pg_finfo_utf8_to_shift_jis_2004", (void *) pg_finfo_utf8_to_shift_jis_2004},
++	{NULL, NULL}
++};
++
++/* utf8_and_uhc */
++extern const Pg_magic_struct *utf8_and_uhc_Pg_magic_func(void) WEAK;
++extern Datum uhc_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_uhc_to_utf8(void) WEAK;
++extern Datum utf8_to_uhc(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_uhc(void) WEAK;
++static const StaticModuleSym utf8_and_uhc_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_uhc_Pg_magic_func},
++	{"uhc_to_utf8", (void *) uhc_to_utf8},
++	{"pg_finfo_uhc_to_utf8", (void *) pg_finfo_uhc_to_utf8},
++	{"utf8_to_uhc", (void *) utf8_to_uhc},
++	{"pg_finfo_utf8_to_uhc", (void *) pg_finfo_utf8_to_uhc},
++	{NULL, NULL}
++};
++
++/* utf8_and_win */
++extern const Pg_magic_struct *utf8_and_win_Pg_magic_func(void) WEAK;
++extern Datum win_to_utf8(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_win_to_utf8(void) WEAK;
++extern Datum utf8_to_win(PG_FUNCTION_ARGS) WEAK;
++extern const Pg_finfo_record *pg_finfo_utf8_to_win(void) WEAK;
++static const StaticModuleSym utf8_and_win_syms[] = {
++	{"Pg_magic_func", (void *) utf8_and_win_Pg_magic_func},
++	{"win_to_utf8", (void *) win_to_utf8},
++	{"pg_finfo_win_to_utf8", (void *) pg_finfo_win_to_utf8},
++	{"utf8_to_win", (void *) utf8_to_win},
++	{"pg_finfo_utf8_to_win", (void *) pg_finfo_utf8_to_win},
++	{NULL, NULL}
++};
++
++static StaticModule static_conversion_modules[] = {
++	{"ascii_and_mic", ascii_and_mic_syms, false},
++	{"cyrillic_and_mic", cyrillic_and_mic_syms, false},
++	{"euc2004_sjis2004", euc2004_sjis2004_syms, false},
++	{"euc_cn_and_mic", euc_cn_and_mic_syms, false},
++	{"euc_jp_and_sjis", euc_jp_and_sjis_syms, false},
++	{"euc_kr_and_mic", euc_kr_and_mic_syms, false},
++	{"euc_tw_and_big5", euc_tw_and_big5_syms, false},
++	{"latin2_and_win1250", latin2_and_win1250_syms, false},
++	{"latin_and_mic", latin_and_mic_syms, false},
++	{"utf8_and_ascii", utf8_and_ascii_syms, false},
++	{"utf8_and_big5", utf8_and_big5_syms, false},
++	{"utf8_and_cyrillic", utf8_and_cyrillic_syms, false},
++	{"utf8_and_euc2004", utf8_and_euc2004_syms, false},
++	{"utf8_and_euc_cn", utf8_and_euc_cn_syms, false},
++	{"utf8_and_euc_jp", utf8_and_euc_jp_syms, false},
++	{"utf8_and_euc_kr", utf8_and_euc_kr_syms, false},
++	{"utf8_and_euc_tw", utf8_and_euc_tw_syms, false},
++	{"utf8_and_gb18030", utf8_and_gb18030_syms, false},
++	{"utf8_and_gbk", utf8_and_gbk_syms, false},
++	{"utf8_and_iso8859", utf8_and_iso8859_syms, false},
++	{"utf8_and_iso8859_1", utf8_and_iso8859_1_syms, false},
++	{"utf8_and_johab", utf8_and_johab_syms, false},
++	{"utf8_and_sjis", utf8_and_sjis_syms, false},
++	{"utf8_and_sjis2004", utf8_and_sjis2004_syms, false},
++	{"utf8_and_uhc", utf8_and_uhc_syms, false},
++	{"utf8_and_win", utf8_and_win_syms, false},
++	{NULL, NULL, false}
++};

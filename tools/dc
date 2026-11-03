@@ -1,0 +1,64 @@
+#!/bin/sh
+# dc - run any command inside the pg.lite tools container. The host only runs docker.
+#
+#   tools/dc make selftest
+#   tools/dc make fetch             (network is enabled automatically for 'fetch')
+#   DC_NET=1 tools/dc sh -c 'curl -sI https://example.org'
+#   tools/dc sh                     (interactive shell)
+#
+# tools/ is mounted at /w, patches/, scripts/, image/ and wasm/ at /w/patches, /w/scripts, /w/image and /w/wasm, so the layout inside the container is a single tree. cache/ (fetched upstream sources) and build/ (patched trees and
+# build output) live on named Docker volumes mounted over /w/cache and /w/build, because
+# thousands of small files are far too slow through a Windows/macOS bind mount. Inspect or
+# reset them with: docker volume ls | grep compactdb ; docker volume rm compactdb-cache compactdb-build
+# Network is OFF unless an argument is exactly 'fetch', 'release-index', 'probe-all' or 'check-releases', or DC_NET=1.
+set -eu
+root=$(cd "$(dirname "$0")" && pwd)   # tools/: docker files and locks (mounted at /w)
+repo=$(cd "$root/.." && pwd)    # the repository: patches/, scripts/, image/ and wasm/ are mounted into /w too
+image="${DC_IMAGE:-compactdb-tools:local}"
+context="${DC_CONTEXT:-$root/docker/tools}"
+cache_vol="${DC_CACHE_VOLUME:-compactdb-cache}"
+build_vol="${DC_BUILD_VOLUME:-compactdb-build}"
+
+# Build is incremental: layers are cached, so this is fast once the image exists.
+secret=""
+[ -f "$root/.local/corp-ca.pem" ] && secret="--secret id=corpca,src=$root/.local/corp-ca.pem"
+# shellcheck disable=SC2086
+docker build -q $secret -t "$image" "$context" >/dev/null
+
+user=""
+uid_gid=""
+if [ "$(uname -s)" = "Linux" ]; then
+    uid_gid="$(id -u):$(id -g)"
+    user="--user $uid_gid"
+fi
+
+# A new volume is root-owned; hand it to the invoking user on Linux hosts.
+# (A value that starts with / is a folder on the host, used as it is: CI keeps the cache there to save and restore it between runs.)
+for v in "$cache_vol" "$build_vol"; do
+    case "$v" in /*) mkdir -p "$v"; continue ;; esac
+    if ! docker volume inspect "$v" >/dev/null 2>&1; then
+        docker volume create "$v" >/dev/null
+        if [ -n "$uid_gid" ]; then
+            docker run --rm --user 0 -v "$v:/v" "$image" chown "$uid_gid" /v
+        fi
+    fi
+done
+
+net="--network none"
+[ "${DC_NET:-0}" = "1" ] && net=""
+for a in "$@"; do { [ "$a" = "fetch" ] || [ "$a" = "release-index" ] || [ "$a" = "probe-all" ] || [ "$a" = "check-releases" ]; } && net=""; done
+
+tty=""
+[ -t 0 ] && [ -t 1 ] && tty="-it"
+
+# A corporate TLS-inspecting proxy: its root certificate, exported to .local/corp-ca.pem (git-ignored), is trusted by
+# node and npm inside the container; certificate checking itself stays on.
+ca=""
+[ -f "$root/.local/corp-ca.pem" ] && ca="-e NODE_EXTRA_CA_CERTS=/w/.local/corp-ca.pem"
+
+# shellcheck disable=SC2086
+# Build options reach the container only when they are set on the host (docker -e NAME passes it through).
+MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user $ca \
+    -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_CONFIGURE -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e WEB -e WASM_LINK_EXTRA -e SRC -e FETCH_HTTP_FALLBACK \
+    -v "$root:/w" -v "$repo/patches:/w/patches" -v "$repo/scripts:/w/scripts" -v "$repo/image:/w/image" -v "$repo/wasm:/w/wasm" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
+    -w /w "$image" "$@"

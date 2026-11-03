@@ -1,0 +1,216 @@
+Targets: wasm
+Subject: Let initdb run the postgres programs when it is itself a WebAssembly program under node
+Purpose: initdb starts "postgres --boot" and "postgres --single" through popen() and reads "postgres -V" the same way, but Emscripten has no processes and its popen() always fails. The bootstrap data directory of the WebAssembly target must come from this same patched upstream (the layout of a native data directory is not portable to wasm32), so initdb itself is built for node and gets a popen()/pclose() that runs the command line with child_process.spawnSync in the build container: a "w" pipe collects what initdb writes and feeds it to the command when the pipe is closed, an "r" pipe runs the command first and hands back its output. The child gets what initdb put in its own environment (PGDATA, LC_*) on top of the environment of node. This is a build-time tool only; it is never part of the browser payload.
+Components: src/bin/initdb/wasm_popen.c (new), src/bin/initdb/Makefile
+Checks: scripts/build-wasm.sh runs initdb under node and produces a data directory that postgres --single opens (scripts/test-wasm-node.sh)
+Origin: own
+
+diff --git a/src/bin/initdb/Makefile b/src/bin/initdb/Makefile
+--- a/src/bin/initdb/Makefile
++++ b/src/bin/initdb/Makefile
+@@ -18,7 +18,7 @@
+ 
+ override CPPFLAGS := -DFRONTEND -I$(libpq_srcdir) $(CPPFLAGS)
+ 
+-OBJS=	initdb.o encnames.o pqsignal.o $(WIN32RES)
++OBJS=	initdb.o encnames.o pqsignal.o wasm_popen.o $(WIN32RES)
+ 
+ all: submake-libpgport initdb
+ 
+diff --git a/src/bin/initdb/wasm_popen.c b/src/bin/initdb/wasm_popen.c
+new file mode 100644
+--- a/src/bin/initdb/wasm_popen.c
++++ b/src/bin/initdb/wasm_popen.c
+@@ -0,0 +1,192 @@
++/*-------------------------------------------------------------------------
++ *
++ * wasm_popen.c
++ *	  popen() and pclose() for initdb built as a WebAssembly program for node.
++ *
++ * Emscripten has no processes; its popen() fails.  initdb uses popen() to run
++ * the postgres program in bootstrap and single-user mode (mode "w": initdb
++ * writes SQL or BKI lines to it) and to read its version (mode "r").  Because
++ * this initdb only ever runs under node during the build, the command is run
++ * with child_process.spawnSync through /bin/sh.  The definitions here are
++ * linked into initdb ahead of the C library, which therefore never supplies
++ * its own.
++ *
++ * src/bin/initdb/wasm_popen.c
++ *
++ *-------------------------------------------------------------------------
++ */
++#ifdef __EMSCRIPTEN__
++
++#include "postgres_fe.h"
++
++#include <emscripten.h>
++#include <errno.h>
++
++/* Run a command; 'input' (may be empty) goes to its standard input.  Returns the exit status
++ * (0..255), or 256 + signal.  With capture, its standard output is kept for wasm_take_output(). */
++EM_JS(int, wasm_run_command_env, (const char *cmd, const char *input, int input_len, int capture, const char *envblock, int envlen), {
++	const cp = require('child_process');
++	const command = UTF8ToString(cmd);
++	const data = input_len > 0 ? Buffer.from(HEAPU8.slice(input, input + input_len)) : undefined;
++	/* What initdb put in its own environment (PGDATA, LC_*) goes to the child on top of node's environment; the
++	 * values Emscripten invents for a program without a host (PATH=/, HOME, ...) must not replace the real ones. */
++	const env = Object.assign({}, process.env);
++	const skip = ['USER', 'LOGNAME', 'PATH', 'PWD', 'HOME', 'LANG', '_'];
++	for (const kv of Buffer.from(HEAPU8.slice(envblock, envblock + envlen)).toString('utf8').split('\0'))
++	{
++		const i = kv.indexOf('=');
++		if (i > 0 && !skip.includes(kv.slice(0, i)))
++			env[kv.slice(0, i)] = kv.slice(i + 1);
++	}
++	const result = cp.spawnSync('/bin/sh', ['-c', command], {
++		input: data,
++		env: env,
++		stdio: [data !== undefined ? 'pipe' : 'ignore', capture ? 'pipe' : 'inherit', 'inherit'],
++		maxBuffer: 1 << 30
++	});
++	globalThis.__pgPopenOutput = capture && result.stdout ? result.stdout : new Uint8Array(0);
++	if (result.error)
++		return 127;
++	if (result.signal)
++		return 256 + (require('os').constants.signals[result.signal] || 1);
++	return result.status === null ? 127 : result.status;
++});
++
++extern char **environ;
++
++static int
++wasm_run_command(const char *cmd, const char *input, int input_len, int capture)
++{
++	size_t		len = 0;
++	char	   *block;
++	char	   *q;
++	int			status;
++
++	for (char **e = environ; e != NULL && *e != NULL; e++)
++		len += strlen(*e) + 1;
++	block = malloc(len + 1);
++	if (block == NULL)
++		return 127;
++	q = block;
++	for (char **e = environ; e != NULL && *e != NULL; e++)
++	{
++		size_t		n = strlen(*e) + 1;
++
++		memcpy(q, *e, n);
++		q += n;
++	}
++	status = wasm_run_command_env(cmd, input, input_len, capture, block, (int) len);
++	free(block);
++	return status;
++}
++
++EM_JS(int, wasm_output_length, (void), {
++	return globalThis.__pgPopenOutput.length;
++});
++
++EM_JS(void, wasm_copy_output, (char *dst), {
++	HEAPU8.set(globalThis.__pgPopenOutput, dst);
++});
++
++typedef struct WasmPipe
++{
++	FILE	   *fp;
++	char	   *command;
++	char	   *buf;			/* "w": memstream buffer; "r": command output */
++	size_t		len;
++	int			status;
++	bool		writing;
++	struct WasmPipe *next;
++} WasmPipe;
++
++static WasmPipe *wasm_pipes = NULL;
++
++FILE *
++popen(const char *command, const char *mode)
++{
++	WasmPipe   *p;
++
++	if ((mode[0] != 'r' && mode[0] != 'w') || mode[1] != '\0')
++	{
++		errno = EINVAL;
++		return NULL;
++	}
++	p = calloc(1, sizeof(WasmPipe));
++	if (p == NULL)
++		return NULL;
++	p->command = strdup(command);
++	p->writing = (mode[0] == 'w');
++
++	if (p->writing)
++		p->fp = open_memstream(&p->buf, &p->len);
++	else
++	{
++		p->status = wasm_run_command(p->command, "", 0, 1);
++		p->len = (size_t) wasm_output_length();
++		if (p->len == 0)
++			p->fp = fopen("/dev/null", "r");
++		else
++		{
++			p->buf = malloc(p->len);
++			if (p->buf != NULL)
++			{
++				wasm_copy_output(p->buf);
++				p->fp = fmemopen(p->buf, p->len, "r");
++			}
++		}
++	}
++	if (p->fp == NULL)
++	{
++		free(p->command);
++		free(p->buf);
++		free(p);
++		errno = ENOMEM;
++		return NULL;
++	}
++	p->next = wasm_pipes;
++	wasm_pipes = p;
++	return p->fp;
++}
++
++int
++pclose(FILE *fp)
++{
++	WasmPipe  **link;
++	WasmPipe   *p = NULL;
++	int			status;
++
++	for (link = &wasm_pipes; *link != NULL; link = &(*link)->next)
++	{
++		if ((*link)->fp == fp)
++		{
++			p = *link;
++			*link = p->next;
++			break;
++		}
++	}
++	if (p == NULL)
++	{
++		errno = ECHILD;
++		return -1;
++	}
++
++	if (p->writing)
++	{
++		fflush(p->fp);
++		fclose(p->fp);			/* final buffer and length are available now */
++		status = wasm_run_command(p->command, p->buf != NULL ? p->buf : "", (int) p->len, 0);
++	}
++	else
++	{
++		fclose(p->fp);
++		status = p->status;
++	}
++	free(p->command);
++	free(p->buf);
++	free(p);
++
++	/* wait(2) style status: exit code in bits 8..15, a signal in the low bits */
++	return status >= 256 ? (status - 256) & 0x7f : (status & 0xff) << 8;
++}
++
++#endif							/* __EMSCRIPTEN__ */

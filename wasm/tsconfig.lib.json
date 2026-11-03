@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "lib": ["ES2023", "DOM"], "types": [] },
+  "include": ["src/index.ts", "src/client.ts", "src/protocol.ts", "src/types.ts", "src/pg-driver.ts"]
+}

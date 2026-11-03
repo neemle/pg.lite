@@ -1,0 +1,158 @@
+name: release
+
+# A tag is a PostgreSQL version: v9.0.0 builds PostgreSQL 9.0.0 (checksum-pinned in tools/releases.txt) with this
+# repository's patches, and publishes
+#   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
+#   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
+# Nothing is built twice: the "ci" job calls ci.yml for the tagged version (checks, TypeScript, the image and WebAssembly built and
+# tested once, kept as workflow artifacts), and the "publish" job pushes exactly those artifacts, only after all of it succeeded.
+#
+# Configure the repository variable DOCKERHUB_REPOSITORY (for example "myorg/pg.lite") and the secrets DOCKERHUB_USERNAME and
+# DOCKERHUB_TOKEN (an access token of Docker Hub with read and write permission on that repository); a tag build fails at once
+# without them.
+# Image tags, for the image with the executable compressed by xsfx: the exact version (9.0.0), the series when this is its newest
+# release in tools/releases.txt (9.0), the family when it is the newest of it (9), and "latest" for the newest release of all.
+# The same image with a plain executable has the same tags with the suffix -uncompressed (9.0.0-uncompressed, 9.0-uncompressed,
+# 9-uncompressed; no latest-uncompressed).
+on:
+  push:
+    tags: ['v[0-9]*']
+  # Started by hand (Actions > release > Run workflow): builds and tests the given version and keeps the files as workflow
+  # artifacts, but publishes nothing (no image push, no release).
+  workflow_dispatch:
+    inputs:
+      version:
+        description: PostgreSQL version to build and test, for example 9.0.0 (dry run, nothing is published)
+        required: true
+
+permissions:
+  contents: write     # create the release and upload its files
+
+concurrency:
+  group: release-${{ github.ref_name }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      major: ${{ steps.plan.outputs.major }}
+      family: ${{ steps.plan.outputs.family }}
+      newestInMajor: ${{ steps.plan.outputs.newestInMajor }}
+      newestInFamily: ${{ steps.plan.outputs.newestInFamily }}
+      newestOverall: ${{ steps.plan.outputs.newestOverall }}
+      publish: ${{ steps.publish.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: plan
+        name: The tag must be an upstream PostgreSQL release this repository can build
+        env:
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', inputs.version) }}
+        run: |
+          # a tag is v<version>; a manual run may say "latest" or a bare major, which builder.sh turns into a release
+          [ "${TAG#v}" = "$TAG" ] || TAG="v$(./builder.sh version "${TAG#v}")"
+          tools/dc sh scripts/release-plan.sh --github "$TAG" | tee -a "$GITHUB_OUTPUT"
+      - id: publish
+        name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
+        env:
+          IS_TAG: ${{ github.ref_type == 'tag' }}
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ "$IS_TAG" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
+            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example myorg/pg.lite) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
+            exit 1
+          fi
+          echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
+
+  # The build and the tests of both products are ci.yml, called for this version: built once, tested once, kept as artifacts.
+  ci:
+    needs: plan
+    uses: ./.github/workflows/ci.yml
+    with:
+      versions: ${{ format('["{0}"]', needs.plan.outputs.version) }}
+
+  publish:
+    needs: [plan, ci]
+    if: ${{ needs.plan.outputs.publish == 'true' }}
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+      MAJOR: ${{ needs.plan.outputs.major }}
+      FAMILY: ${{ needs.plan.outputs.family }}
+      NEWEST_IN_MAJOR: ${{ needs.plan.outputs.newestInMajor }}
+      NEWEST_IN_FAMILY: ${{ needs.plan.outputs.newestInFamily }}
+      NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
+      DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: image-${{ env.VERSION }}
+          path: image
+      - name: Load the tested image and give it its tags
+        id: tags
+        run: |
+          gunzip -c "image/image-$VERSION.tar.gz" | docker load
+          # the compressed image: 9.0.0, 9.0, 9, latest; the plain one: 9.0.0-uncompressed, 9.0-uncompressed, 9-uncompressed
+          tags="$VERSION"
+          [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
+          [ "$NEWEST_IN_FAMILY" = true ] && tags="$tags $FAMILY"
+          plain=""
+          for t in $tags; do plain="$plain $t-uncompressed"; done
+          [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
+          for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
+          for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t"; done
+          echo "tags=$tags $plain" >> "$GITHUB_OUTPUT"
+      - name: Push to Docker Hub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          TAGS: ${{ steps.tags.outputs.tags }}
+        run: |
+          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          for t in $TAGS; do docker push "$DOCKERHUB_REPOSITORY:$t"; done
+      - name: Check what was published (pull it back and look at it)
+        env:
+          TAGS: ${{ steps.tags.outputs.tags }}
+        run: |
+          for t in $TAGS; do
+            docker rmi "$DOCKERHUB_REPOSITORY:$t" >/dev/null
+            docker pull -q "$DOCKERHUB_REPOSITORY:$t"
+            docker run --rm --entrypoint /usr/local/pgsql/bin/postgres "$DOCKERHUB_REPOSITORY:$t" --version | tee /dev/stderr | grep -q "(PostgreSQL) $VERSION"
+            [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "$VERSION" ]
+            case "$t" in *-uncompressed) want=no ;; *) want=yes ;; esac
+            [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "io.github.neemle.pglite.packed"}}')" = "$want" ]
+            echo "published $DOCKERHUB_REPOSITORY:$t"
+          done
+      # The page of the repository on Docker Hub is not taken from GitHub by itself: this sends image/DOCKERHUB.md and the short
+      # description. A failure here does not undo the release (the image is already published and checked).
+      - name: Docker Hub page (README and short description)
+        continue-on-error: true
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ vars.DOCKERHUB_REPOSITORY }}
+          short-description: PostgreSQL in one static file (FROM scratch, ~11 MB) with the environment of the official image
+          readme-filepath: image/DOCKERHUB.md
+
+  release:
+    needs: [plan, publish]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: pg.lite-wasm-${{ needs.plan.outputs.version }}
+          path: assets
+      - name: GitHub release with the browser module
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.plan.outputs.version }}
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" assets/* --repo "$GITHUB_REPOSITORY" \
+            --title "PostgreSQL $VERSION (pg.lite)" \
+            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in tools/releases.txt."

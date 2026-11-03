@@ -1,0 +1,8 @@
+.git
+cache/
+build/
+.work/
+dist/
+node_modules/
+reports/
+*.log

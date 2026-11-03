@@ -18,7 +18,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 * **One static executable.** The server, `initdb`, `psql`, the container entrypoint and the roughly 400 data files `initdb` reads are linked into a single musl executable, with the libraries the tools share (libpq and others) once; the data files are a tar image inside it, so nothing is extracted to disk.
 * **Size-first compiler flags** (`-Os`, section garbage collection) and no code that the profile does not use.
-* **A packer.** With `--pack` the executable is compressed with [xsfx](https://github.com/ratushnyi-labs/xsfx), a self-extracting packer: 10.7 MB become 2.3 MB (measured on 9.0.0), at the price of a start that is about 0.4 s slower.
+* **A packer.** With `--pack` the executable is compressed with [xsfx](https://github.com/ratushnyi-labs/xsfx), a self-extracting packer: 10.7 MB become 2.3 MB (measured on 9.0.0), at the price of a start that is about 0.4 s slower. A release publishes both: the compressed image has the plain tags (`9.0.0`, `9.0`, `9`, `latest`), the one with the plain executable the same tags with `-uncompressed`.
 * **WebAssembly** is built with Emscripten from the same patched source; the browser module is TypeScript with a `pg`-compatible facade (so ORMs such as TypeORM work on it).
 
 ## Versions
@@ -68,7 +68,7 @@ tools/       the build containers, the list of releases and the settings of the 
 * **Everything runs in Docker.** The host needs only `docker` and `git`; sources and build trees live in Docker volumes.
 * **The tests of the image** build it from scratch and check it end to end: cold `initdb`, SQL, restart, authentication, the environment of the official image, `initdb.d` scripts, encodings and text search, the image metadata, and that the image holds one file.
 * **The tests of WebAssembly** run the engine under node, then in Chromium: the engine, persistence, offline use and the demo app. Each browser test leaves a Full HD video, step screenshots and an HTML report.
-* **CI** runs the checks, the TypeScript checks (types, oxlint, vitest) and the build and tests of both products for every release the branch covers; a release tag publishes the image to Docker Hub and the browser module as a GitHub release.
+* **CI** runs the checks, the TypeScript checks (types, oxlint, vitest) and the build and tests of both products for every release the branch covers; a release tag does not build again: it publishes what CI built and tested, the image to Docker Hub and the browser module as a GitHub release.
 
 ## Build
 
@@ -77,7 +77,7 @@ tools/       the build containers, the list of releases and the settings of the 
 ./builder.sh test 9.0.0 cli
 ./builder.sh build 9.0.0 wasm         # node engine, browser module, demo
 ./builder.sh test 9.0.0 wasm
-./builder.sh build 9.0.0 cli --pack   # the same image with the executable packed
+./builder.sh build 9.0.0 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
