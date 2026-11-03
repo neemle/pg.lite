@@ -83,8 +83,15 @@ jobs:
         with:
           path: reference-image.tar
           key: reference-${{ matrix.version }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
-      - name: Free disk space (the builder images and trees are several GB)
-        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
+      - name: Disk space (cleaned only when less than 20 GB is free)
+        run: |
+          df -h /
+          free_gb=$(df --output=avail -BG / | tail -1 | tr -dc 0-9)
+          if [ "$free_gb" -lt 20 ]; then
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+            docker system prune -af >/dev/null
+            df -h /
+          fi
       - name: Load the reference image from the cache
         if: ${{ steps.refcache.outputs.cache-hit == 'true' }}
         run: docker load -i reference-image.tar
@@ -135,8 +142,15 @@ jobs:
           path: /home/runner/pglite-cache
           key: cache-wasm-${{ matrix.version }}-${{ hashFiles('tools/releases.txt', 'wasm/**/package-lock.json') }}
           restore-keys: cache-wasm-${{ matrix.version }}-
-      - name: Free disk space (the builder images and trees are several GB)
-        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
+      - name: Disk space (cleaned only when less than 20 GB is free)
+        run: |
+          df -h /
+          free_gb=$(df --output=avail -BG / | tail -1 | tr -dc 0-9)
+          if [ "$free_gb" -lt 20 ]; then
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+            docker system prune -af >/dev/null
+            df -h /
+          fi
       - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
         run: ./builder.sh patch "$VERSION" wasm
       - name: Build the engine, the browser module and the demo, and package them, once
