@@ -1,0 +1,75 @@
+<header>
+  <h1>Notes <small>on PostgreSQL in your browser</small></h1>
+  <p class="engine" data-testid="engine">
+    @switch (db.status()) {
+      @case ('loading') { <span data-testid="status">starting the database engine…</span> }
+      @case ('error') { <span data-testid="status" class="bad">could not open the database</span> }
+      @case ('ready') { <span data-testid="status">ready</span> · <span data-testid="version">{{ db.serverVersion() }}</span> }
+    }
+    @if (offlineReady()) { · <span data-testid="offline">ready for offline use</span> }
+  </p>
+</header>
+
+@if (db.status() === 'error') {
+  <p class="bad" data-testid="error">{{ db.error() }}</p>
+}
+
+@if (db.status() === 'ready') {
+  <main>
+    <section class="card">
+      <h2>New note</h2>
+      <form (submit)="$event.preventDefault(); add(title, body, category)">
+        <input #title name="title" placeholder="Title" data-testid="title" autocomplete="off" required>
+        <textarea #body name="body" placeholder="Text" rows="2" data-testid="body"></textarea>
+        <input #category name="category" placeholder="Category (created when new)" list="categories" data-testid="category" autocomplete="off">
+        <datalist id="categories">
+          @for (c of db.categories(); track c.id) { <option [value]="c.name"></option> }
+        </datalist>
+        <button type="submit" [disabled]="busy()" data-testid="add">Add note</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Notes
+        <span class="counts" data-testid="counts">{{ db.counts().total }} total · {{ db.counts().open }} open · {{ db.counts().done }} done</span>
+      </h2>
+      @if (db.notes().length === 0) { <p class="empty" data-testid="empty">No notes yet.</p> }
+      <ul data-testid="notes">
+        @for (n of db.notes(); track n.id) {
+          <li [class.done]="n.done" data-testid="note">
+            <input type="checkbox" [checked]="n.done" (change)="toggle(n)" [attr.aria-label]="'done: ' + n.title" data-testid="toggle">
+            <div>
+              <strong data-testid="note-title">{{ n.title }}</strong>
+              @if (n.category) { <span class="tag" data-testid="note-category">{{ n.category.name }}</span> }
+              @if (n.body) { <p>{{ n.body }}</p> }
+              <small>{{ n.createdAt | date: 'medium' }}</small>
+            </div>
+            <button type="button" class="link" (click)="remove(n)" data-testid="remove">delete</button>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="card wide">
+      <h2>SQL console</h2>
+      <textarea #sql rows="3" data-testid="sql" spellcheck="false">select category.name, count(note.id)::bigint as notes
+from category left join note on note."categoryId" = category.id
+group by category.name order by 1</textarea>
+      <button type="button" (click)="runSql(sql.value)" [disabled]="busy()" data-testid="run">Run</button>
+      @if (sqlError()) { <p class="bad" data-testid="sql-error">{{ sqlError() }}</p> }
+      @for (r of sqlResults(); track $index) {
+        <p class="tag-line" data-testid="sql-command">{{ r.command }}{{ r.rowCount !== null ? ' ' + r.rowCount : '' }}</p>
+        @if (r.columns.length) {
+          <table data-testid="sql-result">
+            <thead><tr>@for (c of r.columns; track $index) { <th>{{ c }}</th> }</tr></thead>
+            <tbody>
+              @for (row of r.rows; track $index) {
+                <tr data-testid="sql-row">@for (v of row; track $index) { <td>{{ cell(v) }}</td> }</tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
+    </section>
+  </main>
+}

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "images": {
+    "musl-18": {
+      "image": "alpine:3.24.3",
+      "digest": "sha256:b3413572228e34bd1c9245f5565e6cd127005655e8a7899aef33d8e83255c9e6",
+      "tools": {
+        "alpine": "3.24.3",
+        "gcc": "15.2.0",
+        "gcc-target": "x86_64-alpine-linux-musl",
+        "musl": "1.2.6-r3",
+        "binutils-ld": "2.45.1",
+        "make": "4.4.1",
+        "bison": "3.8.2",
+        "flex": "2.6.4",
+        "perl": "5.42.2",
+        "zlib": "1.3.2-r1"
+      },
+      "dockerfile": "docker/builders/musl/Dockerfile",
+      "rationale": "Alpine is musl-native: gcc, headers and archives are all musl, so -static yields a fully static ELF. Baseline (18.x) native builder."
+    },
+    "ref-18": {
+      "image": "debian:bookworm-slim",
+      "digest": "sha256:7ff6ba31527b9e336162fa061746c366c4b2032f4d2cff2078bea43f78efe3f8",
+      "tools": {
+        "debian": "12.15",
+        "gcc": "12.2.0",
+        "glibc": "2.36-9+deb12u14",
+        "binutils-ld": "2.40",
+        "make": "4.3",
+        "bison": "3.8.2",
+        "flex": "2.6.4",
+        "perl": "5.36.0",
+        "icu": "72.1-3+deb12u1",
+        "readline": "8.2-1.3",
+        "zlib": "1:1.2.13.dfsg-1"
+      },
+      "dockerfile": "docker/builders/ref/Dockerfile",
+      "rationale": "Ordinary dynamic glibc toolchain with readline, zlib and ICU: builds unmodified upstream with default options as the behavior and size reference. Not used for any version range."
+    },
+    "wasm-18": {
+      "image": "emscripten/emsdk:6.0.13",
+      "digest": "sha256:fb7864e398acfda863dfcea78b8bc8adad359fa60c6a0bbeb845931de64aa68a",
+      "tools": {
+        "emscripten": "6.0.13",
+        "clang": "24.0.0",
+        "binaryen": "133",
+        "wasm-ld": "24.0.0",
+        "node": "24.19.0",
+        "python": "3.12.3",
+        "make": "4.3"
+      },
+      "dockerfile": "docker/builders/wasm/Dockerfile",
+      "rationale": "Official Emscripten SDK image (emcc, clang, wasm-ld, Binaryen, node). Baseline (18.x) WASM builder."
+    }
+  },
+  "ranges": [
+    {
+      "from": "9.0.0",
+      "to": "17.99",
+      "nativeImage": "musl-18",
+      "wasmImage": "wasm-18"
+    },
+    {
+      "from": "18.0",
+      "to": "18.99",
+      "nativeImage": "musl-18",
+      "wasmImage": "wasm-18"
+    }
+  ]
+}

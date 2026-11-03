@@ -1,0 +1,149 @@
+name: release
+
+# A tag is a PostgreSQL version: v18.6 builds PostgreSQL 18.6 (checksum-pinned in sources.lock.json) with this
+# repository's patches, and publishes
+#   - the WebAssembly browser module as a downloadable archive (GitHub release + workflow artifact), and
+#   - the static musl server as a FROM scratch Docker image on Docker Hub: <DOCKERHUB_REPOSITORY>:<version>.
+#     Configure the repository variable DOCKERHUB_REPOSITORY (for example "org/postgres") and the secrets
+#     DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (an access token with write permission); a tag build fails at once without them.
+# Image tags: the exact version (18.6) and, when it is the newest release of its major, the major (18); "latest" only
+# for the newest release of all.  v16.x, v17.x and v18.x are parallel lines of drop-in replacements.
+on:
+  push:
+    tags: ['v[0-9]*']
+  # Started by hand (Actions > release > Run workflow): builds and tests the given version and keeps the files as workflow
+  # artifacts, but publishes nothing (no image push, no release).
+  workflow_dispatch:
+    inputs:
+      version:
+        description: PostgreSQL version to build and test, for example 17.11, or latest (dry run, nothing is published)
+        required: true
+
+permissions:
+  contents: write     # create the release and upload its files
+
+concurrency:
+  group: release-${{ github.ref_name }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      major: ${{ steps.plan.outputs.major }}
+      newestInMajor: ${{ steps.plan.outputs.newestInMajor }}
+      newestOverall: ${{ steps.plan.outputs.newestOverall }}
+      publish: ${{ steps.publish.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        name: The tag must be an upstream PostgreSQL release this repository can build
+        env:
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', inputs.version) }}
+        run: |
+          # a tag is v<version>; a manual run may say "latest" or a bare major, which builder.sh turns into a release
+          [ "${TAG#v}" = "$TAG" ] || TAG="v$(./builder.sh version "${TAG#v}")"
+          tools/dc node scripts/release-plan.js --github "$TAG" | tee -a "$GITHUB_OUTPUT"
+      - id: publish
+        name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
+        env:
+          IS_TAG: ${{ github.ref_type == 'tag' }}
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ "$IS_TAG" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
+            echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example org/postgres) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
+            exit 1
+          fi
+          echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
+
+  wasm:
+    needs: plan
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space (the builder images and trees are several GB)
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
+      - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
+        run: ./builder.sh patch "$VERSION" wasm
+      - name: Build the engine, the browser module and the demo, and package them
+        run: ./builder.sh build "$VERSION" wasm
+      - name: Test (SQL under node; Chromium with a real Worker and real IndexedDB)
+        run: ./builder.sh test "$VERSION" wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compact-db-wasm-${{ env.VERSION }}
+          path: |
+            tools/dist/compact-db-wasm-${{ env.VERSION }}.tar.gz
+            tools/dist/compact-db-wasm-${{ env.VERSION }}.tar.gz.sha256
+            tools/dist/compact-db-wasm-${{ env.VERSION }}.sizes.txt
+          if-no-files-found: error
+
+  cli:
+    needs: plan
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+      MAJOR: ${{ needs.plan.outputs.major }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
+      - name: Fetch the pinned upstream source and apply the patches
+        run: ./builder.sh patch "$VERSION" cli
+      - name: Build the static one-file server and the FROM scratch image
+        run: ./builder.sh build "$VERSION" cli --tag "compactdb-native:$VERSION"
+      - name: Test (SQL, modules, authentication, restart, non-empty data directory, one file in the image)
+        run: ./builder.sh test "$VERSION" cli
+      - name: Image tags
+        id: tags
+        env:
+          NEWEST_IN_MAJOR: ${{ needs.plan.outputs.newestInMajor }}
+          NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
+        run: |
+          tags="$VERSION"
+          [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
+          [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
+          echo "tags=$tags" >> "$GITHUB_OUTPUT"
+      - name: Push to Docker Hub
+        if: ${{ needs.plan.outputs.publish == 'true' }}
+        env:
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          TAGS: ${{ steps.tags.outputs.tags }}
+        run: |
+          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          for t in $TAGS; do
+            docker tag "compactdb-native:$VERSION" "$DOCKERHUB_REPOSITORY:$t"
+            docker push "$DOCKERHUB_REPOSITORY:$t"
+          done
+      - name: Image report
+        run: docker image inspect "compactdb-native:$VERSION" --format 'image {{.Id}} {{.Size}} bytes' | tee "image-$VERSION.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-report-${{ env.VERSION }}
+          path: image-${{ env.VERSION }}.txt
+
+  release:
+    needs: [plan, wasm, cli]
+    if: ${{ needs.plan.outputs.publish == 'true' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: compact-db-wasm-${{ needs.plan.outputs.version }}
+          path: assets
+      - name: GitHub release with the browser module
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.plan.outputs.version }}
+          DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" assets/* --repo "$GITHUB_REPOSITORY" \
+            --title "PostgreSQL $VERSION (pg.lite)" \
+            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in sources.lock.json."

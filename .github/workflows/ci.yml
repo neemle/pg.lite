@@ -1,0 +1,59 @@
+name: ci
+
+# Every push and pull request: the repository checks that need no PostgreSQL build (a few minutes), then a build and the
+# tests of every release this branch covers, as the static image (cli) and as WebAssembly (wasm).
+# Publishing (Docker Hub image, GitHub release) runs on release tags only: release.yml.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repo:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      # Nothing runs on the runner but docker and git: every target runs in the project's tools container.
+      - name: Self-tests (locks, patch series, probes, no upstream source committed)
+        run: tools/dc make selftest
+      - name: Lock files
+        run: tools/dc make validate-locks
+
+  typescript:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Browser module (TypeScript 7): types, oxlint, vitest
+        run: |
+          DC_NET=1 tools/dcb web sh scripts/web-install.sh web
+          tools/dcb web sh scripts/web-lib.sh typecheck
+          tools/dcb web sh scripts/web-lib.sh lint
+          tools/dcb web sh scripts/web-lib.sh test
+      - name: Demo (Angular 22): oxlint, vitest
+        run: |
+          DC_NET=1 tools/dcb web sh scripts/web-install.sh web/demo
+          tools/dcb web sh scripts/web-demo.sh lint
+          tools/dcb web sh scripts/web-demo.sh test
+
+  build:
+    needs: [repo, typescript]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # the releases this branch covers; each next branch adds the next ones
+        version: ['9.0.0']
+        target: [cli, wasm]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space (the builder images and trees are several GB)
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc && docker system prune -af >/dev/null && df -h /
+      - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
+        run: ./builder.sh patch "${{ matrix.version }}" "${{ matrix.target }}"
+      - name: Build
+        run: ./builder.sh build "${{ matrix.version }}" "${{ matrix.target }}"
+      - name: Test (cli: SQL, restart, authentication, one file in the image; wasm: SQL under node, then Chromium with a real Worker and IndexedDB)
+        run: ./builder.sh test "${{ matrix.version }}" "${{ matrix.target }}"

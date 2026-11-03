@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "features": [
+    { "name": "icu", "state": "excluded", "reason": "fixture: not needed for the builtin locale", "configureFlag": "--without-icu" },
+    { "name": "scram", "state": "included", "reason": "fixture: password auth", "appliesFrom": "10.0" },
+    { "name": "readline", "state": "excluded", "reason": "fixture", "configureFlag": "--without-readline", "appliesFrom": "9.0.0", "appliesTo": "18.99" }
+  ]
+}

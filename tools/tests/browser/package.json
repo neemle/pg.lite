@@ -1,0 +1,9 @@
+{
+  "name": "pglite-browser-tests",
+  "private": true,
+  "license": "PostgreSQL",
+  "description": "Browser tests of the WebAssembly engine (Playwright, Chromium). Installed by scripts/web-install.sh into the build volume.",
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

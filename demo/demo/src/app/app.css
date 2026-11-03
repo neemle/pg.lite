@@ -1,0 +1,26 @@
+:host { display: block; max-width: 60rem; margin: 0 auto; padding: 1rem 16px 3rem; }
+header h1 { margin: 0; font-size: 1.6rem; }
+header small { font-weight: 400; color: var(--muted); font-size: 0.9rem; }
+.engine { color: var(--muted); font-size: 0.85rem; margin: 0.25rem 0 1rem; }
+.bad { color: var(--bad); }
+main { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; align-items: start; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 0.5rem; padding: 1rem; }
+.card.wide { grid-column: 1 / -1; }
+h2 { margin: 0 0 0.75rem; font-size: 1.05rem; display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+.counts { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+form { display: grid; gap: 0.5rem; }
+input:not([type=checkbox]), textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 0.4rem 0.5rem; border: 1px solid var(--line); border-radius: 0.3rem; background: var(--bg); color: inherit; }
+textarea { resize: vertical; }
+button { font: inherit; padding: 0.4rem 0.9rem; border-radius: 0.3rem; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); cursor: pointer; justify-self: start; }
+button:disabled { opacity: 0.5; cursor: progress; }
+button.link { background: none; border: none; color: var(--bad); padding: 0; }
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+li { display: grid; grid-template-columns: auto 1fr auto; gap: 0.6rem; align-items: start; padding: 0.5rem 0; border-top: 1px solid var(--line); }
+li:first-child { border-top: none; }
+li.done strong { text-decoration: line-through; color: var(--muted); }
+li p { margin: 0.2rem 0; }
+li small, .empty { color: var(--muted); }
+.tag { margin-left: 0.5rem; font-size: 0.75rem; padding: 0.05rem 0.45rem; border-radius: 1rem; background: var(--tag); }
+.tag-line { color: var(--muted); font-size: 0.8rem; margin: 0.75rem 0 0.25rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; display: block; overflow-x: auto; }
+th, td { text-align: left; padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }

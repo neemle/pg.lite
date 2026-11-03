@@ -1,0 +1,17 @@
+{
+  "name": "pglite-browser-module",
+  "private": true,
+  "type": "module",
+  "description": "PostgreSQL in the browser: page API, Worker and IndexedDB storage (TypeScript). The Angular demo is in ./demo.",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.lib.json --noEmit && tsc -p tsconfig.worker.json --noEmit",
+    "build": "tsc -p tsconfig.lib.json && tsc -p tsconfig.worker.json",
+    "lint": "oxlint src",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "oxlint": "1.90.0",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "sources.lock.json",
+  "description": "One entry per PostgreSQL release. Upstream is fetched at build time and verified against these values; the source tree is never committed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "baseline", "releases"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "enum": [1] },
+    "baseline": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+      "description": "Version used when no version is given. Must exist in releases."
+    },
+    "releases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "major", "tag", "commit", "gitUrl", "archiveUrl", "archiveSha256", "checksumSource"],
+        "properties": {
+          "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+          "major": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$", "description": "9.6 style before 10, plain number from 10" },
+          "tag": { "type": "string", "minLength": 1 },
+          "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$", "description": "Full commit SHA; abbreviations are rejected." },
+          "gitUrl": { "type": "string", "pattern": "^https://" },
+          "archiveUrl": { "type": "string", "pattern": "^https://" },
+          "archiveSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "checksumSource": { "type": "string", "enum": ["official-sha256-file", "computed-md5-verified", "computed-unverified"], "description": "official-sha256-file: value read from the official .sha256 file. computed-md5-verified: no official sha256 exists; the archive was downloaded, hashed, and its md5 equals the official .md5. computed-unverified: hashed from the download with no official file to compare." }
+        }
+      }
+    }
+  }
+}

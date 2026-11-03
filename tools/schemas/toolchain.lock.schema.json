@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "toolchain.lock.json",
+  "description": "Dockerized builder images pinned by digest, and the version ranges that use them. Ranges must not overlap and must cover every release in sources.lock.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "images", "ranges"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "enum": [1] },
+    "images": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["image", "digest", "tools"],
+        "properties": {
+          "image": { "type": "string", "pattern": "^[^:@\\s]+(:[^@\\s]+)?$", "description": "Repository[:tag]; the tag is informational, the digest decides." },
+          "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "tools": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": { "type": "string", "minLength": 1 },
+            "description": "Tool name to exact version (compiler, musl, linker, emscripten, binaryen, node, ...)."
+          },
+          "dockerfile": { "type": "string", "pattern": "^docker/[A-Za-z0-9._/-]+$", "description": "Repo path of the Dockerfile whose FROM line carries the digest." },
+          "rationale": { "type": "string" }
+        }
+      }
+    },
+    "ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "nativeImage", "wasmImage"],
+        "properties": {
+          "from": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+          "to": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+          "nativeImage": { "type": "string", "minLength": 1, "description": "Key in images." },
+          "wasmImage": { "type": "string", "minLength": 1, "description": "Key in images." }
+        }
+      }
+    }
+  }
+}

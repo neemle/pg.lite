@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "categories": { "correctness": "error", "suspicious": "warn" },
+  "env": { "browser": true, "es2023": true },
+  "rules": {
+    "no-console": "warn",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "unicorn/require-post-message-target-origin": "off"
+  }
+}
