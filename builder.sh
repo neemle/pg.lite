@@ -15,6 +15,7 @@
 #   ./builder.sh build latest cli      ./builder.sh test 17.11 cli      ./builder.sh build 18.6 wasm --test
 #   ./builder.sh list                  every release that can be built
 #   ./builder.sh version 17            print the release a version argument stands for
+#   ./builder.sh reference 17.11       build the unmodified upstream image that the cli tests use as their client (test does it by itself)
 #
 # Options (after the target):
 #   --test            build only: run the tests right after the build
@@ -27,7 +28,7 @@
 # cli tests use the unmodified upstream build of the same release as the external client (psql). It is built once (a while) and kept
 # as the image compactdb-reference:<version>; with CLIENT_IMAGE=<image with psql> (for example postgres:18-alpine) it is skipped.
 # Behind a TLS-inspecting proxy that breaks the download: FETCH_HTTP_FALLBACK=1 ./builder.sh ... (the pinned SHA-256 is still checked).
-# CI runs exactly these commands: .github/workflows/release.yml fetches and patches, builds, tests, then uploads.
+# CI runs these commands, stage by stage: .github/workflows/ci.yml; a release tag publishes what CI built (release.yml).
 set -eu
 root=$(cd "$(dirname "$0")" && pwd)
 cd "$root"
@@ -40,6 +41,15 @@ command -v docker >/dev/null 2>&1 || die "docker is required (it is the only too
 docker info >/dev/null 2>&1 || die "the docker daemon is not reachable"
 
 command="${1:-}"
+# the unmodified upstream build of a release: its psql is the external client of the image tests; built once, kept as compactdb-reference:<v>
+build_reference() {
+    step "the unmodified upstream build of $version, whose psql is the external test client"
+    tools/dc make fetch VERSION="$version"
+    tools/dcb ref make builder-check
+    tools/dcb ref make reference VERSION="$version"
+    image/reference.sh image "$version"
+}
+
 case "$command" in
     ""|-h|--help|help) usage 0 ;;
 esac
@@ -66,6 +76,11 @@ case "$command" in
     version)
         [ $# -ge 1 ] || usage
         resolve_version "$1"
+        exit 0 ;;
+    reference)
+        [ $# -ge 1 ] || usage
+        version=$(resolve_version "$1")
+        build_reference
         exit 0 ;;
     patch|build|test) ;;
     *) echo "builder.sh: unknown command '$command'" >&2; usage ;;
@@ -129,13 +144,15 @@ test_cli() {
         build_cli
         export VARIANT="$variant"
     fi
-    step "unit tests of the shell-free spawn code"
-    tools/dcb musl make test-noshell VERSION="$version"
+    if [ -n "${SKIP_UNIT:-}" ]; then      # CI runs the unit tests in the job that built the tree (SKIP_UNIT=1 here: only the image is at hand)
+        tools/dcb musl make builder-check    # the image tests use the musl builder for small helper containers
+    else
+        step "unit tests of the shell-free spawn code"
+        tools/dcb musl make test-noshell VERSION="$version"
+    fi
+    [ -z "${ONLY_UNIT:-}" ] || return 0     # CI: the job that built the tree runs the unit tests, other jobs the image tests
     if [ -z "${CLIENT_IMAGE:-}" ] && ! docker image inspect "compactdb-reference:$version" >/dev/null 2>&1; then
-        step "the unmodified upstream build of the same release, whose psql is the external test client"
-        tools/dcb ref make builder-check
-        tools/dcb ref make reference VERSION="$version"
-        image/reference.sh image "$version"
+        build_reference
     fi
     step "image tests: cold init, SQL, modules, authentication, restart, non-empty data directory"
     PACK="$pack" image/image.sh test "$version"
@@ -169,9 +186,10 @@ test_wasm() {
     fi
     step "SQL smoke test under node"
     tools/dcb wasm make test-wasm-node VERSION="$version"
+    step "browser module: dependencies (its build runs before the browser tests)"
+    DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
     if [ -z "${SKIP_TS_CHECKS:-}" ]; then      # CI runs these in its own job (SKIP_TS_CHECKS=1), once
         step "browser module: types, lint (oxlint) and unit tests (vitest)"
-        DC_NET=1 tools/dcb web sh wasm/web-install.sh wasm
         tools/dcb web sh wasm/web-lib.sh typecheck
         tools/dcb web sh wasm/web-lib.sh lint
         tools/dcb web sh wasm/web-lib.sh test
