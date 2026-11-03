@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.0.8` is PostgreSQL 9.0.8 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v9.0.9` is PostgreSQL 9.0.9 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -36,7 +36,8 @@ A git tag is a PostgreSQL version: `v9.0.8` is PostgreSQL 9.0.8 with these patch
 | 9.0.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The sequence backport has a third variant, because 9.0.7 added the page copy in sequence redo it builds on; the other patches apply unchanged. |
 | 9.0.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The browser build needs one more patch from this release on (0290): 9.0.8 no longer sets the reference point of the stack depth check in a stand-alone backend, so a runaway recursion ended the engine instead of failing with 54001. |
-| 9.0.9 – 9.0.23 | ⬜ next | ⬜ next | |
+| 9.0.9 | 🚧 in progress | 🚧 in progress | The same patches as 9.0.0 apply unchanged. |
+| 9.0.10 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
@@ -81,11 +82,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.0.8 cli          # the one-file Docker image
-./builder.sh test 9.0.8 cli
-./builder.sh build 9.0.8 wasm         # node engine, browser module, demo
-./builder.sh test 9.0.8 wasm
-./builder.sh build 9.0.8 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 9.0.9 cli          # the one-file Docker image
+./builder.sh test 9.0.9 cli
+./builder.sh build 9.0.9 wasm         # node engine, browser module, demo
+./builder.sh test 9.0.9 wasm
+./builder.sh build 9.0.9 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
