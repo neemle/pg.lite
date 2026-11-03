@@ -26,7 +26,7 @@ case "$cmd" in
 image)
     docker image inspect "$builder" >/dev/null 2>&1 || { echo "reference: build the ref builder first (tools/dcb ref make builder-check)" >&2; exit 1; }
     # Stream a build context (Dockerfile + entrypoint + install tree) out of the build volume.
-    docker run --rm --network none -v compactdb-build:/b:ro -v "$root/../image/docker/reference:/ref:ro" "$builder" sh -c \
+    docker run --rm --network none -v "${DC_BUILD_VOLUME:-compactdb-build}":/b:ro -v "$root/../image/docker/reference:/ref:ro" "$builder" sh -c \
         "set -e; test -d /b/ref/$ver/install || { echo 'no build/ref/$ver/install; run tools/dcb ref make reference VERSION=$ver' >&2; exit 1; }
          d=\$(mktemp -d); cp /ref/Dockerfile /ref/entrypoint.sh \$d/
          tar -C /b/ref/$ver/install -cf \$d/install.tar .
