@@ -27,6 +27,10 @@ on:
       version:
         description: PostgreSQL version to build and test, for example 9.0.0 (dry run, nothing is published)
         required: true
+      github-release:
+        description: Only create the GitHub release of the existing tag v<version>, from the artifacts of the run that tested it (nothing is built, nothing is pushed to Docker Hub)
+        type: boolean
+        default: false
 
 permissions:
   contents: write     # create the release and upload its files
@@ -48,9 +52,11 @@ jobs:
       newestOverall: ${{ steps.plan.outputs.newestOverall }}
       publish: ${{ steps.publish.outputs.publish }}
       ciRun: ${{ steps.reuse.outputs.run }}
+      releaseOnly: ${{ steps.reuse.outputs.releaseOnly }}
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.github-release && format('refs/tags/v{0}', inputs.version) || github.ref }}      # the tag, when only its release is created
           fetch-depth: 0       # the commits of the other branches, to compare their files with these
       - id: plan
         name: The tag must be an upstream PostgreSQL release this repository can build
@@ -78,9 +84,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.plan.outputs.version }}
+          RELEASE_ONLY: ${{ inputs.github-release }}
         run: |
           run=$(sh scripts/ci-reuse.sh "$VERSION")
           echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "releaseOnly=$RELEASE_ONLY" >> "$GITHUB_OUTPUT"
+          if [ "$RELEASE_ONLY" = true ] && [ -z "$run" ]; then
+            echo "::error::No successful run of ci.yml has the files of the tag v$VERSION with artifacts that are still there (they live 7 days)."
+            exit 1
+          fi
           if [ -n "$run" ]; then
             echo "The image and the WebAssembly archive of the run $run are published: nothing is built again." | tee -a "$GITHUB_STEP_SUMMARY"
           else
@@ -154,8 +166,9 @@ jobs:
 
   release:
     needs: [plan, publish]
-    # publish is skipped on a manual dry run; ci is skipped when an earlier run is reused, and a skipped job upstream would skip this one too
-    if: ${{ !cancelled() && needs.publish.result == 'success' }}
+    # publish is skipped on a manual dry run; ci is skipped when an earlier run is reused, and a skipped job upstream would skip this one too.
+    # A manual run with github-release creates only this release, for a tag that exists already (its images were published by the tag run).
+    if: ${{ !cancelled() && (needs.publish.result == 'success' || (needs.plan.result == 'success' && needs.plan.outputs.releaseOnly == 'true')) }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v8
@@ -170,6 +183,6 @@ jobs:
           VERSION: ${{ needs.plan.outputs.version }}
           DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
         run: |
-          gh release create "$GITHUB_REF_NAME" assets/* --repo "$GITHUB_REPOSITORY" \
+          gh release create "v$VERSION" assets/* --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "PostgreSQL $VERSION (pg.lite)" \
             --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in tools/releases.txt."
