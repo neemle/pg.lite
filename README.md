@@ -33,7 +33,7 @@ A git tag is a PostgreSQL version: `v9.0.6` is PostgreSQL 9.0.6 with these patch
 | 9.0.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The sequence backport has a second variant, because 9.0.5 added the code it builds on; the other patches apply unchanged. |
-| 9.0.6 | 🚧 in progress | 🚧 in progress | The same patches as 9.0.0 apply unchanged. |
+| 9.0.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
 | 9.0.7 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
