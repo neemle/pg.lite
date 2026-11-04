@@ -8,7 +8,8 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 
 | Tag | PostgreSQL | Executable |
 | --- | --- | --- |
-| `9.1.4` | 9.1.4 | compressed (about 4.7 MB) |
+| `9.1.5` | 9.1.5 | compressed (about 4.7 MB) |
+| `9.1.4` | 9.1.4 | compressed |
 | `9.1.3` | 9.1.3 | compressed |
 | `9.1.2` | 9.1.2 | compressed |
 | `9.1.1` | 9.1.1 | compressed |
@@ -41,17 +42,17 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | `9.1` | the newest 9.1.x built here | compressed |
 | `9` | the newest 9.x built here | compressed |
 | `latest` | the newest release built here | compressed |
-| `9.1.4-uncompressed`, `9.1.3-uncompressed`, `9.1.2-uncompressed`, `9.1.1-uncompressed`, `9.1.0-uncompressed`, `9.0.23-uncompressed`, `9.0.22-uncompressed`, `9.0.21-uncompressed`, `9.0.20-uncompressed`, `9.0.19-uncompressed`, `9.0.18-uncompressed`, `9.0.17-uncompressed`, `9.0.16-uncompressed`, `9.0.15-uncompressed`, `9.0.14-uncompressed`, `9.0.13-uncompressed`, `9.0.12-uncompressed`, `9.0.11-uncompressed`, `9.0.10-uncompressed`, `9.0.9-uncompressed`, `9.0.8-uncompressed`, `9.0.7-uncompressed`, `9.0.6-uncompressed`, `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9.1-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
+| `9.1.5-uncompressed`, `9.1.4-uncompressed`, `9.1.3-uncompressed`, `9.1.2-uncompressed`, `9.1.1-uncompressed`, `9.1.0-uncompressed`, `9.0.23-uncompressed`, `9.0.22-uncompressed`, `9.0.21-uncompressed`, `9.0.20-uncompressed`, `9.0.19-uncompressed`, `9.0.18-uncompressed`, `9.0.17-uncompressed`, `9.0.16-uncompressed`, `9.0.15-uncompressed`, `9.0.14-uncompressed`, `9.0.13-uncompressed`, `9.0.12-uncompressed`, `9.0.11-uncompressed`, `9.0.10-uncompressed`, `9.0.9-uncompressed`, `9.0.8-uncompressed`, `9.0.7-uncompressed`, `9.0.6-uncompressed`, `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9.1-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
 
 One tag is one PostgreSQL release, nothing else. The executable of the default tags is compressed with a self-extracting packer: the image is about a third of the size and a start is about 0.4 s slower; the `-uncompressed` tags hold the same server without it. Platform: `linux/amd64`.
 
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.1.4
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.1.5
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:9.1.4 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:9.1.5 -c max_connections=200`.
 
 ## Environment
 
