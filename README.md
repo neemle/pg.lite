@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.0.20` is PostgreSQL 9.0.20 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v9.0.21` is PostgreSQL 9.0.21 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -48,7 +48,8 @@ A git tag is a PostgreSQL version: `v9.0.20` is PostgreSQL 9.0.20 with these pat
 | 9.0.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.9 apply unchanged. |
 | 9.0.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.9 apply unchanged. |
 | 9.0.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.9 apply unchanged. |
-| 9.0.21 – 9.0.23 | ⬜ next | ⬜ next | |
+| 9.0.21 | 🚧 in progress | 🚧 in progress | The same patches as 9.0.9 apply unchanged. |
+| 9.0.22 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
@@ -93,11 +94,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.0.20 cli          # the one-file Docker image
-./builder.sh test 9.0.20 cli
-./builder.sh build 9.0.20 wasm         # node engine, browser module, demo
-./builder.sh test 9.0.20 wasm
-./builder.sh build 9.0.20 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 9.0.21 cli          # the one-file Docker image
+./builder.sh test 9.0.21 cli
+./builder.sh build 9.0.21 wasm         # node engine, browser module, demo
+./builder.sh test 9.0.21 wasm
+./builder.sh build 9.0.21 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
