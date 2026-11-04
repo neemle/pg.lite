@@ -54,7 +54,7 @@ A git tag is a PostgreSQL version: `v9.1.3` is PostgreSQL 9.1.3 with these patch
 | 9.1.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object lists of three Makefiles, the protocol bytes in pqcomm.c (9.1 allocates the send buffer, which the embedded engine has to do itself) and the sequence backport (the commit of the 9.1 branch) have 9.1 variants; the other patches apply unchanged. |
 | 9.1.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.0 apply unchanged. |
 | 9.1.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.1 apply unchanged. |
-| 9.1.3 | 🚧 in progress | 🚧 in progress | The same patches as 9.1.2 apply unchanged. |
+| 9.1.3 | 🚧 in progress | 🚧 in progress | The sequence backport has a second 9.1 variant, because 9.1.3 added the page copy in sequence redo it builds on; the other patches apply unchanged. |
 | 9.1.4 – 9.1.24 | ⬜ next | ⬜ next | |
 | 9.2 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
