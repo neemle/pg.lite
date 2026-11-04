@@ -1,0 +1,20 @@
+Targets: native
+Releases: 9.1.0-
+Subject: Build noshell.o into libpgport
+Purpose: The build file of src/port lists the object files; noshell.o (patch 0100) has to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series.
+Components: src/port/Makefile
+Checks: tools/dcb musl make native-build links the one-file server with noshell.o; image/tests/noshell-test.c
+Origin: own
+
+diff --git a/src/port/Makefile b/src/port/Makefile
+--- a/src/port/Makefile
++++ b/src/port/Makefile
+@@ -30,7 +30,7 @@
+ override CPPFLAGS := -I$(top_builddir)/src/port -DFRONTEND $(CPPFLAGS)
+ LIBS += $(PTHREAD_LIBS)
+ 
+-OBJS = $(LIBOBJS) chklocale.o dirmod.o exec.o inet_net_ntop.o noblock.o \
++OBJS = noshell.o $(LIBOBJS) chklocale.o dirmod.o exec.o inet_net_ntop.o noblock.o \
+ 	path.o pgcheckdir.o pgmkdirp.o pgsleep.o pgstrcasecmp.o \
+ 	qsort.o qsort_arg.o sprompt.o thread.o
+ 

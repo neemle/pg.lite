@@ -1,0 +1,20 @@
+Targets: wasm
+Releases: 9.0.0-9.0.23
+Subject: Build wasm_popen.o into initdb
+Purpose: The build file of initdb lists the object files; wasm_popen.o (patch 0220) has to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series.
+Components: src/bin/initdb/Makefile
+Checks: wasm/build.sh runs initdb under node and produces a data directory that postgres --single opens
+Origin: own
+
+diff --git a/src/bin/initdb/Makefile b/src/bin/initdb/Makefile
+--- a/src/bin/initdb/Makefile
++++ b/src/bin/initdb/Makefile
+@@ -18,7 +18,7 @@
+ 
+ override CPPFLAGS := -DFRONTEND -I$(libpq_srcdir) $(CPPFLAGS)
+ 
+-OBJS=	initdb.o encnames.o pqsignal.o $(WIN32RES)
++OBJS=	initdb.o encnames.o pqsignal.o wasm_popen.o $(WIN32RES)
+ 
+ all: submake-libpgport initdb
+ 

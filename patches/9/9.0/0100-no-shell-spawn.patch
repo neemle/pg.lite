@@ -2,7 +2,7 @@ Targets: native
 Releases: 9.0.0-
 Subject: Run initdb's helper commands without /bin/sh
 Purpose: initdb starts the bootstrap and single-user server with popen() and system() commands containing quotes and redirections, and find_other_exec() probes versions with popen(). A FROM scratch image has no shell, so with PG_NO_SHELL defined these calls go through a small interpreter (words, quotes, backslash, < > 2> 2>&1) built on posix_spawn; shell syntax it does not implement (pipes, &, ;, $, backquotes, globs) is refused with EINVAL instead of being run wrongly. Without PG_NO_SHELL the code is upstream's.
-Components: src/common/noshell.c (new), src/include/common/noshell.h (new), src/common/exec.c, src/bin/initdb/initdb.c, src/common/Makefile
+Components: src/port/noshell.c (new), src/include/common/noshell.h (new), src/port/exec.c, src/bin/initdb/initdb.c (the object list of src/port/Makefile: patch 0095)
 Checks: tests/native/noshell-test.c (quotes, redirections, 2>&1, pipes for r and w, exit status, refused syntax) and ./dcb musl make native-test, which runs initdb in a container that has no /bin/sh
 Origin: own
 
@@ -18,18 +18,6 @@ diff --git a/src/bin/initdb/initdb.c b/src/bin/initdb/initdb.c
  #include "libpq/pqsignal.h"
  #include "mb/pg_wchar.h"
  #include "getaddrinfo.h"
-diff --git a/src/port/Makefile b/src/port/Makefile
---- a/src/port/Makefile
-+++ b/src/port/Makefile
-@@ -30,7 +30,7 @@
- override CPPFLAGS := -I$(top_builddir)/src/port -DFRONTEND $(CPPFLAGS)
- LIBS += $(PTHREAD_LIBS)
- 
--OBJS = $(LIBOBJS) chklocale.o dirmod.o exec.o noblock.o path.o \
-+OBJS = noshell.o $(LIBOBJS) chklocale.o dirmod.o exec.o noblock.o path.o \
- 	pgsleep.o pgstrcasecmp.o qsort.o qsort_arg.o sprompt.o thread.o
- ifneq (,$(filter $(PORTNAME),cygwin win32))
- OBJS += pipe.o
 diff --git a/src/port/exec.c b/src/port/exec.c
 --- a/src/port/exec.c
 +++ b/src/port/exec.c

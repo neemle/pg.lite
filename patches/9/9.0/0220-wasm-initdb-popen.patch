@@ -2,22 +2,10 @@ Targets: wasm
 Releases: 9.0.0-
 Subject: Let initdb run the postgres programs when it is itself a WebAssembly program under node
 Purpose: initdb starts "postgres --boot" and "postgres --single" through popen() and reads "postgres -V" the same way, but Emscripten has no processes and its popen() always fails. The bootstrap data directory of the WebAssembly target must come from this same patched upstream (the layout of a native data directory is not portable to wasm32), so initdb itself is built for node and gets a popen()/pclose() that runs the command line with child_process.spawnSync in the build container: a "w" pipe collects what initdb writes and feeds it to the command when the pipe is closed, an "r" pipe runs the command first and hands back its output. The child gets what initdb put in its own environment (PGDATA, LC_*) on top of the environment of node. This is a build-time tool only; it is never part of the browser payload.
-Components: src/bin/initdb/wasm_popen.c (new), src/bin/initdb/Makefile
+Components: src/bin/initdb/wasm_popen.c (new) (the object list of src/bin/initdb/Makefile: patch 0225)
 Checks: scripts/build-wasm.sh runs initdb under node and produces a data directory that postgres --single opens (scripts/test-wasm-node.sh)
 Origin: own
 
-diff --git a/src/bin/initdb/Makefile b/src/bin/initdb/Makefile
---- a/src/bin/initdb/Makefile
-+++ b/src/bin/initdb/Makefile
-@@ -18,7 +18,7 @@
- 
- override CPPFLAGS := -DFRONTEND -I$(libpq_srcdir) $(CPPFLAGS)
- 
--OBJS=	initdb.o encnames.o pqsignal.o $(WIN32RES)
-+OBJS=	initdb.o encnames.o pqsignal.o wasm_popen.o $(WIN32RES)
- 
- all: submake-libpgport initdb
- 
 diff --git a/src/bin/initdb/wasm_popen.c b/src/bin/initdb/wasm_popen.c
 new file mode 100644
 --- a/src/bin/initdb/wasm_popen.c

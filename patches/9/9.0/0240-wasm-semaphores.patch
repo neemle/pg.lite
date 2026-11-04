@@ -2,23 +2,11 @@ Targets: wasm
 Releases: 9.0.0-
 Subject: Provide POSIX and System V semaphores for a single-process WebAssembly build
 Purpose: Emscripten without threads links sem_init(), sem_trywait() and the other semaphore calls, but they are stubs: sem_init() fails and sem_trywait() always succeeds, so PGSemaphoreReset() (called by InitProcess) calls sem_trywait() until it fails and never returns; postgres --boot and --single spin at full CPU right after set_max_safe_fds. With a single process a semaphore is only a counter, so the five calls PostgreSQL uses (sem_init, sem_destroy, sem_post, sem_trywait, sem_wait) are defined in wasm_sema.c under other names and posix_sema.c is given them by macros (the C library's own definitions cannot be replaced: they sit in an object the link needs for other symbols). A wait on a zero semaphore, which nothing could ever post, fails with EDEADLK (PostgreSQL reports it as a FATAL error) instead of hanging. Compiled only when __EMSCRIPTEN__ is defined.
-Components: src/backend/port/wasm_sema.c (new), src/include/port/wasm_sema.h (new), src/backend/port/posix_sema.c, src/backend/port/Makefile
+Components: src/backend/port/wasm_sema.c (new), src/include/port/wasm_sema.h (new), src/backend/port/posix_sema.c (the object list of src/backend/port/Makefile: patch 0195)
 Checks: postgres --boot and --single start under node and get past InitProcess (scripts/build-wasm.sh creates the template data directory, scripts/test-wasm-node.sh)
 Origin: own
 Adaptation-note: this release selects System V semaphores on Linux (unnamed POSIX ones need thread safety there); wasm_sema.c therefore also emulates semget, semctl and semop with counters in process memory (a wait that could never end fails with EDEADLK).
 
-diff --git a/src/backend/port/Makefile b/src/backend/port/Makefile
---- a/src/backend/port/Makefile
-+++ b/src/backend/port/Makefile
-@@ -21,7 +21,7 @@
- top_builddir = ../../..
- include $(top_builddir)/src/Makefile.global
- 
--OBJS = dynloader.o pg_sema.o pg_shmem.o wasm_shm.o $(TAS)
-+OBJS = dynloader.o pg_sema.o pg_shmem.o wasm_shm.o wasm_sema.o $(TAS)
- 
- ifeq ($(PORTNAME), darwin)
- SUBDIRS += darwin
 diff --git a/src/backend/port/posix_sema.c b/src/backend/port/posix_sema.c
 --- a/src/backend/port/posix_sema.c
 +++ b/src/backend/port/posix_sema.c

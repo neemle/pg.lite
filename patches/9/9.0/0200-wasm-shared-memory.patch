@@ -2,22 +2,10 @@ Targets: wasm
 Releases: 9.0.0-
 Subject: Provide System V shared memory calls for a single-process WebAssembly build
 Purpose: Emscripten has no shmget/shmat/shmdt/shmctl, but the server calls them at startup (the small interlock segment next to the anonymous main segment, and the dynamic shared memory control segment). A WebAssembly server is one process, so a segment is a block of the process's own memory. This file implements exactly the calls and the shmid_ds fields PostgreSQL uses, in-process, and only when __EMSCRIPTEN__ is defined; other builds compile an empty unit.
-Components: src/backend/port/wasm_shm.c (new), src/backend/port/Makefile
+Components: src/backend/port/wasm_shm.c (new) (the object list of src/backend/port/Makefile: patch 0195)
 Checks: scripts/build-wasm.sh links postgres with no undefined symbols; postgres --boot and --single start under node (scripts/test-wasm-node.sh)
 Origin: own
 
-diff --git a/src/backend/port/Makefile b/src/backend/port/Makefile
---- a/src/backend/port/Makefile
-+++ b/src/backend/port/Makefile
-@@ -21,7 +21,7 @@
- top_builddir = ../../..
- include $(top_builddir)/src/Makefile.global
- 
--OBJS = dynloader.o pg_sema.o pg_shmem.o $(TAS)
-+OBJS = dynloader.o pg_sema.o pg_shmem.o wasm_shm.o $(TAS)
- 
- ifeq ($(PORTNAME), darwin)
- SUBDIRS += darwin
 diff --git a/src/backend/port/wasm_shm.c b/src/backend/port/wasm_shm.c
 new file mode 100644
 --- a/src/backend/port/wasm_shm.c

@@ -2,7 +2,7 @@ Targets: wasm
 Releases: 9.0.0-
 Subject: Run the WebAssembly backend as a library: frontend/backend protocol through JavaScript calls
 Purpose: A browser has no sockets and no processes, so a client cannot connect to the server, and the single-user text mode (SQL lines on stdin, "backend>" prompts) loses types and structure. Instead the standalone backend (postgres --single) is started through pg_wasm_main() with the output destination set to "remote" and protocol 3: pq_init_embedded() allocates the send buffer, pq_recvbuf() reads the next bytes through wasm_embed_read() and internal_flush_buffer() writes through wasm_embed_write() (both in wasm_embed.c, in front of secure_read/secure_write). In the browser link they call Module.pgRead(), which returns a Promise (the wasm stack is suspended while it is pending, JavaScript Promise Integration), and Module.pgWrite(); PostgresMain() and its loop stay as upstream, so any client library that speaks the PostgreSQL protocol can drive the engine, with every type, bigint and numeric in the text or binary format the protocol defines. The node build gets stubs that fail with ENOSYS. Nothing changes unless wasm_embedded is set by pg_wasm_main().
-Components: src/backend/port/wasm_embed.c (new), src/include/port/wasm_embed.h (new), src/backend/libpq/pqcomm.c, src/backend/tcop/postgres.c, src/backend/port/Makefile
+Components: src/backend/port/wasm_embed.c (new), src/include/port/wasm_embed.h (new), src/backend/libpq/pqcomm.c, src/backend/tcop/postgres.c (the object list of src/backend/port/Makefile: patch 0195)
 Checks: scripts/build-wasm.sh WEB=1 links the browser module; tests/browser runs queries through the wire protocol in Chromium and tests/wasm/test-wasm-web-node.sh does the same under node
 Origin: own
 
@@ -114,18 +114,6 @@ diff --git a/src/backend/tcop/postgres.c b/src/backend/tcop/postgres.c
  	/*
  	 * You might expect to see a setsid() call here, but it's not needed,
  	 * because if we are under a postmaster then BackendInitialize() did it.
-diff --git a/src/backend/port/Makefile b/src/backend/port/Makefile
---- a/src/backend/port/Makefile
-+++ b/src/backend/port/Makefile
-@@ -21,7 +21,7 @@
- top_builddir = ../../..
- include $(top_builddir)/src/Makefile.global
- 
--OBJS = dynloader.o pg_sema.o pg_shmem.o wasm_shm.o wasm_sema.o $(TAS)
-+OBJS = dynloader.o pg_sema.o pg_shmem.o wasm_shm.o wasm_sema.o wasm_embed.o $(TAS)
- 
- ifeq ($(PORTNAME), darwin)
- SUBDIRS += darwin
 diff --git a/src/backend/port/wasm_embed.c b/src/backend/port/wasm_embed.c
 new file mode 100644
 --- a/src/backend/port/wasm_embed.c
