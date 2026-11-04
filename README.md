@@ -37,7 +37,7 @@ A git tag is a PostgreSQL version: `v9.0.10` is PostgreSQL 9.0.10 with these pat
 | 9.0.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The sequence backport has a third variant, because 9.0.7 added the page copy in sequence redo it builds on; the other patches apply unchanged. |
 | 9.0.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The browser build needs one more patch from this release on (0290): 9.0.8 no longer sets the reference point of the stack depth check in a stand-alone backend, so a runaway recursion ended the engine instead of failing with 54001. |
 | 9.0.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The sequence backport is not applied any more (9.0.9 has the fix itself); the stack depth patch (0290) of 9.0.8 stays; the other patches apply unchanged. |
-| 9.0.10 | 🚧 in progress | 🚧 in progress | The same patches as 9.0.9 apply unchanged. |
+| 9.0.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.9 apply unchanged. |
 | 9.0.11 – 9.0.23 | ⬜ next | ⬜ next | |
 | 9.1 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
