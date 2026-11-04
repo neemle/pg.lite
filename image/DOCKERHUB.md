@@ -8,7 +8,8 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 
 | Tag | PostgreSQL | Executable |
 | --- | --- | --- |
-| `9.0.12` | 9.0.12 | compressed (about 4.7 MB) |
+| `9.0.13` | 9.0.13 | compressed (about 4.7 MB) |
+| `9.0.12` | 9.0.12 | compressed |
 | `9.0.11` | 9.0.11 | compressed |
 | `9.0.10` | 9.0.10 | compressed |
 | `9.0.9` | 9.0.9 | compressed |
@@ -24,17 +25,17 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | `9.0` | the newest 9.0.x built here | compressed |
 | `9` | the newest 9.x built here | compressed |
 | `latest` | the newest release built here | compressed |
-| `9.0.12-uncompressed`, `9.0.11-uncompressed`, `9.0.10-uncompressed`, `9.0.9-uncompressed`, `9.0.8-uncompressed`, `9.0.7-uncompressed`, `9.0.6-uncompressed`, `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
+| `9.0.13-uncompressed`, `9.0.12-uncompressed`, `9.0.11-uncompressed`, `9.0.10-uncompressed`, `9.0.9-uncompressed`, `9.0.8-uncompressed`, `9.0.7-uncompressed`, `9.0.6-uncompressed`, `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
 
 One tag is one PostgreSQL release, nothing else. The executable of the default tags is compressed with a self-extracting packer: the image is about a third of the size and a start is about 0.4 s slower; the `-uncompressed` tags hold the same server without it. Platform: `linux/amd64`.
 
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.0.12
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.0.13
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:9.0.12 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:9.0.13 -c max_connections=200`.
 
 ## Environment
 
