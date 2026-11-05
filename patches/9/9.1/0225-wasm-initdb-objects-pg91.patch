@@ -1,5 +1,5 @@
 Targets: wasm
-Releases: 9.1.0-
+Releases: 9.1.0-9.1.24
 Subject: Build wasm_popen.o into initdb
 Purpose: The build file of initdb lists the object files; wasm_popen.o (patch 0220) has to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series.
 Components: src/bin/initdb/Makefile
