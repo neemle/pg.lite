@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.2.1` is PostgreSQL 9.2.1 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v9.2.2` is PostgreSQL 9.2.2 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -78,7 +78,8 @@ A git tag is a PostgreSQL version: `v9.2.1` is PostgreSQL 9.2.1 with these patch
 | 9.1.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.23 apply unchanged. |
 | 9.2.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object lists of three Makefiles and the places in postgres.c that the embedded protocol patch changes have 9.2 variants; the other patches apply unchanged. |
 | 9.2.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.0 apply unchanged. |
-| 9.2.2 – 9.2.24 | ⬜ next | ⬜ next | |
+| 9.2.2 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.1 apply unchanged. |
+| 9.2.3 – 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
@@ -123,11 +124,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.2.1 cli          # the one-file Docker image
-./builder.sh test 9.2.1 cli
-./builder.sh build 9.2.1 wasm         # node engine, browser module, demo
-./builder.sh test 9.2.1 wasm
-./builder.sh build 9.2.1 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 9.2.2 cli          # the one-file Docker image
+./builder.sh test 9.2.2 cli
+./builder.sh build 9.2.2 wasm         # node engine, browser module, demo
+./builder.sh test 9.2.2 wasm
+./builder.sh build 9.2.2 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
