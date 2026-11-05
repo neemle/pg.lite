@@ -6,58 +6,15 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 
 ## Tags
 
-| Tag | PostgreSQL | Executable |
-| --- | --- | --- |
-| `9.1.18` | 9.1.18 | compressed (about 4.7 MB) |
-| `9.1.17` | 9.1.17 | compressed |
-| `9.1.16` | 9.1.16 | compressed |
-| `9.1.15` | 9.1.15 | compressed |
-| `9.1.14` | 9.1.14 | compressed |
-| `9.1.13` | 9.1.13 | compressed |
-| `9.1.12` | 9.1.12 | compressed |
-| `9.1.11` | 9.1.11 | compressed |
-| `9.1.10` | 9.1.10 | compressed |
-| `9.1.9` | 9.1.9 | compressed |
-| `9.1.8` | 9.1.8 | compressed |
-| `9.1.7` | 9.1.7 | compressed |
-| `9.1.6` | 9.1.6 | compressed |
-| `9.1.5` | 9.1.5 | compressed |
-| `9.1.4` | 9.1.4 | compressed |
-| `9.1.3` | 9.1.3 | compressed |
-| `9.1.2` | 9.1.2 | compressed |
-| `9.1.1` | 9.1.1 | compressed |
-| `9.1.0` | 9.1.0 | compressed |
-| `9.0.23` | 9.0.23 | compressed |
-| `9.0.22` | 9.0.22 | compressed |
-| `9.0.21` | 9.0.21 | compressed |
-| `9.0.20` | 9.0.20 | compressed |
-| `9.0.19` | 9.0.19 | compressed |
-| `9.0.18` | 9.0.18 | compressed |
-| `9.0.17` | 9.0.17 | compressed |
-| `9.0.16` | 9.0.16 | compressed |
-| `9.0.15` | 9.0.15 | compressed |
-| `9.0.14` | 9.0.14 | compressed |
-| `9.0.13` | 9.0.13 | compressed |
-| `9.0.12` | 9.0.12 | compressed |
-| `9.0.11` | 9.0.11 | compressed |
-| `9.0.10` | 9.0.10 | compressed |
-| `9.0.9` | 9.0.9 | compressed |
-| `9.0.8` | 9.0.8 | compressed |
-| `9.0.7` | 9.0.7 | compressed |
-| `9.0.6` | 9.0.6 | compressed |
-| `9.0.5` | 9.0.5 | compressed |
-| `9.0.4` | 9.0.4 | compressed |
-| `9.0.3` | 9.0.3 | compressed |
-| `9.0.2` | 9.0.2 | compressed |
-| `9.0.1` | 9.0.1 | compressed |
-| `9.0.0` | 9.0.0 | compressed |
-| `9.0` | the newest 9.0.x built here | compressed |
-| `9.1` | the newest 9.1.x built here | compressed |
-| `9` | the newest 9.x built here | compressed |
-| `latest` | the newest release built here | compressed |
-| `9.1.18-uncompressed`, `9.1.17-uncompressed`, `9.1.16-uncompressed`, `9.1.15-uncompressed`, `9.1.14-uncompressed`, `9.1.13-uncompressed`, `9.1.12-uncompressed`, `9.1.11-uncompressed`, `9.1.10-uncompressed`, `9.1.9-uncompressed`, `9.1.8-uncompressed`, `9.1.7-uncompressed`, `9.1.6-uncompressed`, `9.1.5-uncompressed`, `9.1.4-uncompressed`, `9.1.3-uncompressed`, `9.1.2-uncompressed`, `9.1.1-uncompressed`, `9.1.0-uncompressed`, `9.0.23-uncompressed`, `9.0.22-uncompressed`, `9.0.21-uncompressed`, `9.0.20-uncompressed`, `9.0.19-uncompressed`, `9.0.18-uncompressed`, `9.0.17-uncompressed`, `9.0.16-uncompressed`, `9.0.15-uncompressed`, `9.0.14-uncompressed`, `9.0.13-uncompressed`, `9.0.12-uncompressed`, `9.0.11-uncompressed`, `9.0.10-uncompressed`, `9.0.9-uncompressed`, `9.0.8-uncompressed`, `9.0.7-uncompressed`, `9.0.6-uncompressed`, `9.0.5-uncompressed`, `9.0.4-uncompressed`, `9.0.3-uncompressed`, `9.0.2-uncompressed`, `9.0.1-uncompressed`, `9.0.0-uncompressed`, `9.0-uncompressed`, `9.1-uncompressed`, `9-uncompressed` | the same releases | plain (about 15 MB) |
+| Tag | What it is |
+| --- | --- |
+| `9.1.0` (any release number) | exactly that PostgreSQL release and nothing else; the executable is compressed (about 4.7 MB) |
+| `9.1.0-uncompressed` | the same release with the plain executable (about 15 MB), a start that is about 0.4 s faster |
+| `9.0`, `9.1` | the newest release of that series built here |
+| `9` | the newest 9.x built here |
+| `latest` | the newest release built here |
 
-One tag is one PostgreSQL release, nothing else. The executable of the default tags is compressed with a self-extracting packer: the image is about a third of the size and a start is about 0.4 s slower; the `-uncompressed` tags hold the same server without it. Platform: `linux/amd64`.
+Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 and newer, with more series on the way. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platform: `linux/amd64`.
 
 ## Quick start
 
