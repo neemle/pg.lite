@@ -7,7 +7,8 @@
 # (*.md and LICENSE), this script, and the workflows that only publish (release.yml, dockerhub-page.yml). They are compared by a hash
 # of the file list with the blob ids (not by the commit or the tree id, which a README change would alter). Since the same function
 # hashes the old commits too, changing this list never makes an earlier run unfindable. A run counts only when it succeeded and
-# still has the artifacts of every given version (image-<version> and pg.lite-wasm-<version>; they expire after the retention time).
+# still has the artifacts of every given version (image-<version> and pg.lite-wasm-<version>, and image-<version>-arm64 where the release
+# has an arm64 image; they expire after the retention time).
 # Needs git with the history of the other branches (actions/checkout with fetch-depth 0) and the gh command (on the runners).
 # On any trouble (no history, the API does not answer) it prints nothing: the caller then builds, which is always correct.
 set -eu
@@ -34,6 +35,8 @@ printf '%s\n' "$runs" | while read -r id sha; do
     for v in "$@"; do
         printf '%s\n' "$names" | grep -qx "image-$v" || complete=0
         printf '%s\n' "$names" | grep -qx "pg.lite-wasm-$v" || complete=0
+        # a release with an arm64 image (scripts/has-arm64.sh) has the arm64 image artifact as well
+        if sh "$(dirname "$0")/has-arm64.sh" "$v"; then printf '%s\n' "$names" | grep -qx "image-$v-arm64" || complete=0; fi
     done
     [ "$complete" = 1 ] || continue
     echo "ci-reuse: run $id (commit $sha) built and tested the same files" >&2

@@ -1,4 +1,4 @@
-# Native builder: fully static x86_64 binaries against musl (Alpine is musl-native, so gcc and
+# Native builder: fully static binaries (x86_64 or aarch64, the architecture of the docker host) against musl (Alpine is musl-native, so gcc and
 # the libc headers/archives all come from the same musl). Used for the static image.
 # Base pinned by digest (tag is informational). Use through tools/dcb musl <command>.
 #

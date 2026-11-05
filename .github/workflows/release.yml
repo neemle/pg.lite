@@ -17,6 +17,8 @@ name: release
 # release in tools/releases.txt (9.0), the family when it is the newest of it (9), and "latest" for the newest release of all.
 # The same image with a plain executable has the same tags with the suffix -uncompressed (9.0.0-uncompressed, 9.0-uncompressed,
 # 9-uncompressed; no latest-uncompressed).
+# From 9.2.5 on (scripts/has-arm64.sh: where upstream PostgreSQL supports aarch64) every tag is multi-platform: the amd64 image and the
+# arm64 image, each built and tested on its own runner, are pushed as <tag>-amd64 and <tag>-arm64 and joined under <tag>.
 on:
   push:
     tags: ['v[0-9]*']
@@ -53,6 +55,7 @@ jobs:
       publish: ${{ steps.publish.outputs.publish }}
       ciRun: ${{ steps.reuse.outputs.run }}
       releaseOnly: ${{ steps.reuse.outputs.releaseOnly }}
+      arm64: ${{ steps.arch.outputs.arm64 }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,6 +69,12 @@ jobs:
           # a tag is v<version>; a manual run may say "latest" or a bare major, which builder.sh turns into a release
           [ "${TAG#v}" = "$TAG" ] || TAG="v$(./builder.sh version "${TAG#v}")"
           tools/dc sh scripts/release-plan.sh --github "$TAG" | tee -a "$GITHUB_OUTPUT"
+      - id: arch
+        name: Does this release get an arm64 image next to the amd64 one? (scripts/has-arm64.sh)
+        env:
+          VERSION: ${{ steps.plan.outputs.version }}
+        run: |
+          if sh scripts/has-arm64.sh "$VERSION"; then echo "arm64=true" >> "$GITHUB_OUTPUT"; else echo "arm64=false" >> "$GITHUB_OUTPUT"; fi
       - id: publish
         name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
         env:
@@ -120,6 +129,7 @@ jobs:
       NEWEST_IN_FAMILY: ${{ needs.plan.outputs.newestInFamily }}
       NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
       DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
+      ARM64: ${{ needs.plan.outputs.arm64 }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -128,10 +138,16 @@ jobs:
           path: image
           run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}      # the reused run, or this one
           github-token: ${{ github.token }}
-      - name: Load the tested image and give it its tags
+      - uses: actions/download-artifact@v8
+        if: ${{ needs.plan.outputs.arm64 == 'true' }}
+        with:
+          name: image-${{ env.VERSION }}-arm64
+          path: image-arm64
+          run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}
+          github-token: ${{ github.token }}
+      - name: Load the tested images and give them their tags
         id: tags
         run: |
-          gunzip -c "image/image-$VERSION.tar.gz" | docker load
           # the compressed image: 9.0.0, 9.0, 9, latest; the plain one: 9.0.0-uncompressed, 9.0-uncompressed, 9-uncompressed
           tags="$VERSION"
           [ "$NEWEST_IN_MAJOR" = true ] && tags="$tags $MAJOR"
@@ -139,23 +155,55 @@ jobs:
           plain=""
           for t in $tags; do plain="$plain $t-uncompressed"; done
           [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
-          for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
-          for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t"; done
+          # A release with an arm64 image is published as one multi-platform tag (amd64 and arm64 under the same name). The two images
+          # are pushed first under <tag>-amd64 and <tag>-arm64 and then joined; a release without arm64 is pushed under the tag itself.
+          archtags=""
+          if [ "$ARM64" = true ]; then
+            gunzip -c "image/image-$VERSION.tar.gz" | docker load
+            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t-amd64"; archtags="$archtags $t-amd64"; done
+            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t-amd64"; archtags="$archtags $t-amd64"; done
+            # the arm64 archive holds the images under the same names: load it second and tag it right away
+            gunzip -c "image-arm64/image-$VERSION-arm64.tar.gz" | docker load
+            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t-arm64"; archtags="$archtags $t-arm64"; done
+            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t-arm64"; archtags="$archtags $t-arm64"; done
+            for a in amd64 arm64; do
+              for t in $tags; do
+                [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t-$a" --format '{{.Architecture}}')" = "$a" ] || { echo "::error::$t-$a is not a $a image"; exit 1; }
+              done
+            done
+          else
+            gunzip -c "image/image-$VERSION.tar.gz" | docker load
+            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
+            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t"; done
+          fi
           echo "tags=$tags $plain" >> "$GITHUB_OUTPUT"
+          echo "archtags=$archtags" >> "$GITHUB_OUTPUT"
       - name: Push to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           TAGS: ${{ steps.tags.outputs.tags }}
+          ARCHTAGS: ${{ steps.tags.outputs.archtags }}
         run: |
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          for t in $TAGS; do docker push "$DOCKERHUB_REPOSITORY:$t"; done
+          if [ "$ARM64" = true ]; then
+            for t in $ARCHTAGS; do docker push "$DOCKERHUB_REPOSITORY:$t"; done
+            # one tag, two platforms
+            for t in $TAGS; do docker buildx imagetools create -t "$DOCKERHUB_REPOSITORY:$t" "$DOCKERHUB_REPOSITORY:$t-amd64" "$DOCKERHUB_REPOSITORY:$t-arm64"; done
+          else
+            for t in $TAGS; do docker push "$DOCKERHUB_REPOSITORY:$t"; done
+          fi
       - name: Check what was published (pull it back and look at it)
         env:
           TAGS: ${{ steps.tags.outputs.tags }}
         run: |
           for t in $TAGS; do
-            docker rmi "$DOCKERHUB_REPOSITORY:$t" >/dev/null
+            docker rmi "$DOCKERHUB_REPOSITORY:$t" >/dev/null 2>&1 || true
+            if [ "$ARM64" = true ]; then
+              # the tag lists both platforms (the arm64 image cannot run on this amd64 runner; it was tested on an arm64 runner)
+              docker buildx imagetools inspect "$DOCKERHUB_REPOSITORY:$t" | tee /dev/stderr | grep -q 'Platform: *linux/amd64'
+              docker buildx imagetools inspect "$DOCKERHUB_REPOSITORY:$t" | grep -q 'Platform: *linux/arm64'
+            fi
             docker pull -q "$DOCKERHUB_REPOSITORY:$t"
             docker run --rm --entrypoint /usr/local/pgsql/bin/postgres "$DOCKERHUB_REPOSITORY:$t" --version | tee /dev/stderr | grep -q "(PostgreSQL) $VERSION"
             [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "$VERSION" ]

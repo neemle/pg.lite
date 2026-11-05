@@ -14,6 +14,7 @@ ARG PGDATA_DIR=/var/lib/postgresql/data
 ARG REVISION=unknown
 ARG CREATED=unknown
 ARG PACKED=no
+ARG ARCH=amd64
 
 LABEL org.opencontainers.image.title="pg.lite" \
       org.opencontainers.image.description="PostgreSQL ${PG_VERSION} as one static executable in a FROM scratch image" \
@@ -25,7 +26,7 @@ LABEL org.opencontainers.image.title="pg.lite" \
       org.opencontainers.image.documentation="https://github.com/neemle/pg.lite#configuration-of-the-image" \
       org.opencontainers.image.licenses="PostgreSQL" \
       io.github.neemle.pglite.postgres-major="${PG_MAJOR}" \
-      io.github.neemle.pglite.platform="linux/amd64, static, musl" \
+      io.github.neemle.pglite.platform="linux/${ARCH}, static, musl" \
       io.github.neemle.pglite.packed="${PACKED}"
 
 COPY rootfs/ /

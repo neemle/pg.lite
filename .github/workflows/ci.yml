@@ -47,6 +47,8 @@ jobs:
       actions: read       # to list the runs and their artifacts
     outputs:
       versions: ${{ steps.versions.outputs.versions }}
+      builds: ${{ steps.matrix.outputs.builds }}
+      tests: ${{ steps.matrix.outputs.tests }}
       reuse: ${{ steps.reuse.outputs.run }}
     steps:
       - uses: actions/checkout@v7
@@ -56,6 +58,11 @@ jobs:
         env:
           VERSIONS: ${{ inputs.versions || env.DEFAULT_VERSIONS }}
         run: echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
+      - id: matrix
+        name: "The image jobs: one per release and architecture (arm64 where the release has an arm64 image)"
+        env:
+          VERSIONS: ${{ steps.versions.outputs.versions }}
+        run: sh scripts/builds.sh "$VERSIONS" | tee -a "$GITHUB_OUTPUT"
       - id: reuse
         name: Earlier run that built and tested the same files (nothing is built then)
         env:
@@ -112,10 +119,10 @@ jobs:
   reference:
     needs: plan
     if: ${{ needs.plan.outputs.reuse == '' }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.plan.outputs.versions) }}
+        include: ${{ fromJSON(needs.plan.outputs.builds) }}
     steps:
       - uses: actions/checkout@v7
       - name: Cache of the reference image
@@ -123,13 +130,13 @@ jobs:
         uses: actions/cache@v6
         with:
           path: reference-image.tar
-          key: reference-${{ matrix.version }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
+          key: reference-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
       - name: Cache (downloaded sources)
         if: ${{ steps.refcache.outputs.cache-hit != 'true' }}
         uses: actions/cache@v6
         with:
           path: /home/runner/pglite-cache
-          key: cache-ref-${{ matrix.version }}-${{ hashFiles('tools/releases.txt') }}
+          key: cache-ref-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/releases.txt') }}
       - name: Build the reference image (only when it is not cached)
         if: ${{ steps.refcache.outputs.cache-hit != 'true' }}
         run: |
@@ -139,21 +146,23 @@ jobs:
   # ---- stage 2: build
   build-cli:
     needs: [plan, repo, typescript]
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ fromJSON(needs.plan.outputs.versions) }}
+        include: ${{ fromJSON(needs.plan.outputs.builds) }}
     env:
       VERSION: ${{ matrix.version }}
+      # the artifact of the arm64 image has its own name; the amd64 one keeps image-<version>
+      SUFFIX: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
     steps:
       - uses: actions/checkout@v7
       - name: Cache (downloaded sources and packer)
         uses: actions/cache@v6
         with:
           path: /home/runner/pglite-cache
-          key: cache-cli-${{ matrix.version }}-${{ hashFiles('tools/releases.txt', 'image/fetch-xsfx.sh') }}
-          restore-keys: cache-cli-${{ matrix.version }}-
+          key: cache-cli-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/releases.txt', 'image/fetch-xsfx.sh') }}
+          restore-keys: cache-cli-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-
       - name: Disk space (cleaned only when less than 10 GB is free)
         run: |
           df -h /
@@ -174,15 +183,17 @@ jobs:
           docker tag "compactdb-native:$VERSION-min3-xsfx" "pg.lite-image:$VERSION"
           docker tag "compactdb-native:$VERSION-min3" "pg.lite-image:$VERSION-uncompressed"
           for i in "$VERSION" "$VERSION-uncompressed"; do
-            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION.txt"
+            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION$SUFFIX.txt"
           done
-          docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" "compactdb-native:$VERSION-min3" "compactdb-native:$VERSION-min3-xsfx" | gzip -9 > "image-$VERSION.tar.gz"
+          docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" "compactdb-native:$VERSION-min3" "compactdb-native:$VERSION-min3-xsfx" | gzip -9 > "image-$VERSION$SUFFIX.tar.gz"
       - name: Disk space at the end (to see how much a job really needs)
         run: df -h /
       - uses: actions/upload-artifact@v7
         with:
-          name: image-${{ env.VERSION }}
+          name: image-${{ env.VERSION }}${{ env.SUFFIX }}
           path: |
+            image-${{ env.VERSION }}${{ env.SUFFIX }}.tar.gz
+            image-${{ env.VERSION }}${{ env.SUFFIX }}.txt|
             image-${{ env.VERSION }}.tar.gz
             image-${{ env.VERSION }}.txt
           if-no-files-found: error
@@ -243,28 +254,28 @@ jobs:
   # ---- stage 3: test
   test-image:
     needs: [plan, build-cli, reference]
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ fromJSON(needs.plan.outputs.versions) }}
-        image: [plain, compressed]
+        include: ${{ fromJSON(needs.plan.outputs.tests) }}
     env:
       VERSION: ${{ matrix.version }}
       SKIP_UNIT: '1'     # the unit tests ran in build-cli, next to the build tree
+      SUFFIX: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
-          name: image-${{ matrix.version }}
+          name: image-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}
       - name: The reference image from the cache
         uses: actions/cache/restore@v6
         with:
           path: reference-image.tar
-          key: reference-${{ matrix.version }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
+          key: reference-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
       - name: Load the images
         run: |
-          gunzip -c "image-$VERSION.tar.gz" | docker load
+          gunzip -c "image-$VERSION$SUFFIX.tar.gz" | docker load
           # no cached reference image (evicted): the test builds it
           if [ -f reference-image.tar ]; then docker load -i reference-image.tar; fi
       - name: Test the image (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)

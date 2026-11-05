@@ -15,7 +15,9 @@ bvs="${VARIANT:+-$VARIANT}"   # size/compiler variant (build/native/<ver>-<varia
 # PACK=xsfx compresses every executable with xsfx (LZMA2) when the image is assembled; it gets its own image tag
 pack="${PACK:-}"; case "$pack" in ""|xsfx) ;; *) echo "native: PACK must be empty or xsfx" >&2; exit 2 ;; esac
 vs="$bvs${pack:+-$pack}"
-xsfx_bin=/b/xsfx/v0.2.0/x/xsfx-x86_64-unknown-linux-musl
+# the architecture of the docker host (x86_64 or aarch64), which is the one the image is built for: the packer and the label follow it
+case "$(docker info --format "{{.Architecture}}" 2>/dev/null)" in aarch64|arm64) arch=arm64; xsfx_arch=aarch64 ;; *) arch=amd64; xsfx_arch=x86_64 ;; esac
+xsfx_bin=/b/xsfx/v0.2.0/x/xsfx-$xsfx_arch-unknown-linux-musl
 img="compactdb-native:$ver$vs"
 client_img="${CLIENT_IMAGE:-compactdb-reference:$ver}"   # the stock psql of a first minor can crash on a current distribution: CLIENT_IMAGE=compactdb-reference:<later minor of the major>
 net="compactdb-ref-net"
@@ -86,7 +88,7 @@ image)
         --build-arg PG_VERSION="$ver" --build-arg PG_MAJOR="$major" \
         --build-arg PG_UID="${PG_UID:-70}" --build-arg PG_GID="${PG_GID:-70}" \
         --build-arg REVISION="$revision" --build-arg CREATED="$created" \
-        --build-arg PACKED="$([ -n "$pack" ] && echo yes || echo no)" -
+        --build-arg PACKED="$([ -n "$pack" ] && echo yes || echo no)" --build-arg ARCH="$arch" -
     echo "native: built $tag"
     ;;
 up)
