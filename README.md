@@ -82,7 +82,7 @@ A git tag is a PostgreSQL version: `v9.2.6` is PostgreSQL 9.2.6 with these patch
 | 9.2.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.2 apply unchanged. |
 | 9.2.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.3 apply unchanged. |
 | 9.2.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The first release with an arm64 image next to the amd64 one (built and tested natively on an arm64 runner). The same patches as 9.2.4 apply unchanged. |
-| 9.2.6 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.5 apply unchanged. |
+| 9.2.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.5 apply unchanged. |
 | 9.2.7 – 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
