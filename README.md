@@ -71,7 +71,7 @@ A git tag is a PostgreSQL version: `v9.1.20` is PostgreSQL 9.1.20 with these pat
 | 9.1.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.16 apply unchanged. |
 | 9.1.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.17 apply unchanged. |
 | 9.1.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.18 apply unchanged. |
-| 9.1.20 | 🚧 in progress | 🚧 in progress | Upstream added tar.o to the object list of src/port/Makefile, so the patch that adds noshell.o (0095) has a second 9.1 variant from this release on; the other patches apply unchanged. |
+| 9.1.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | Upstream added tar.o to the object list of src/port/Makefile, so the patch that adds noshell.o (0095) has a second 9.1 variant from this release on; the other patches apply unchanged. |
 | 9.1.21 – 9.1.24 | ⬜ next | ⬜ next | |
 | 9.2 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
