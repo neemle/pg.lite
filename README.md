@@ -93,7 +93,7 @@ A git tag is a PostgreSQL version: `v9.2.17` is PostgreSQL 9.2.17 with these pat
 | 9.2.14 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.13 apply unchanged. |
 | 9.2.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | PostgreSQL 9.2.15 added `tar.o` to the object list of `src/port/Makefile`, so the patch that adds `noshell.o` there has a 9.2.15 variant; the earlier releases keep the sibling patch. |
 | 9.2.16 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.15 apply unchanged. |
-| 9.2.17 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.16 apply unchanged. |
+| 9.2.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.16 apply unchanged. |
 | 9.2.18 – 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
