@@ -25,7 +25,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 A git tag is a PostgreSQL version: `v9.2.5` is PostgreSQL 9.2.5 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
-| PostgreSQL | x86-64 image (`FROM scratch`) | WebAssembly (browser) | Notes |
+| PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
 | 9.0.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The fix of the crash-safety bug of new sequences (PostgreSQL 9.0.9) is backported, because a browser database can be killed at any time. |
 | 9.0.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.0.0 apply unchanged. |
@@ -81,13 +81,13 @@ A git tag is a PostgreSQL version: `v9.2.5` is PostgreSQL 9.2.5 with these patch
 | 9.2.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.1 apply unchanged. |
 | 9.2.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.2 apply unchanged. |
 | 9.2.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.3 apply unchanged. |
-| 9.2.5 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.4 apply unchanged. |
+| 9.2.5 | 🚧 in progress | 🚧 in progress | The first release with an arm64 image next to the amd64 one (built and tested natively on an arm64 runner). The same patches as 9.2.4 apply unchanged. |
 | 9.2.6 – 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
-✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux on x86-64.
+✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
 
 ## Configuration of the image
 
