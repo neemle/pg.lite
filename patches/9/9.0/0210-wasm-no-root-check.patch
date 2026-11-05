@@ -1,5 +1,5 @@
 Targets: wasm
-Releases: 9.0.0-
+Releases: 9.0.0-9.2.8
 Subject: Skip the "do not run as root" check in the WebAssembly build
 Purpose: PostgreSQL refuses to start as root (geteuid() == 0) to protect the host. Emscripten reports user 0 to every program, whether it runs in a browser or under node in a build container, and there is no host account to protect: the module runs inside the sandbox of its host. The check is skipped only when __EMSCRIPTEN__ is defined.
 Components: src/backend/main/main.c, src/bin/initdb/initdb.c

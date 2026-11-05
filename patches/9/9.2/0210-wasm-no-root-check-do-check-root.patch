@@ -1,0 +1,50 @@
+Targets: wasm
+Releases: 9.2.9-
+Subject: Skip the "do not run as root" check in the WebAssembly build
+Purpose: PostgreSQL refuses to start as root (geteuid() == 0) to protect the host. Emscripten reports user 0 to every program, whether it runs in a browser or under node in a build container, and there is no host account to protect: the module runs inside the sandbox of its host. The check is skipped only when __EMSCRIPTEN__ is defined. 9.2.9 added the variable do_check_root to main() (the root check is skipped for --describe-config and -C), so the lines around this hunk of main.c are different; this variant is for 9.2.9 and later, the sibling without it for the earlier releases.
+Components: src/backend/main/main.c, src/bin/initdb/initdb.c
+Checks: postgres --version and postgres --single run under node as root (scripts/test-wasm-node.sh); initdb creates the template data directory as root (scripts/build-wasm.sh)
+Origin: own
+
+diff --git a/src/backend/main/main.c b/src/backend/main/main.c
+--- a/src/backend/main/main.c
++++ b/src/backend/main/main.c
+@@ -194,8 +194,11 @@
+ 	 * Make sure we are not running as root, unless it's safe for the selected
+ 	 * option.
+ 	 */
++#ifndef __EMSCRIPTEN__
++	/* (the WebAssembly host reports uid 0 to everyone and has no account to protect) */
+ 	if (do_check_root)
+ 		check_root(progname);
++#endif
+ 
+ 	/*
+ 	 * Dispatch to one of various subprograms depending on first argument.
+diff --git a/src/bin/initdb/initdb.c b/src/bin/initdb/initdb.c
+--- a/src/bin/initdb/initdb.c
++++ b/src/bin/initdb/initdb.c
+@@ -551,6 +551,8 @@
+ 
+ 	struct passwd *pw;
+ 
++/* the WebAssembly host reports uid 0 to everyone and has no account to protect */
++#ifndef __EMSCRIPTEN__
+ 	if (geteuid() == 0)			/* 0 is root's uid */
+ 	{
+ 		fprintf(stderr,
+@@ -561,8 +563,14 @@
+ 				progname);
+ 		exit(1);
+ 	}
++#endif
+ 
+ 	pw = getpwuid(geteuid());
++#ifdef __EMSCRIPTEN__
++	/* no account database in WebAssembly: the one user owns the data directory */
++	if (!pw)
++		return xstrdup("postgres");
++#endif
+ 	if (!pw)
+ 	{
+ 		fprintf(stderr,
