@@ -77,7 +77,7 @@ A git tag is a PostgreSQL version: `v9.2.1` is PostgreSQL 9.2.1 with these patch
 | 9.1.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.22 apply unchanged. |
 | 9.1.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.1.23 apply unchanged. |
 | 9.2.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object lists of three Makefiles and the places in postgres.c that the embedded protocol patch changes have 9.2 variants; the other patches apply unchanged. |
-| 9.2.1 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.0 apply unchanged. |
+| 9.2.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.0 apply unchanged. |
 | 9.2.2 – 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
