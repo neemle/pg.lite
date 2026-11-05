@@ -10,19 +10,19 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | --- | --- |
 | `9.1.0` (any release number) | exactly that PostgreSQL release and nothing else; the executable is compressed (about 4.7 MB) |
 | `9.1.0-uncompressed` | the same release with the plain executable (about 15 MB), a start that is about 0.4 s faster |
-| `9.0`, `9.1` | the newest release of that series built here |
+| `9.0`, `9.1`, `9.2` | the newest release of that series built here |
 | `9` | the newest 9.x built here |
 | `latest` | the newest release built here |
 
-Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 and newer, with more series on the way. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platform: `linux/amd64`.
+Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9.1.24, 9.2.0 and newer, with more series on the way. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platform: `linux/amd64`.
 
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.1.24
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:9.2.0
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:9.1.24 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:9.2.0 -c max_connections=200`.
 
 ## Environment
 
