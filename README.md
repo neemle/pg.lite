@@ -88,7 +88,7 @@ A git tag is a PostgreSQL version: `v9.2.12` is PostgreSQL 9.2.12 with these pat
 | 9.2.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | PostgreSQL 9.2.9 added the variable `do_check_root` to `main()`, so the root check in `main.c` (the WebAssembly build skips it; the one-file server hooks its start there) has a 9.2.9 variant; the earlier releases keep the sibling patch. |
 | 9.2.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.9 apply unchanged. |
 | 9.2.11 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.10 apply unchanged. |
-| 9.2.12 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.11 apply unchanged. |
+| 9.2.12 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.11 apply unchanged. |
 | 9.2.13 – 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
