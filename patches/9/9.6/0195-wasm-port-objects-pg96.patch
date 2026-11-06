@@ -1,0 +1,20 @@
+Targets: wasm
+Releases: 9.6.0-
+Subject: Build the WebAssembly port files into the backend
+Purpose: The build file of src/backend/port lists the object files; wasm_shm.o (patch 0200), wasm_sema.o (0240) and wasm_embed.o (0260) have to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series. 9.2 has other lines around the list than 9.1, so it has its own variant (the one for 9.0 and 9.1 is capped at 9.1.24). This variant is for 9.5, whose object list starts with atomics.o; the sibling for 9.2 to 9.4 is capped at 9.4.26. This variant is for 9.6, whose object list no longer has pg_latch.o (the latch code moved to storage/ipc); the sibling for 9.5 is capped at 9.5.25.
+Components: src/backend/port/Makefile
+Checks: wasm/build.sh links postgres with no undefined symbols
+Origin: own
+
+diff --git a/src/backend/port/Makefile b/src/backend/port/Makefile
+--- a/src/backend/port/Makefile
++++ b/src/backend/port/Makefile
+@@ -21,7 +21,7 @@
+ top_builddir = ../../..
+ include $(top_builddir)/src/Makefile.global
+ 
+-OBJS = atomics.o dynloader.o pg_sema.o pg_shmem.o $(TAS)
++OBJS = atomics.o dynloader.o pg_sema.o pg_shmem.o wasm_shm.o wasm_sema.o wasm_embed.o $(TAS)
+ 
+ ifeq ($(PORTNAME), darwin)
+ SUBDIRS += darwin
