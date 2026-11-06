@@ -1,0 +1,16 @@
+Targets: native
+Releases: 9.5.0-
+Subject: Build noshell.o into libpgcommon
+Purpose: The build file of src/port lists the object files; noshell.o (patch 0100) has to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series. 9.2 has other lines around the list than 9.1, so it has its own variant (the one for 9.0 and 9.1 is capped at 9.1.24). 9.2.15 added tar.o to the list (the new src/port/tar.c), so the line this patch uses as context changed; this variant is for 9.2.15 and later, the sibling without tar.o for the earlier 9.2.x. This variant is for 9.3, whose list of object files (with pqsignal.o, quotes.o and wait_error.o) has other lines than 9.2; the siblings for 9.2 and earlier are capped at 9.2.24. This variant is for 9.4: exec.c moved to libpgcommon (src/common) and calls noshell.c, so noshell.o goes into the object list of src/common/Makefile (libpgcommon and libpgcommon_srv), not into the one of src/port. The line OBJS_COMMON changes from one release to the next (string.o came with 9.4.1), so the patch adds a line of its own in front of OBJS_FRONTEND; the sibling for 9.3 is capped at 9.3.25. This variant is for 9.5, where the object list of src/common/Makefile has other lines (pg_lzcompress.o, restricted_token.o): the added line goes in front of OBJS_SRV; the sibling for 9.4 is capped at 9.4.26.
+Components: src/common/Makefile
+Checks: tools/dcb musl make native-build links the one-file server with noshell.o; image/tests/noshell-test.c
+Origin: own
+
+diff --git a/src/common/Makefile b/src/common/Makefile
+--- a/src/common/Makefile
++++ b/src/common/Makefile
+@@ -30,2 +30,4 @@
+ 
++OBJS_COMMON += noshell.o
++
+ OBJS_SRV = $(OBJS_COMMON:%.o=%_srv.o)
