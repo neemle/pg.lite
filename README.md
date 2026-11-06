@@ -127,7 +127,7 @@ A git tag is a PostgreSQL version: `v9.4.0` is PostgreSQL 9.4.0 with these patch
 | 9.3.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.22 apply unchanged. |
 | 9.3.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.23 apply unchanged. |
 | 9.3.25 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.24 apply unchanged. |
-| 9.4.0 | 🚧 in progress | 🚧 in progress | A new series: exec.c moved to src/common, so the no-shell patch has a 9.4 variant; the user name of the WebAssembly build is patched in src/common/username.c and its root check in initdb.c has a 9.4 variant, as have the object list of src/port and the postgres.c hunks of the embedded protocol; the other patches apply unchanged. |
+| 9.4.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: exec.c moved to src/common, so the no-shell patch has a 9.4 variant; the user name of the WebAssembly build is patched in src/common/username.c and its root check in initdb.c has a 9.4 variant, as have the object list of src/port and the postgres.c hunks of the embedded protocol; the other patches apply unchanged. |
 | 9.4.1 – 9.4.26 | ⬜ next | ⬜ next | |
 | 9.5 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
