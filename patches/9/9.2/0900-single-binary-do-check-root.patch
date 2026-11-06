@@ -1,5 +1,5 @@
 Targets: native
-Releases: 9.2.9-
+Releases: 9.2.9-9.2.24
 Subject: One-file server: embed share/, initdb and the container entrypoint in postgres
 Purpose: A FROM scratch image should hold one file. This links everything the server needs besides itself into the postgres executable: the share/ tree as a tar image (file system calls on paths below the share and pkglib directories are answered from it, via ld --wrap), initdb, pg_resetwal and pg_controldata as in-process programs (postgres --initdb, --resetwal, --controldata), the container entrypoint (postgres --launcher: initialise PGDATA on the first start, refuse a directory that is not a cluster, then continue as the server) and a synthesized passwd entry for a user id that /etc/passwd does not know. Everything is behind PG_EMBEDDED_IMAGE and needs the objects the build adds (the tar image, the renamed program mains), so without them the code is upstream's. 9.2.9 added the variable do_check_root to main() (the root check is skipped for --describe-config and -C), so the lines around this hunk of main.c are different; this variant is for 9.2.9 and later, the sibling without it for the earlier releases.
 Components: src/backend/main/embedded.c (new), src/backend/main/main.c, src/backend/main/Makefile

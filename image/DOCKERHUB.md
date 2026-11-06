@@ -14,7 +14,7 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | `9` | the newest 9.x built here |
 | `latest` | the newest release built here |
 
-Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9.1.24, 9.2.0 and newer, with more series on the way. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platforms: from 9.2.5 on every tag is multi-platform (`linux/amd64` and `linux/arm64`, so it runs on Intel/AMD machines and on Apple silicon and other ARM machines alike; docker picks the right one); 9.0.0 to 9.2.4 are `linux/amd64` only (before 9.2.5 PostgreSQL itself has no native aarch64 support). Each multi-platform release also has the single-platform tags `<tag>-amd64` and `<tag>-arm64` (for example `9.2.5-arm64`); the ordinary tags are the ones to use.
+Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9.1.24, 9.2.0 to 9.2.24, 9.3.0 and newer, with more series on the way. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platforms: from 9.2.5 on every tag is multi-platform (`linux/amd64` and `linux/arm64`, so it runs on Intel/AMD machines and on Apple silicon and other ARM machines alike; docker picks the right one); 9.0.0 to 9.2.4 are `linux/amd64` only (before 9.2.5 PostgreSQL itself has no native aarch64 support). Each multi-platform release also has the single-platform tags `<tag>-amd64` and `<tag>-arm64` (for example `9.2.5-arm64`); the ordinary tags are the ones to use.
 
 ## Quick start
 
