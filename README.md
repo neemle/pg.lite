@@ -116,7 +116,7 @@ A git tag is a PostgreSQL version: `v9.3.15` is PostgreSQL 9.3.15 with these pat
 | 9.3.12 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.11 apply unchanged. |
 | 9.3.13 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.12 apply unchanged. |
 | 9.3.14 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.13 apply unchanged. |
-| 9.3.15 | 🚧 in progress | 🚧 in progress | The same patches as 9.3.14 apply unchanged. |
+| 9.3.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.3.14 apply unchanged. |
 | 9.3.16 – 9.3.25 | ⬜ next | ⬜ next | |
 | 9.4 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
