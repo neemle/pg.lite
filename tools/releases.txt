@@ -83,3 +83,4 @@
 9.3.5 9.3 REL9_3_5 f7ba173cb3548ddccaab68fcaeae3dd5efdcfbf1 14176ffb1f90a189e7626214365be08ea2bfc26f26994bafb4235be314b9b4b0 https://ftp.postgresql.org/pub/source/v9.3.5/postgresql-9.3.5.tar.bz2 https://git.postgresql.org/git/postgresql.git
 9.3.6 9.3 REL9_3_6 b5ea07b06d58519c54aa3f15067f9a44d84f6d8e 2368cb61e68d9581da7bfdb61bdf39ffbe59d2d95609b0e93adb3b6b8fd6ca14 https://ftp.postgresql.org/pub/source/v9.3.6/postgresql-9.3.6.tar.bz2 https://git.postgresql.org/git/postgresql.git
 9.3.7 9.3 REL9_3_7 70f2e3e20ff7dd10d2b405764f4818b11f167925 8b746ab3f7e84db9ba0c9fa0d9865f458fe4e43d5ae1d4ff2860db1f5204ff3d https://ftp.postgresql.org/pub/source/v9.3.7/postgresql-9.3.7.tar.bz2 https://git.postgresql.org/git/postgresql.git
+9.3.8 9.3 REL9_3_8 00ca051844e6a5a1746d9088d2c92b3fd1bcf151 bc5c3ce755dfc5f6fbc0186a564f97abac3c2914f9a5d5a47f22f4fd354aadfa https://ftp.postgresql.org/pub/source/v9.3.8/postgresql-9.3.8.tar.bz2 https://git.postgresql.org/git/postgresql.git
