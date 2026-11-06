@@ -130,7 +130,7 @@ A git tag is a PostgreSQL version: `v9.4.3` is PostgreSQL 9.4.3 with these patch
 | 9.4.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: exec.c moved to src/common, so the no-shell patch has a 9.4 variant; the user name of the WebAssembly build is patched in src/common/username.c and its root check in initdb.c has a 9.4 variant, as have the object list of src/port and the postgres.c hunks of the embedded protocol; the other patches apply unchanged. |
 | 9.4.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.4.0 apply unchanged. |
 | 9.4.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.4.1 apply unchanged. |
-| 9.4.3 | 🚧 in progress | 🚧 in progress | The same patches as 9.4.2 apply unchanged. |
+| 9.4.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.4.2 apply unchanged. |
 | 9.4.4 – 9.4.26 | ⬜ next | ⬜ next | |
 | 9.5 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
