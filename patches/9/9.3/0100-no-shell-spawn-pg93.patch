@@ -1,5 +1,5 @@
 Targets: native
-Releases: 9.3.0-
+Releases: 9.3.0-9.3.25
 Subject: Run initdb's helper commands without /bin/sh
 Purpose: initdb starts the bootstrap and single-user server with popen() and system() commands containing quotes and redirections, and find_other_exec() probes versions with popen(). A FROM scratch image has no shell, so with PG_NO_SHELL defined these calls go through a small interpreter (words, quotes, backslash, < > 2> 2>&1) built on posix_spawn; shell syntax it does not implement (pipes, &, ;, $, backquotes, globs) is refused with EINVAL instead of being run wrongly. Without PG_NO_SHELL the code is upstream's. This variant is for 9.3: initdb.c no longer includes libpq/pqsignal.h, the comment in front of the log_error macros of exec.c says "3- and 4-parameter", and 9.3.6 added common/relpath.h to the includes of initdb.c, so the two include hunks keep one line of context only; the sibling for 9.0 to 9.2 is capped at 9.2.24.
 Components: src/port/noshell.c (new), src/include/common/noshell.h (new), src/port/exec.c, src/bin/initdb/initdb.c (the object list of src/port/Makefile: patch 0095)

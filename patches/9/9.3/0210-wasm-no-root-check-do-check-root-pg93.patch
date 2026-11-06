@@ -1,5 +1,5 @@
 Targets: wasm
-Releases: 9.3.5-
+Releases: 9.3.5-9.3.25
 Subject: Skip the "do not run as root" check in the WebAssembly build
 Purpose: PostgreSQL refuses to start as root (geteuid() == 0) to protect the host. Emscripten reports user 0 to every program, whether it runs in a browser or under node in a build container, and there is no host account to protect: the module runs inside the sandbox of its host. The check is skipped only when __EMSCRIPTEN__ is defined. 9.2.9 added the variable do_check_root to main() (the root check is skipped for --describe-config and -C), so the lines around this hunk of main.c are different; this variant is for 9.2.9 and later, the sibling without it for the earlier releases. 9.3.5 added do_check_root to main() again (as 9.2.9 did), so this is the same patch as its sibling for 9.2.9 to 9.2.24, kept as a file of its own because the releases before 9.3.5 need the other variant: a patch has one range of releases. In 9.3 initdb.c spells xstrdup() pg_strdup(), so the line this patch adds uses pg_strdup().
 Components: src/backend/main/main.c, src/bin/initdb/initdb.c

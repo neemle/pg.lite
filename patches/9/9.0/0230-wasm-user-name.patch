@@ -1,5 +1,5 @@
 Targets: wasm
-Releases: 9.0.0-
+Releases: 9.0.0-9.3.25
 Subject: Give the WebAssembly build a user name when there is no account database
 Purpose: This release asks getpwuid() for the effective user in get_current_username() (src/backend/main/main.c), which fails in Emscripten (there is no account database behind a browser module), and postgres --single stops with "invalid effective UID: 0". There is exactly one user in a WebAssembly module, the owner of the data directory, so the lookup falls back to "postgres" there, the name the bootstrap superuser has anyway. initdb has the same fallback inside patch 0210. Only compiled when __EMSCRIPTEN__ is defined.
 Components: src/backend/main/main.c

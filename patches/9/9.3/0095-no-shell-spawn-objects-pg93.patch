@@ -1,5 +1,5 @@
 Targets: native
-Releases: 9.3.0-
+Releases: 9.3.0-9.3.25
 Subject: Build noshell.o into libpgport
 Purpose: The build file of src/port lists the object files; noshell.o (patch 0100) has to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series. 9.2 has other lines around the list than 9.1, so it has its own variant (the one for 9.0 and 9.1 is capped at 9.1.24). 9.2.15 added tar.o to the list (the new src/port/tar.c), so the line this patch uses as context changed; this variant is for 9.2.15 and later, the sibling without tar.o for the earlier 9.2.x. This variant is for 9.3, whose list of object files (with pqsignal.o, quotes.o and wait_error.o) has other lines than 9.2; the siblings for 9.2 and earlier are capped at 9.2.24.
 Components: src/port/Makefile
