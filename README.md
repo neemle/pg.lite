@@ -99,7 +99,7 @@ A git tag is a PostgreSQL version: `v9.2.23` is PostgreSQL 9.2.23 with these pat
 | 9.2.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.19 apply unchanged. |
 | 9.2.21 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.20 apply unchanged. |
 | 9.2.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.21 apply unchanged. |
-| 9.2.23 | 🚧 in progress | 🚧 in progress | The same patches as 9.2.22 apply unchanged. |
+| 9.2.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.2.22 apply unchanged. |
 | 9.2.24 | ⬜ next | ⬜ next | |
 | 9.3 – 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
