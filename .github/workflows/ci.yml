@@ -36,7 +36,7 @@ env:
   DC_CACHE_VOLUME: /home/runner/pglite-cache
   DC_BUILD_VOLUME: /home/runner/pglite-build
   # the releases this branch adds; the earlier ones were built and tested by their own branches
-  DEFAULT_VERSIONS: '["10.1"]'
+  DEFAULT_VERSIONS: '["10.2"]'
 
 jobs:
   # ---- stage 0: is there anything to do?
