@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.6.16` is PostgreSQL 9.6.16 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v9.6.17` is PostgreSQL 9.6.17 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -197,7 +197,8 @@ A git tag is a PostgreSQL version: `v9.6.16` is PostgreSQL 9.6.16 with these pat
 | 9.6.14 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.13 apply unchanged. |
 | 9.6.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.14 apply unchanged. |
 | 9.6.16 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.15 apply unchanged. |
-| 9.6.17 – 9.6.24 | ⬜ next | ⬜ next | |
+| 9.6.17 | 🚧 in progress | 🚧 in progress | The same patches as 9.6.16 apply unchanged. |
+| 9.6.18 – 9.6.24 | ⬜ next | ⬜ next | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -241,11 +242,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.6.16 cli          # the one-file Docker image
-./builder.sh test 9.6.16 cli
-./builder.sh build 9.6.16 wasm         # node engine, browser module, demo
-./builder.sh test 9.6.16 wasm
-./builder.sh build 9.6.16 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 9.6.17 cli          # the one-file Docker image
+./builder.sh test 9.6.17 cli
+./builder.sh build 9.6.17 wasm         # node engine, browser module, demo
+./builder.sh test 9.6.17 wasm
+./builder.sh build 9.6.17 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
