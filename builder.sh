@@ -90,6 +90,11 @@ esac
 version=$(resolve_version "$1")
 target="$2"
 shift 2
+# The stock psql of 9.5 (built with a current compiler) crashes on every connection: the official image of the series has the client for the
+# image tests instead (psql of the latest 9.5 minor, which talks to every 9.5 server).
+if [ -z "${CLIENT_IMAGE:-}" ]; then
+    case "$version" in 9.5.*) export CLIENT_IMAGE="postgres:9.5-alpine" ;; esac
+fi
 case "$target" in cli|wasm) ;; *) die "unknown target '$target' (cli or wasm)" ;; esac
 
 test_it=0; pack=""; variant="min3"; extra_tag=""

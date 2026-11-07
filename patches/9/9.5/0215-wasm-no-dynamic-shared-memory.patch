@@ -1,0 +1,17 @@
+Targets: wasm
+Releases: 9.5.0-
+Subject: Tell initdb to choose no dynamic shared memory in the WebAssembly build
+Purpose: From 9.4 on the postmaster (and a standalone backend) creates a control segment for dynamic shared memory and initdb picks the implementation "posix". Emscripten emulates mmap() of a shm_open() file by remembering the file descriptor number and writing the memory back to that descriptor when the mapping goes away; the program closes the descriptor right after mmap(), so by the time the memory is released at process exit the number belongs to another file. In 9.5 it is the WAL segment (the descriptor number is reused for it), and 876 bytes of the control segment overwrite the first page header of the segment: the next start finds "invalid magic number 3D32" and "could not locate a valid checkpoint record" (initdb stops at "initializing dependencies"). A WebAssembly module is one process and uses no dynamic shared memory (no parallel query), so initdb chooses "none" there and the data directory never maps a segment. 9.4 has the same code but the descriptor number did not collide there.
+Components: src/bin/initdb/initdb.c
+Checks: scripts/build-wasm.sh creates the template data directory (initdb runs the single-user backend three times; the second start reads the WAL of the first); the browser tests open databases and restart them
+Origin: own
+
+diff --git a/src/bin/initdb/initdb.c b/src/bin/initdb/initdb.c
+--- a/src/bin/initdb/initdb.c
++++ b/src/bin/initdb/initdb.c
+@@ -1070,2 +1070,5 @@
+ {
++#ifdef __EMSCRIPTEN__
++	return "none";
++#endif
+ #ifdef HAVE_SHM_OPEN
