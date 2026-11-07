@@ -205,7 +205,8 @@ A git tag is a PostgreSQL version: `v9.6.24` is PostgreSQL 9.6.24 with these pat
 | 9.6.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.21 apply unchanged. |
 | 9.6.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.22 apply unchanged. |
 | 9.6.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.23 apply unchanged. |
-| 10 – 17 | ⬜ planned | ⬜ planned | |
+| 10.0 – 10.23 | ⬜ next | ⬜ next | |
+| 11 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
