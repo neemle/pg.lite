@@ -1,0 +1,32 @@
+Targets: native
+Releases: 9.5.0-9.5.1
+Subject: Make psql's pg_utf8format writable
+Purpose: psql refreshes the table of box-drawing characters in refresh_utf8format() by writing to pg_utf8format through a cast that drops the const. 9.5.0 and 9.5.1 declare it const, so a current toolchain puts it into read-only data and psql dies with a segmentation fault at its start, before it connects (upstream removed the const in 9.5.2). The psql inside the executable is that psql: without this patch the container entrypoint could not run the scripts of /docker-entrypoint-initdb.d or check that its temporary server is up.
+Components: src/bin/psql/print.c, src/bin/psql/print.h
+Checks: image/image.sh test (initdb.d scripts, the temporary server of the launcher); psql --version and a query through the psql of the executable
+Origin: own
+
+diff --git a/src/bin/psql/print.c b/src/bin/psql/print.c
+--- a/src/bin/psql/print.c
++++ b/src/bin/psql/print.c
+@@ -98,7 +98,7 @@
+ };
+ 
+ /* Default unicode linestyle format */
+-const printTextFormat pg_utf8format;
++printTextFormat pg_utf8format;
+ 
+ typedef struct unicodeStyleRowFormat
+ {
+diff --git a/src/bin/psql/print.h b/src/bin/psql/print.h
+--- a/src/bin/psql/print.h
++++ b/src/bin/psql/print.h
+@@ -164,7 +164,7 @@
+ 
+ extern const printTextFormat pg_asciiformat;
+ extern const printTextFormat pg_asciiformat_old;
+-extern const printTextFormat pg_utf8format;
++extern printTextFormat pg_utf8format;
+ 
+ 
+ extern void disable_sigpipe_trap(void);
