@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.5.25` is PostgreSQL 9.5.25 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v9.6.0` is PostgreSQL 9.6.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -180,7 +180,8 @@ A git tag is a PostgreSQL version: `v9.5.25` is PostgreSQL 9.5.25 with these pat
 | 9.5.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.22 apply unchanged. |
 | 9.5.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.23 apply unchanged. |
 | 9.5.25 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.24 apply unchanged. |
-| 9.6.0 – 9.6.24 | ⬜ next | ⬜ next | |
+| 9.6.0 | 🚧 in progress | 🚧 in progress | A new series: the object list of src/backend/port has no pg_latch.o any more, so the wasm port-objects patch has a 9.6 variant; the other patches apply unchanged. |
+| 9.6.1 – 9.6.24 | ⬜ next | ⬜ next | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -224,11 +225,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.5.25 cli          # the one-file Docker image
-./builder.sh test 9.5.25 cli
-./builder.sh build 9.5.25 wasm         # node engine, browser module, demo
-./builder.sh test 9.5.25 wasm
-./builder.sh build 9.5.25 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 9.6.0 cli          # the one-file Docker image
+./builder.sh test 9.6.0 cli
+./builder.sh build 9.6.0 wasm         # node engine, browser module, demo
+./builder.sh test 9.6.0 wasm
+./builder.sh build 9.6.0 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
