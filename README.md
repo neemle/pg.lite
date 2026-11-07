@@ -188,7 +188,7 @@ A git tag is a PostgreSQL version: `v9.6.8` is PostgreSQL 9.6.8 with these patch
 | 9.6.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.4 apply unchanged. |
 | 9.6.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.5 apply unchanged. |
 | 9.6.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.6 apply unchanged. |
-| 9.6.8 | 🚧 in progress | 🚧 in progress | The same patches as 9.6.7 apply unchanged. |
+| 9.6.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.7 apply unchanged. |
 | 9.6.9 – 9.6.24 | ⬜ next | ⬜ next | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
