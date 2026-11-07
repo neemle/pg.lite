@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v10.4` is PostgreSQL 10.4 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v10.5` is PostgreSQL 10.5 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -210,7 +210,8 @@ A git tag is a PostgreSQL version: `v10.4` is PostgreSQL 10.4 with these patches
 | 10.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.1 apply unchanged. |
 | 10.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.2 apply unchanged. |
 | 10.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.3 apply unchanged. |
-| 10.5 – 10.23 | ⬜ next | ⬜ next | |
+| 10.5 | 🚧 in progress | 🚧 in progress | The same patches as 10.4 apply unchanged. |
+| 10.6 – 10.23 | ⬜ next | ⬜ next | |
 | 11 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -254,11 +255,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 10.4 cli          # the one-file Docker image
-./builder.sh test 10.4 cli
-./builder.sh build 10.4 wasm         # node engine, browser module, demo
-./builder.sh test 10.4 wasm
-./builder.sh build 10.4 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 10.5 cli          # the one-file Docker image
+./builder.sh test 10.5 cli
+./builder.sh build 10.5 wasm         # node engine, browser module, demo
+./builder.sh test 10.5 wasm
+./builder.sh build 10.5 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
