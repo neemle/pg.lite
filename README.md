@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v9.6.24` is PostgreSQL 9.6.24 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v10.0` is PostgreSQL 10.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -205,7 +205,8 @@ A git tag is a PostgreSQL version: `v9.6.24` is PostgreSQL 9.6.24 with these pat
 | 9.6.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.21 apply unchanged. |
 | 9.6.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.22 apply unchanged. |
 | 9.6.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.23 apply unchanged. |
-| 10.0 – 10.23 | ⬜ next | ⬜ next | |
+| 10.0 | 🚧 in progress | 🚧 in progress | A new series: variants for 10 of the static-modules patch (dfmgr.c), the wasm port-objects and semaphore patches, the pqcomm.c hunks of the embedded protocol and (10.0 to 10.22) the shutdown walker; the other patches apply unchanged. |
+| 10.1 – 10.23 | ⬜ next | ⬜ next | |
 | 11 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -249,11 +250,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 9.6.24 cli          # the one-file Docker image
-./builder.sh test 9.6.24 cli
-./builder.sh build 9.6.24 wasm         # node engine, browser module, demo
-./builder.sh test 9.6.24 wasm
-./builder.sh build 9.6.24 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 10.0 cli          # the one-file Docker image
+./builder.sh test 10.0 cli
+./builder.sh build 10.0 wasm         # node engine, browser module, demo
+./builder.sh test 10.0 wasm
+./builder.sh build 10.0 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
