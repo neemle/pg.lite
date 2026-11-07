@@ -1,0 +1,28 @@
+Targets: common
+Releases: 10.0-
+Subject: Do not fail when "locale -a" cannot be run
+Purpose: From 10 on the server imports the collations of the operating system itself: initdb runs SELECT pg_import_system_collations(), which reads the output of "locale -a" through a pipe and stops the whole initialisation with FATAL when the command cannot be started. Before 10, initdb did that and went on after a complaint. A FROM scratch image has no locale command (and no shell to start one with), and a WebAssembly module has no processes: the import finds nothing, and the collations that need no import (default, C, POSIX, ucs_basic) are all the server has, as in the earlier series.
+Components: src/backend/commands/collationcmds.c
+Checks: initdb in the scratch image and in the WebAssembly build gets past "performing post-bootstrap initialization"; image/image.sh test (cold init, SQL, restart)
+Origin: own
+
+diff --git a/src/backend/commands/collationcmds.c b/src/backend/commands/collationcmds.c
+--- a/src/backend/commands/collationcmds.c
++++ b/src/backend/commands/collationcmds.c
+@@ -530,10 +530,13 @@
+ 
+ 		locale_a_handle = OpenPipeStream("locale -a", "r");
+ 		if (locale_a_handle == NULL)
+-			ereport(ERROR,
+-					(errcode_for_file_access(),
+-					 errmsg("could not execute command \"%s\": %m",
++		{
++			/* no locale command to run (a scratch image, a WebAssembly module): nothing to import from the system */
++			ereport(DEBUG1,
++					(errmsg("could not execute command \"%s\": %m",
+ 							"locale -a")));
++			PG_RETURN_INT32(ncreated);
++		}
+ 
+ 		while (fgets(localebuf, sizeof(localebuf), locale_a_handle))
+ 		{
