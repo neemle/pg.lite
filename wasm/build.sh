@@ -86,6 +86,13 @@ make_headers() {
 step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-wasm: step failed: $*" >&2; tail -40 "$log" >&2; exit 1; }; }
 
 export CC=emcc
+# A compiler cache shared by the releases of a series (and by the node and the browser build of one release): a minor release changes few files,
+# so most objects come from the cache. Preprocessor mode (no direct mode) because pg_config.h differs in every release, and paths relative to /w
+# /build because the source folder has the version in its name. The cache lives in cache/ccache, which CI saves and restores.
+if command -v ccache >/dev/null 2>&1 && [ -z "${NO_CCACHE:-}" ]; then
+    export EM_COMPILER_WRAPPER=ccache CCACHE_DIR=/w/cache/ccache CCACHE_BASEDIR=/w/build CCACHE_NODIRECT=1 CCACHE_MAXSIZE=600M CCACHE_COMPRESS=1
+    mkdir -p "$CCACHE_DIR"
+fi
 # Overrides every make below needs: wasm-ld knows neither -rpath's --enable-new-dtags nor needs --export-dynamic.
 mk() { make -j"$jobs" "$@" rpath= LDFLAGS_EX_BE=; }
 
@@ -100,6 +107,8 @@ if [ "$resume" = 0 ]; then
     range_cflags="$RELEASE_WASM_CFLAGS"
     [ -z "$range_configure" ] || opts="$opts $range_configure"
     [ -z "$range_cflags" ] || cflags="$cflags $range_cflags"
+    # with the compiler cache: __FILE__ (every ereport has it) must not carry the version in the folder name, or no object of another release would match
+    [ -z "${EM_COMPILER_WRAPPER:-}" ] || cflags="$cflags -ffile-prefix-map=$src=."
     # Spinlocks: from 16 on, and in the later minors of 10 to 15, s_lock.h has a generic gcc/clang section (the __sync
     # builtins) that WebAssembly uses; the first minors of those majors have none, and there the semaphore-based spinlocks of
     # --disable-spinlocks are the way (one process, so no cost that matters).
@@ -225,3 +234,4 @@ step timeout "${INITDB_TIMEOUT:-900}" "$bin/initdb" -D "$template" --username=po
 echo "build-wasm: done ($log)"
 ls -l "$bin" | sed 's/^/  /'
 du -sk "$template" | sed 's/^/  template-pgdata KB: /'
+[ -z "${EM_COMPILER_WRAPPER:-}" ] || { echo "build-wasm: compiler cache:"; ccache -s | sed "s/^/  /"; }

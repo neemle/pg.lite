@@ -59,6 +59,6 @@ ca=""
 # shellcheck disable=SC2086
 # Build options reach the container only when they are set on the host (docker -e NAME passes it through).
 MSYS_NO_PATHCONV=1 exec docker run --rm $tty $net $user $ca \
-    -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_CONFIGURE -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e WEB -e WASM_LINK_EXTRA -e SRC -e FETCH_HTTP_FALLBACK \
+    -e VARIANT -e NATIVE_CFLAGS -e NATIVE_LDEX -e NATIVE_BE_LD -e NATIVE_CONFIGURE -e NATIVE_LDFLAGS -e NATIVE_LTO -e RESUME -e WEB -e WASM_LINK_EXTRA -e SRC -e BROWSER_WORKERS -e NO_CCACHE -e FETCH_HTTP_FALLBACK \
     -v "$root:/w" -v "$repo/patches:/w/patches" -v "$repo/scripts:/w/scripts" -v "$repo/image:/w/image" -v "$repo/wasm:/w/wasm" -v "$cache_vol:/w/cache" -v "$build_vol:/w/build" \
     -w /w "$image" "$@"
