@@ -206,7 +206,7 @@ A git tag is a PostgreSQL version: `v10.1` is PostgreSQL 10.1 with these patches
 | 9.6.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.22 apply unchanged. |
 | 9.6.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.23 apply unchanged. |
 | 10.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: variants for 10 of the static-modules patch (dfmgr.c), the wasm port-objects and semaphore patches, the pqcomm.c hunks of the embedded protocol and (10.0 to 10.22) the shutdown walker; the other patches apply unchanged. |
-| 10.1 | 🚧 in progress | 🚧 in progress | The same patches as 10.0 apply unchanged. |
+| 10.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.0 apply unchanged. |
 | 10.2 – 10.23 | ⬜ next | ⬜ next | |
 | 11 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
