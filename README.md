@@ -200,7 +200,7 @@ A git tag is a PostgreSQL version: `v9.6.20` is PostgreSQL 9.6.20 with these pat
 | 9.6.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.16 apply unchanged. |
 | 9.6.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.17 apply unchanged. |
 | 9.6.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.18 apply unchanged. |
-| 9.6.20 | 🚧 in progress | 🚧 in progress | The same patches as 9.6.19 apply unchanged. |
+| 9.6.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.19 apply unchanged. |
 | 9.6.21 – 9.6.24 | ⬜ next | ⬜ next | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
