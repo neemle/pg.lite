@@ -154,7 +154,7 @@ A git tag is a PostgreSQL version: `v9.5.0` is PostgreSQL 9.5.0 with these patch
 | 9.4.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.4.23 apply unchanged. |
 | 9.4.25 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.4.24 apply unchanged. |
 | 9.4.26 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.4.25 apply unchanged. |
-| 9.5.0 | 🚧 in progress | 🚧 in progress | A new series: the static-modules patch (dfmgr.c), the object lists of src/common and src/backend/port and the pqcomm.c hunks of the embedded protocol have 9.5 variants; the other patches apply unchanged. |
+| 9.5.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the static-modules patch (dfmgr.c), the object lists of src/common and src/backend/port and the pqcomm.c hunks of the embedded protocol have 9.5 variants; the other patches apply unchanged. |
 | 9.5.1 – 9.5.25 | ⬜ next | ⬜ next | |
 | 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
