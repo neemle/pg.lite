@@ -127,7 +127,8 @@ down)
     echo "native: removed $name and $vol"
     ;;
 test)
-    docker image inspect "$client_img" >/dev/null 2>&1 || { echo "native: build the reference image first (image/reference.sh image $ver)" >&2; exit 1; }
+    # an external client (CLIENT_IMAGE, for example postgres:9.5-alpine) is pulled when it is not there yet
+    docker image inspect "$client_img" >/dev/null 2>&1 || docker pull -q "$client_img" >/dev/null 2>&1 || { echo "native: build the reference image first (image/reference.sh image $ver)" >&2; exit 1; }
     trap 'sh "$0" down "$ver" >/dev/null 2>&1 || true; docker volume rm "$vol-bad" >/dev/null 2>&1 || true' EXIT
     fail=0
     pass() { echo "PASS $*"; }
