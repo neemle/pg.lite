@@ -223,7 +223,7 @@ jobs:
           restore-keys: cache-wasm-${{ matrix.version }}-
       - name: Series of the release (the compiler cache is shared by the releases of a series)
         run: echo "SERIES=$(echo "$VERSION" | cut -d. -f1,2)" >> "$GITHUB_ENV"
-      - name: Cache (compiler output of the series: a minor release changes few files)
+      - name: "Cache (compiler output of the series; a minor release changes few files)"
         uses: actions/cache@v6
         with:
           path: /home/runner/pglite-cache/ccache
