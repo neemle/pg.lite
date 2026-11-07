@@ -158,7 +158,7 @@ A git tag is a PostgreSQL version: `v9.5.4` is PostgreSQL 9.5.4 with these patch
 | 9.5.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.0 apply unchanged. |
 | 9.5.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.1 apply unchanged. |
 | 9.5.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.2 apply unchanged. |
-| 9.5.4 | 🚧 in progress | 🚧 in progress | The same patches as 9.5.3 apply unchanged. |
+| 9.5.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.3 apply unchanged. |
 | 9.5.5 – 9.5.25 | ⬜ next | ⬜ next | |
 | 9.6 | ⬜ planned | ⬜ planned | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
