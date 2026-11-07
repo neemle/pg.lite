@@ -182,7 +182,7 @@ A git tag is a PostgreSQL version: `v9.6.2` is PostgreSQL 9.6.2 with these patch
 | 9.5.25 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.5.24 apply unchanged. |
 | 9.6.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object list of src/backend/port has no pg_latch.o any more, so the wasm port-objects patch has a 9.6 variant; the other patches apply unchanged. |
 | 9.6.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.0 apply unchanged. |
-| 9.6.2 | 🚧 in progress | 🚧 in progress | The same patches as 9.6.1 apply unchanged. |
+| 9.6.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 9.6.1 apply unchanged. |
 | 9.6.3 – 9.6.24 | ⬜ next | ⬜ next | |
 | 10 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
