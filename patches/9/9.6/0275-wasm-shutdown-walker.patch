@@ -1,5 +1,5 @@
 Targets: wasm
-Releases: 9.6.0-
+Releases: 9.6.0-9.6.24
 Subject: Give ExecShutdownNode's tree walker the two arguments it is called with
 Purpose: planstate_tree_walker() takes its walker as a pointer to a function declared without a prototype and calls it with two arguments (the plan state and the context). ExecShutdownNode(), which 9.6 passes to it, has one parameter. Natively the extra argument is harmless; in WebAssembly an indirect call whose number of arguments does not match the function's type traps ("null function or function signature mismatch"), and the first query that runs a plan, in initdb's post-bootstrap phase, stops there. The walker is a small function with the two parameters that calls ExecShutdownNode().
 Components: src/backend/executor/execProcnode.c
