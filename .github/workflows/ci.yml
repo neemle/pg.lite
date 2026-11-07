@@ -145,7 +145,9 @@ jobs:
 
   # ---- stage 2: build
   build-cli:
-    needs: [plan, repo, typescript]
+    # not behind the checks: the builds start at once (the checks run beside them and the run is green only when all of them are); nothing is built when an earlier run built the same files
+    needs: [plan]
+    if: ${{ needs.plan.outputs.reuse == '' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -200,7 +202,8 @@ jobs:
           retention-days: 7
 
   build-wasm:
-    needs: [plan, repo, typescript]
+    needs: [plan]
+    if: ${{ needs.plan.outputs.reuse == '' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -213,9 +216,19 @@ jobs:
       - name: Cache (downloaded sources, npm packages)
         uses: actions/cache@v6
         with:
-          path: /home/runner/pglite-cache
+          path: |
+            /home/runner/pglite-cache
+            !/home/runner/pglite-cache/ccache
           key: cache-wasm-${{ matrix.version }}-${{ hashFiles('tools/releases.txt', 'wasm/**/package-lock.json') }}
           restore-keys: cache-wasm-${{ matrix.version }}-
+      - name: Series of the release (the compiler cache is shared by the releases of a series)
+        run: echo "SERIES=$(echo "$VERSION" | cut -d. -f1,2)" >> "$GITHUB_ENV"
+      - name: "Cache (compiler output of the series; a minor release changes few files)"
+        uses: actions/cache@v6
+        with:
+          path: /home/runner/pglite-cache/ccache
+          key: ccache-wasm-${{ env.SERIES }}-${{ github.run_id }}
+          restore-keys: ccache-wasm-${{ env.SERIES }}-
       - name: Disk space (cleaned only when less than 10 GB is free)
         run: |
           df -h /
@@ -292,12 +305,16 @@ jobs:
       VERSION: ${{ matrix.version }}
       # the types, oxlint and vitest of the browser module ran in the "typescript" job; not again here
       SKIP_TS_CHECKS: '1'
+      # the demo tests pause like a person (videos): they run side by side
+      BROWSER_WORKERS: 3
     steps:
       - uses: actions/checkout@v7
       - name: Cache (npm packages)
         uses: actions/cache@v6
         with:
-          path: /home/runner/pglite-cache
+          path: |
+            /home/runner/pglite-cache
+            !/home/runner/pglite-cache/ccache
           key: cache-wasm-${{ matrix.version }}-${{ hashFiles('tools/releases.txt', 'wasm/**/package-lock.json') }}
           restore-keys: cache-wasm-${{ matrix.version }}-
       - uses: actions/download-artifact@v8
