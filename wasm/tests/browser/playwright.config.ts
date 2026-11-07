@@ -11,7 +11,9 @@ export default defineConfig({
   testDir: __dirname,
   testMatch: /.*\.spec\.ts/,
   timeout: 240000,
-  workers: 1,
+  // the demo tests pause like a person (ui.ts), so side by side they cost no more CPU than one; the engine tests are independent too
+  workers: Number(process.env['BROWSER_WORKERS'] ?? 1),
+  fullyParallel: Number(process.env['BROWSER_WORKERS'] ?? 1) > 1,
   outputDir: path.join(reports, 'results'),
   reporter: [['list'], ['html', { outputFolder: path.join(reports, 'report'), open: 'never' }]],
   use: {
