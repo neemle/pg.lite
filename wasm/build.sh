@@ -126,9 +126,16 @@ if [ "$resume" = 0 ]; then
         echo "build-wasm: latch.c includes signalfd.h unguarded and Emscripten has none: -DWAIT_USE_POLL"
         extra_cpp=" -DWAIT_USE_POLL"
     fi
+    # The browser build is the same configuration as the node build (only -DPG_WASM_BROWSER is added to CPPFLAGS, which no configure test
+    # looks at): it starts from the results of the node build, with the recorded CPPFLAGS (configure refuses a changed environment) set to its own, and saves a minute.
+    cppflags="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}$extra_cpp"
+    cfgcache="--cache-file=config.cache"
+    if [ "$web" = 1 ] && [ -f "$base/obj/config.cache" ]; then
+        sed "s|^ac_cv_env_CPPFLAGS_value=.*|ac_cv_env_CPPFLAGS_value='$cppflags'|" "$base/obj/config.cache" > config.cache
+    fi
     # emcc writes executable programs, so configure can run its tests under node: no cross-compile cache needed.
     # shellcheck disable=SC2086
-    step "$src/configure" $opts CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="-DPG_STATIC_MODULES -DPG_NO_SHELL${WEB:+ -DPG_WASM_BROWSER}$extra_cpp"
+    step "$src/configure" $opts $cfgcache CFLAGS="$cflags" LDFLAGS="$ldflags" CPPFLAGS="$cppflags"
 fi
 make_headers
 fix_header_links
