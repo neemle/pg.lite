@@ -29,15 +29,18 @@ step() { echo "### $*" >> "$log"; "$@" >> "$log" 2>&1 || { echo "build-reference
 echo "build-reference: configure (default options, prefix $prefix), then make, install, install-strip"
 # Old sources need the compiler flags of the release (tools/release.env) to compile with a current gcc; the rest is the default configuration.
 . /w/release.env
+# configure tests a function with "char name();", which a glibc that declares it in <limits.h>'s includes turns into "conflicting types": symlink is then taken for
+# missing, and 9.5.5's zic.c (which uses it only under HAVE_SYMLINK) does not compile. Every Linux has symlink().
+symlink_known="ac_cv_func_symlink=yes"
 range_cflags="$RELEASE_NATIVE_CFLAGS"
 # The first minors of some majors define a static copy_file_range() in pg_rewind, which a libc that declares the
 # function (glibc 2.27, musl 1.2) turns into an error: move the name aside for this build only (the product has no pg_rewind).
 cppflags=""
 if grep -q '^copy_file_range(' "$src/src/bin/pg_rewind/copy_fetch.c" 2>/dev/null; then cppflags="-include /w/image/reference-compat.h"; fi
 if [ -n "$range_cflags" ]; then
-    step "$src/configure" --prefix="$prefix" CFLAGS="-O2 $range_cflags" CPPFLAGS="$cppflags"
+    step "$src/configure" --prefix="$prefix" CFLAGS="-O2 $range_cflags" CPPFLAGS="$cppflags" $symlink_known
 else
-    step "$src/configure" --prefix="$prefix" CPPFLAGS="$cppflags"
+    step "$src/configure" --prefix="$prefix" CPPFLAGS="$cppflags" $symlink_known
 fi
 # Out-of-tree parallel builds race on generated headers (utils/errcodes.h): generate them first.
 if grep -q '^generated-headers' "$src/src/backend/Makefile"; then
