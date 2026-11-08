@@ -200,3 +200,4 @@
 10.18 10 REL_10_18 29abec3a62229a37ce21203acdeb03a7860c1102 57477c2edc82c3f86a74747707b3babc1f301f389315ae14e819e025c0ba3801 https://ftp.postgresql.org/pub/source/v10.18/postgresql-10.18.tar.bz2 https://git.postgresql.org/git/postgresql.git
 10.19 10 REL_10_19 477008d10fb5a024038ed23f0beba901f1f47ae2 6eb830b428b60e84ae87e20436bce679c4d9d0202be7aec0e41b0c67d9134239 https://ftp.postgresql.org/pub/source/v10.19/postgresql-10.19.tar.bz2 https://git.postgresql.org/git/postgresql.git
 10.20 10 REL_10_20 fa362d2b3bde0f99ba8a22486205de11b2e00e14 87de16d59bcfe42fa605c312c59be5e294e8a3e6acb655dd7ad47cbb930a659f https://ftp.postgresql.org/pub/source/v10.20/postgresql-10.20.tar.bz2 https://git.postgresql.org/git/postgresql.git
+10.21 10 REL_10_21 6979736b4bcdc57e4699eadcca44b699fd1afd29 d32198856d52a9a6f5d50642ef86687ac058bd6efca5c9ed57be7808496f45d1 https://ftp.postgresql.org/pub/source/v10.21/postgresql-10.21.tar.bz2 https://git.postgresql.org/git/postgresql.git
