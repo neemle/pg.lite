@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v11.9` is PostgreSQL 11.9 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v11.10` is PostgreSQL 11.10 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -239,7 +239,8 @@ A git tag is a PostgreSQL version: `v11.9` is PostgreSQL 11.9 with these patches
 | 11.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.6 apply unchanged. |
 | 11.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.7 apply unchanged. |
 | 11.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.8 apply unchanged. |
-| 11.10 – 11.22 | ⬜ next | ⬜ next | |
+| 11.10 | 🚧 in progress | 🚧 in progress | The same patches as 11.9 apply unchanged. |
+| 11.11 – 11.22 | ⬜ next | ⬜ next | |
 | 12 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -283,11 +284,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 11.9 cli          # the one-file Docker image
-./builder.sh test 11.9 cli
-./builder.sh build 11.9 wasm         # node engine, browser module, demo
-./builder.sh test 11.9 wasm
-./builder.sh build 11.9 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 11.10 cli          # the one-file Docker image
+./builder.sh test 11.10 cli
+./builder.sh build 11.10 wasm         # node engine, browser module, demo
+./builder.sh test 11.10 wasm
+./builder.sh build 11.10 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
