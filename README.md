@@ -252,7 +252,8 @@ A git tag is a PostgreSQL version: `v11.22` is PostgreSQL 11.22 with these patch
 | 11.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.19 apply unchanged. |
 | 11.21 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.20 apply unchanged. |
 | 11.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.21 apply unchanged. |
-| 12 – 17 | ⬜ planned | ⬜ planned | |
+| 12.0 – 12.22 | ⬜ next | ⬜ next | |
+| 13 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
