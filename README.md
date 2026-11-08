@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v13.22` is PostgreSQL 13.22 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v13.23` is PostgreSQL 13.23 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -298,7 +298,7 @@ A git tag is a PostgreSQL version: `v13.22` is PostgreSQL 13.22 with these patch
 | 13.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.19 apply unchanged. |
 | 13.21 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.20 apply unchanged. |
 | 13.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.21 apply unchanged. |
-| 13.23 | ⬜ next | ⬜ next | |
+| 13.23 | 🚧 in progress | 🚧 in progress | The same patches as 13.22 apply unchanged. |
 | 14 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -342,11 +342,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 13.22 cli          # the one-file Docker image
-./builder.sh test 13.22 cli
-./builder.sh build 13.22 wasm         # node engine, browser module, demo
-./builder.sh test 13.22 wasm
-./builder.sh build 13.22 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 13.23 cli          # the one-file Docker image
+./builder.sh test 13.23 cli
+./builder.sh build 13.23 wasm         # node engine, browser module, demo
+./builder.sh test 13.23 wasm
+./builder.sh build 13.23 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
