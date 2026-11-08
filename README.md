@@ -270,7 +270,7 @@ A git tag is a PostgreSQL version: `v12.18` is PostgreSQL 12.18 with these patch
 | 12.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.14 apply unchanged. |
 | 12.16 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.15 apply unchanged. |
 | 12.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.16 apply unchanged. |
-| 12.18 | 🚧 in progress | 🚧 in progress | The same patches as 12.17 apply unchanged. |
+| 12.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.17 apply unchanged. |
 | 12.19 – 12.22 | ⬜ next | ⬜ next | |
 | 13 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
