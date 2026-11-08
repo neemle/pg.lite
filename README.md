@@ -278,7 +278,7 @@ A git tag is a PostgreSQL version: `v13.3` is PostgreSQL 13.3 with these patches
 | 13.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object lists of the Makefiles are one object a line in 13, so the patches that add objects have 13 variants (and the static-modules patch another from 13.17); the single-binary patch and the postgres.c hunk of the embedded protocol have 13 variants too; the other patches apply unchanged. |
 | 13.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.0 apply unchanged. |
 | 13.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.1 apply unchanged. |
-| 13.3 | 🚧 in progress | 🚧 in progress | The same patches as 13.2 apply unchanged. |
+| 13.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.2 apply unchanged. |
 | 13.4 – 13.23 | ⬜ next | ⬜ next | |
 | 14 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
