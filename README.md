@@ -300,7 +300,7 @@ A git tag is a PostgreSQL version: `v14.1` is PostgreSQL 14.1 with these patches
 | 13.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.21 apply unchanged. |
 | 13.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.22 apply unchanged. |
 | 14.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object list of src/common, the in-memory dynamic shared memory of the WebAssembly build and the pqcomm.c hunks of the embedded protocol have 14 variants, and the shutdown walker patch applies to 14.0 to 14.5; the other patches apply unchanged. |
-| 14.1 | 🚧 in progress | 🚧 in progress | The same patches as 14.0 apply unchanged. |
+| 14.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.0 apply unchanged. |
 | 14.2 – 14.24 | ⬜ next | ⬜ next | |
 | 15 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
