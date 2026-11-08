@@ -225,3 +225,4 @@
 11.19 11 REL_11_19 0da63ea07a3b610a5f0c4fc43595d76f3d8fa0d7 13109e2b71f1139405c27201da3733a61ace72ee1c228d9c9f0320e06aee14c2 https://ftp.postgresql.org/pub/source/v11.19/postgresql-11.19.tar.bz2 https://git.postgresql.org/git/postgresql.git
 11.20 11 REL_11_20 f96e531b1c079ae148b927a204845c7150a573f8 3d7c8882f64a7e98534a044257dfee7abad77a5b7da12508d85d722b98b5acce https://ftp.postgresql.org/pub/source/v11.20/postgresql-11.20.tar.bz2 https://git.postgresql.org/git/postgresql.git
 11.21 11 REL_11_21 a2cbee74b0e174da7bcb441c142022216b9b266f 07b0837471d5dd77b25166b34718f3ba10816b6ad61e691e6fc547cf3fcff850 https://ftp.postgresql.org/pub/source/v11.21/postgresql-11.21.tar.bz2 https://git.postgresql.org/git/postgresql.git
+11.22 11 REL_11_22 fd851f9e4a13d81cccc4ac5d6059d732c7518111 2cb7c97d7a0d7278851bbc9c61f467b69c094c72b81740b751108e7892ebe1f0 https://ftp.postgresql.org/pub/source/v11.22/postgresql-11.22.tar.bz2 https://git.postgresql.org/git/postgresql.git
