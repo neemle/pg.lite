@@ -18,9 +18,15 @@ bin="$dest/xsfx-$arch-unknown-linux-musl"
 [ ! -x "$bin" ] || { echo "fetch-xsfx: $bin is there"; exit 0; }
 
 archive="/w/cache/downloads/xsfx-$version-$arch.tar.gz"
+# a copy kept in the repository (image/vendor): used when it is there and matches the SHA-256 below, so the release does not depend on the download
+vendored="/w/image/vendor/xsfx-$version-$arch.tar.gz"
 # the archive that older versions of this script cached under the name without the architecture was the x86_64 one
 [ "$arch" != x86_64 ] || [ -f "$archive" ] || [ ! -f "/w/cache/downloads/xsfx-$version.tar.gz" ] || cp "/w/cache/downloads/xsfx-$version.tar.gz" "$archive"
 mkdir -p /w/cache/downloads "$dest"
+if [ ! -f "$archive" ] && [ -f "$vendored" ] && [ "$(sha256sum "$vendored" | cut -d' ' -f1)" = "$sha256" ]; then
+    echo "fetch-xsfx: using the copy in the repository ($vendored)"
+    cp "$vendored" "$archive"
+fi
 if [ ! -f "$archive" ]; then
     echo "fetch-xsfx: downloading $url"
     curl -fsSL --retry 8 --retry-delay 15 --retry-all-errors --proto '=https' --tlsv1.2 -o "$archive.part" "$url"
