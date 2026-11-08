@@ -240,3 +240,4 @@
 12.11 12 REL_12_11 f4206b3e5f816bcc45511411bb208d21a68a7e6a 1026248a5fd2beeaf43e4c7236ac817e56d58b681a335856465dfbc75b3e8302 https://ftp.postgresql.org/pub/source/v12.11/postgresql-12.11.tar.bz2 https://git.postgresql.org/git/postgresql.git
 12.12 12 REL_12_12 7cd0d523d2581895e65cd0ebebc7e50caa8bbfda 34b3f1c69408e22068c0c71b1827691f1c89153b0ad576c1a44f8920a858039c https://ftp.postgresql.org/pub/source/v12.12/postgresql-12.12.tar.bz2 https://git.postgresql.org/git/postgresql.git
 12.13 12 REL_12_13 26b9b5dddfa21ce73d9b99e79e2336c5584745bd b6c623046af4548f11a84b407934d675d11ed070c793d15b04683bf5f322e02d https://ftp.postgresql.org/pub/source/v12.13/postgresql-12.13.tar.bz2 https://git.postgresql.org/git/postgresql.git
+12.14 12 REL_12_14 533cc39b750bd7600e8e2e5cab819a27f1717960 785610237d382c842d356e347138e58c06ffeae240e6cc0b52ac5ebcc30d043e https://ftp.postgresql.org/pub/source/v12.14/postgresql-12.14.tar.bz2 https://git.postgresql.org/git/postgresql.git
