@@ -209,7 +209,10 @@ grep -q "^install-data" "$src/src/pl/plpgsql/src/Makefile" && step make -C src/p
 # generate the SQL (a Makefile target in every release) and install it with the stop words of every language
 step make -C src/backend/snowball snowball_create.sql
 mkdir -p "$inst$prefix/share/tsearch_data"
-cp src/backend/snowball/snowball_create.sql "$inst$prefix/share/"
+# 16 and later ship the generated file in the tarball, so make finds it in the source tree and builds nothing
+snowball_sql=src/backend/snowball/snowball_create.sql
+[ -f "$snowball_sql" ] || snowball_sql="$src/$snowball_sql"
+cp "$snowball_sql" "$inst$prefix/share/"
 cp "$src"/src/backend/snowball/stopwords/*.stop "$inst$prefix/share/tsearch_data/"
 # releases up to 11 have initdb read conversion_create.sql, which creates the encoding conversions from the modules above (12 and later
 # have them built in): generate it and install it (feature detection: only where initdb asks for it)
