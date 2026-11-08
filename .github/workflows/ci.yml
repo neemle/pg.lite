@@ -165,7 +165,7 @@ jobs:
           path: /home/runner/pglite-cache
           key: cache-cli-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/releases.txt', 'image/fetch-xsfx.sh') }}
           restore-keys: cache-cli-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-
-      - name: Cache (the packer: the same for every release, so it does not depend on a download from GitHub in every job)
+      - name: "Cache (the packer; the same for every release, so it is not downloaded from GitHub in every job)"
         uses: actions/cache@v6
         with:
           path: /home/runner/pglite-cache/downloads
