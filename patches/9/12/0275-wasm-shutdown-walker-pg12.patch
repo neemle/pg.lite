@@ -1,0 +1,31 @@
+Targets: wasm
+Releases: 12.0-12.12
+Subject: Give ExecShutdownNode's tree walker the two arguments it is called with
+Purpose: planstate_tree_walker() takes its walker as a pointer to a function declared without a prototype and calls it with two arguments (the plan state and the context). ExecShutdownNode(), which 9.6 passes to it, has one parameter. Natively the extra argument is harmless; in WebAssembly an indirect call whose number of arguments does not match the function's type traps ("null function or function signature mismatch"), and the first query that runs a plan, in initdb's post-bootstrap phase, stops there. The walker is a small function with the two parameters that calls ExecShutdownNode(). This variant is for 10.0 to 10.22, which call planstate_tree_walker() from the start of ExecShutdownNode() and ignore its result; 10.23 has a walker of its own with two parameters (upstream), so no patch is needed there. The sibling for 9.6 is capped at 9.6.24. This copy is for 12.0 to 12.12: 12.13 got the same fix from upstream (a walker with two parameters), as 10.23 and 11.18 did, and a patch has one range of releases.
+Components: src/backend/executor/execProcnode.c
+Checks: scripts/build-wasm.sh creates the template data directory (initdb runs queries through the executor); the browser tests run queries
+Origin: own
+
+diff --git a/src/backend/executor/execProcnode.c b/src/backend/executor/execProcnode.c
+--- a/src/backend/executor/execProcnode.c
++++ b/src/backend/executor/execProcnode.c
+@@ -719,2 +719,11 @@
+ 
++#ifdef __EMSCRIPTEN__
++/* planstate_tree_walker() calls its walker with (node, context); WebAssembly traps on an indirect call with the wrong number of arguments */
++static bool
++ExecShutdownNodeWalker(PlanState *node, void *context)
++{
++	return ExecShutdownNode(node);
++}
++#endif
++
+ /*
+@@ -737,3 +746,7 @@
+ 
++#ifdef __EMSCRIPTEN__
++	planstate_tree_walker(node, ExecShutdownNodeWalker, NULL);
++#else
+ 	planstate_tree_walker(node, ExecShutdownNode, NULL);
++#endif
+ 
