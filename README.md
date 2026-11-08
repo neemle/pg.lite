@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v12.2` is PostgreSQL 12.2 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v12.3` is PostgreSQL 12.3 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -255,7 +255,8 @@ A git tag is a PostgreSQL version: `v12.2` is PostgreSQL 12.2 with these patches
 | 12.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: variants for 12 of the static-modules patch, the object lists of src/common and src/backend/port and the root check of initdb (12.18 and 12.20 have further variants of the embedded protocol hunks); the other patches apply unchanged. |
 | 12.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.0 apply unchanged. |
 | 12.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.1 apply unchanged. |
-| 12.3 – 12.22 | ⬜ next | ⬜ next | |
+| 12.3 | 🚧 in progress | 🚧 in progress | The same patches as 12.2 apply unchanged. |
+| 12.4 – 12.22 | ⬜ next | ⬜ next | |
 | 13 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -299,11 +300,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 12.2 cli          # the one-file Docker image
-./builder.sh test 12.2 cli
-./builder.sh build 12.2 wasm         # node engine, browser module, demo
-./builder.sh test 12.2 wasm
-./builder.sh build 12.2 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 12.3 cli          # the one-file Docker image
+./builder.sh test 12.3 cli
+./builder.sh build 12.3 wasm         # node engine, browser module, demo
+./builder.sh test 12.3 wasm
+./builder.sh build 12.3 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
