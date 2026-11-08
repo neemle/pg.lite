@@ -222,7 +222,7 @@ A git tag is a PostgreSQL version: `v10.17` is PostgreSQL 10.17 with these patch
 | 10.14 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.13 apply unchanged. |
 | 10.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.14 apply unchanged. |
 | 10.16 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.15 apply unchanged. |
-| 10.17 | 🚧 in progress | 🚧 in progress | The same patches as 10.16 apply unchanged. |
+| 10.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.16 apply unchanged. |
 | 10.18 – 10.23 | ⬜ next | ⬜ next | |
 | 11 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
