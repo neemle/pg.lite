@@ -232,7 +232,7 @@ A git tag is a PostgreSQL version: `v11.3` is PostgreSQL 11.3 with these patches
 | 11.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the include hunk of the embedded protocol patch in pqcomm.c has an 11 variant; the other patches apply unchanged. |
 | 11.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.0 apply unchanged. |
 | 11.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.1 apply unchanged. |
-| 11.3 | 🚧 in progress | 🚧 in progress | The same patches as 11.2 apply unchanged. |
+| 11.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.2 apply unchanged. |
 | 11.4 – 11.22 | ⬜ next | ⬜ next | |
 | 12 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
