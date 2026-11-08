@@ -1,0 +1,118 @@
+Targets: wasm
+Releases: 12.0-
+Subject: Keep dynamic shared memory segments in the memory of the WebAssembly module
+Purpose: 12 can no longer run without dynamic shared memory (dynamic_shared_memory_type = none is gone), and the implementations that need the operating system do not fit a module: Emscripten emulates mmap() of a shm_open() file by writing the memory back to the file descriptor the program had, and the program has closed it long before, so the number belongs to another file by then (patch 0215 tells how that overwrote the WAL file in 9.5). A WebAssembly module is one process and has no other process to share a segment with, so a segment is memory from malloc() with a handle: create makes it, attach finds it again, detach leaves it, destroy frees it. The implementation selector and the file names stay as they are; nothing touches the file system.
+Components: src/backend/storage/ipc/dsm_impl.c
+Checks: scripts/build-wasm.sh creates the template data directory (initdb starts the single-user backend, which creates and removes the control segment); the browser tests open databases and restart them
+Origin: own
+
+diff --git a/src/backend/storage/ipc/dsm_impl.c b/src/backend/storage/ipc/dsm_impl.c
+--- a/src/backend/storage/ipc/dsm_impl.c
++++ b/src/backend/storage/ipc/dsm_impl.c
+@@ -113,6 +113,94 @@
+ /* Implementation selector. */
+ int			dynamic_shared_memory_type;
+ 
++#ifdef __EMSCRIPTEN__
++/* one process, no other process to share a segment with: the segments are memory of this process (see the patch header) */
++typedef struct WasmDsmSegment
++{
++	dsm_handle	handle;
++	void	   *address;
++	Size		size;
++} WasmDsmSegment;
++
++static WasmDsmSegment wasm_dsm_segments[64];
++
++static bool
++dsm_impl_wasm(dsm_op op, dsm_handle handle, Size request_size,
++			  void **impl_private, void **mapped_address, Size *mapped_size,
++			  int elevel)
++{
++	int			i;
++	int			found = -1;
++	int			free_slot = -1;
++
++	for (i = 0; i < (int) lengthof(wasm_dsm_segments); i++)
++	{
++		if (wasm_dsm_segments[i].address != NULL && wasm_dsm_segments[i].handle == handle)
++			found = i;
++		else if (wasm_dsm_segments[i].address == NULL && free_slot < 0)
++			free_slot = i;
++	}
++
++	switch (op)
++	{
++		case DSM_OP_CREATE:
++			if (found >= 0 || free_slot < 0)
++			{
++				errno = found >= 0 ? EEXIST : ENOSPC;
++				ereport(elevel,
++						(errcode_for_dynamic_shared_memory(),
++						 errmsg("could not create shared memory segment %u: %m", handle)));
++				return false;
++			}
++			wasm_dsm_segments[free_slot].address = calloc(1, request_size > 0 ? request_size : 1);
++			if (wasm_dsm_segments[free_slot].address == NULL)
++			{
++				errno = ENOMEM;
++				ereport(elevel,
++						(errcode_for_dynamic_shared_memory(),
++						 errmsg("could not create shared memory segment %u: %m", handle)));
++				return false;
++			}
++			wasm_dsm_segments[free_slot].handle = handle;
++			wasm_dsm_segments[free_slot].size = request_size;
++			*mapped_address = wasm_dsm_segments[free_slot].address;
++			*mapped_size = request_size;
++			return true;
++
++		case DSM_OP_ATTACH:
++			if (found < 0)
++			{
++				errno = ENOENT;
++				ereport(elevel,
++						(errcode_for_dynamic_shared_memory(),
++						 errmsg("could not open shared memory segment %u: %m", handle)));
++				return false;
++			}
++			*mapped_address = wasm_dsm_segments[found].address;
++			*mapped_size = wasm_dsm_segments[found].size;
++			return true;
++
++		case DSM_OP_DETACH:
++			*mapped_address = NULL;
++			*mapped_size = 0;
++			return true;
++
++		case DSM_OP_DESTROY:
++			if (found >= 0)
++			{
++				free(wasm_dsm_segments[found].address);
++				wasm_dsm_segments[found].address = NULL;
++			}
++			*mapped_address = NULL;
++			*mapped_size = 0;
++			return true;
++
++		default:
++			return false;
++	}
++}
++#endif							/* __EMSCRIPTEN__ */
++
+ /* Size of buffer to be used for zero-filling. */
+ #define ZBUFFER_SIZE				8192
+ 
+@@ -163,6 +251,11 @@
+ 	Assert((op != DSM_OP_CREATE && op != DSM_OP_ATTACH) ||
+ 		   (*mapped_address == NULL && *mapped_size == 0));
+ 
++#ifdef __EMSCRIPTEN__
++	return dsm_impl_wasm(op, handle, request_size, impl_private,
++						 mapped_address, mapped_size, elevel);
++#endif
++
+ 	switch (dynamic_shared_memory_type)
+ 	{
+ #ifdef USE_DSM_POSIX
