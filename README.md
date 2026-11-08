@@ -243,7 +243,7 @@ A git tag is a PostgreSQL version: `v11.14` is PostgreSQL 11.14 with these patch
 | 11.11 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.10 apply unchanged. |
 | 11.12 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.11 apply unchanged. |
 | 11.13 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.12 apply unchanged. |
-| 11.14 | 🚧 in progress | 🚧 in progress | The same patches as 11.13 apply unchanged. |
+| 11.14 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.13 apply unchanged. |
 | 11.15 – 11.22 | ⬜ next | ⬜ next | |
 | 12 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
