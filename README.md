@@ -255,7 +255,7 @@ A git tag is a PostgreSQL version: `v12.3` is PostgreSQL 12.3 with these patches
 | 12.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: variants for 12 of the static-modules patch, the object lists of src/common and src/backend/port and the root check of initdb (12.18 and 12.20 have further variants of the embedded protocol hunks); the other patches apply unchanged. |
 | 12.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.0 apply unchanged. |
 | 12.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.1 apply unchanged. |
-| 12.3 | 🚧 in progress | 🚧 in progress | The same patches as 12.2 apply unchanged. |
+| 12.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.2 apply unchanged. |
 | 12.4 – 12.22 | ⬜ next | ⬜ next | |
 | 13 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
