@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v12.5` is PostgreSQL 12.5 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v12.6` is PostgreSQL 12.6 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -258,7 +258,8 @@ A git tag is a PostgreSQL version: `v12.5` is PostgreSQL 12.5 with these patches
 | 12.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.2 apply unchanged. |
 | 12.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.3 apply unchanged. |
 | 12.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.4 apply unchanged. |
-| 12.6 – 12.22 | ⬜ next | ⬜ next | |
+| 12.6 | 🚧 in progress | 🚧 in progress | The same patches as 12.5 apply unchanged. |
+| 12.7 – 12.22 | ⬜ next | ⬜ next | |
 | 13 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -302,11 +303,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 12.5 cli          # the one-file Docker image
-./builder.sh test 12.5 cli
-./builder.sh build 12.5 wasm         # node engine, browser module, demo
-./builder.sh test 12.5 wasm
-./builder.sh build 12.5 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 12.6 cli          # the one-file Docker image
+./builder.sh test 12.6 cli
+./builder.sh build 12.6 wasm         # node engine, browser module, demo
+./builder.sh test 12.6 wasm
+./builder.sh build 12.6 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
