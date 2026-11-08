@@ -1,0 +1,103 @@
+Targets: wasm
+Releases: 11.0-
+Subject: Move the protocol bytes of the WebAssembly backend through JavaScript calls
+Purpose: pqcomm.c reads and writes the frontend/backend protocol through a socket; the embedded engine of the WebAssembly build has none (MyProcPort stays NULL, the client is JavaScript), so its reads and writes go through wasm_embed_read() and wasm_embed_write() (patch 0260) and the calls that switch a socket between blocking and non-blocking mode do nothing. It is a patch of its own because pqcomm.c differs from one series to the next (9.1 added non-blocking socket handling that would dereference the missing Port): one variant per series. This variant is for 9.5, where pq_set_nonblocking is called socket_set_nonblocking and has an error check in front, and pq_getbyte_if_available calls it too, so the two hunks around them are new; the sibling for 9.1 to 9.4 is capped at 9.4.26. This variant is for 10, where the include list of pqcomm.c has other lines (the first hunk keeps one line of context); the sibling for 9.5 and 9.6 is capped at 9.6.24. This variant is for 11, where the include list of pqcomm.c has port/pg_bswap.h after miscadmin.h (the first hunk keeps one line of context); the sibling for 10 is capped at 10.23.
+Components: src/backend/libpq/pqcomm.c
+Checks: wasm/tests/browser runs queries through the wire protocol in Chromium
+Origin: own
+
+diff --git a/src/backend/libpq/pqcomm.c b/src/backend/libpq/pqcomm.c
+--- a/src/backend/libpq/pqcomm.c
++++ b/src/backend/libpq/pqcomm.c
+@@ -94,2 +94,6 @@
+ #include "port/pg_bswap.h"
++#ifdef __EMSCRIPTEN__
++#include "port/wasm_embed.h"
++#include "tcop/tcopprot.h"
++#endif
+ #include "storage/ipc.h"
+@@ -841,6 +841,11 @@
+ static void
+ socket_set_nonblocking(bool nonblocking)
+ {
++#ifdef __EMSCRIPTEN__
++	/* the client is JavaScript: there is no socket to switch */
++	if (wasm_embedded)
++		return;
++#endif
+ 	if (MyProcPort == NULL)
+ 		ereport(ERROR,
+ 				(errcode(ERRCODE_CONNECTION_DOES_NOT_EXIST),
+@@ -813,8 +822,14 @@
+ 	{
+ 		int			r;
+ 
+-		r = secure_read(MyProcPort, PqRecvBuffer + PqRecvLength,
+-						PQ_RECV_BUFFER_SIZE - PqRecvLength);
++#ifdef __EMSCRIPTEN__
++		if (wasm_embedded)
++			r = wasm_embed_read(PqRecvBuffer + PqRecvLength,
++								PQ_RECV_BUFFER_SIZE - PqRecvLength);
++		else
++#endif
++			r = secure_read(MyProcPort, PqRecvBuffer + PqRecvLength,
++							PQ_RECV_BUFFER_SIZE - PqRecvLength);
+ 
+ 		if (r < 0)
+ 		{
+@@ -969,6 +974,12 @@
+ 		return 1;
+ 	}
+ 
++#ifdef __EMSCRIPTEN__
++	/* the client is JavaScript: nothing arrives while a query runs */
++	if (wasm_embedded)
++		return 0;
++#endif
++
+ 	/* Put the socket into non-blocking mode */
+ 	socket_set_nonblocking(true);
+ 
+@@ -1211,7 +1232,12 @@
+ 	{
+ 		int			r;
+ 
+-		r = secure_write(MyProcPort, bufptr, bufend - bufptr);
++#ifdef __EMSCRIPTEN__
++		if (wasm_embedded)
++			r = wasm_embed_write(bufptr, (int) (bufend - bufptr));
++		else
++#endif
++			r = secure_write(MyProcPort, bufptr, bufend - bufptr);
+ 
+ 		if (r <= 0)
+ 		{
+@@ -1721,3 +1747,28 @@
+ 
+ 	return STATUS_OK;
+ }
++#ifdef __EMSCRIPTEN__
++/* --------------------------------
++ *		pq_init_embedded - protocol state for a JavaScript client
++ *
++ * Counterpart of pq_init() for the standalone backend of the WebAssembly
++ * build, which has no socket and no Port (MyProcPort stays NULL): allocate
++ * the send buffer (in this series it is not a static array any more: with no
++ * size and no buffer the first message would never be stored) and reset the
++ * rest, speak protocol 3 and send results "remote", so that
++ * PostgresMain() behaves as in a client backend.  Bytes move through
++ * wasm_embed_read() and wasm_embed_write() (port/wasm_embed.c).
++ * --------------------------------
++ */
++void
++pq_init_embedded(void)
++{
++	PqSendBufferSize = PQ_SEND_BUFFER_SIZE;
++	PqSendBuffer = MemoryContextAlloc(TopMemoryContext, PqSendBufferSize);
++	PqSendPointer = PqSendStart = PqRecvPointer = PqRecvLength = 0;
++	PqCommBusy = false;
++	DoingCopyOut = false;
++	FrontendProtocol = PG_PROTOCOL(3, 0);
++	whereToSendOutput = DestRemote;
++}
++#endif							/* __EMSCRIPTEN__ */
