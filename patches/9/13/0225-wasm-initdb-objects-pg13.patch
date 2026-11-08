@@ -1,0 +1,16 @@
+Targets: wasm
+Releases: 13.0-
+Subject: Build wasm_popen.o into initdb
+Purpose: The build file of initdb lists the object files; wasm_popen.o (patch 0220) has to be in the list. It is a patch of its own because the lines around the list differ from one series to the next: one variant per series. 9.2 has other lines around the list than 9.1, so it has its own variant (the one for 9.0 and 9.1 is capped at 9.1.24). This variant is for 9.3, where the object list of initdb has no pqsignal.o any more; the sibling for 9.2 is capped at 9.2.24. This variant is for 13, whose object list is one object a line: the hunk adds a line of its own after the list; the sibling for 9.3 to 12 is capped at 12.22.
+Components: src/bin/initdb/Makefile
+Checks: wasm/build.sh runs initdb under node and produces a data directory that postgres --single opens
+Origin: own
+
+diff --git a/src/bin/initdb/Makefile b/src/bin/initdb/Makefile
+--- a/src/bin/initdb/Makefile
++++ b/src/bin/initdb/Makefile
+@@ -39,2 +39,4 @@
+ 
++OBJS += wasm_popen.o
++
+ all: initdb
