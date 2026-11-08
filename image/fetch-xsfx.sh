@@ -23,7 +23,7 @@ archive="/w/cache/downloads/xsfx-$version-$arch.tar.gz"
 mkdir -p /w/cache/downloads "$dest"
 if [ ! -f "$archive" ]; then
     echo "fetch-xsfx: downloading $url"
-    curl -fsSL --retry 3 --proto '=https' --tlsv1.2 -o "$archive.part" "$url"
+    curl -fsSL --retry 8 --retry-delay 15 --retry-all-errors --proto '=https' --tlsv1.2 -o "$archive.part" "$url"
     mv "$archive.part" "$archive"
 fi
 actual=$(sha256sum "$archive" | cut -d' ' -f1)
