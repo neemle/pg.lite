@@ -288,3 +288,4 @@
 14.12 14 REL_14_12 cf07a47dc0c3b16778291e62d730537b45da51ef 6118d08f9ddcc1bd83cf2b7cc74d3b583bdcec2f37e6245a8ac003b8faa80923 https://ftp.postgresql.org/pub/source/v14.12/postgresql-14.12.tar.bz2 https://git.postgresql.org/git/postgresql.git
 14.13 14 REL_14_13 33965476b6ef6a37af2bc9bb1b5b2af17c35dc5e 59aa3c4b495ab26a9ec69f3ad0a0228c51f0fe6facf3634dfad4d1197d613a56 https://ftp.postgresql.org/pub/source/v14.13/postgresql-14.13.tar.bz2 https://git.postgresql.org/git/postgresql.git
 14.14 14 REL_14_14 8abd1324049759c1cbd81a4793c470a4f43e1fdb 84727fbccdbd1efe01d8de64bc1b33095db773ad2457cefcedc2d8258ebc09d6 https://ftp.postgresql.org/pub/source/v14.14/postgresql-14.14.tar.bz2 https://git.postgresql.org/git/postgresql.git
+14.15 14 REL_14_15 4f5b14879d8271a73786105bf8aafda347dd7aea 02e891e314b4e9ee24cbd78028dab7c73f9c1ba3e30835bcbef71fe220401fc5 https://ftp.postgresql.org/pub/source/v14.15/postgresql-14.15.tar.bz2 https://git.postgresql.org/git/postgresql.git
