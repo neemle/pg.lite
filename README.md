@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v13.0` is PostgreSQL 13.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v13.1` is PostgreSQL 13.1 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -276,7 +276,8 @@ A git tag is a PostgreSQL version: `v13.0` is PostgreSQL 13.0 with these patches
 | 12.21 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.20 apply unchanged. |
 | 12.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 12.21 apply unchanged. |
 | 13.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object lists of the Makefiles are one object a line in 13, so the patches that add objects have 13 variants (and the static-modules patch another from 13.17); the single-binary patch and the postgres.c hunk of the embedded protocol have 13 variants too; the other patches apply unchanged. |
-| 13.1 – 13.23 | ⬜ next | ⬜ next | |
+| 13.1 | 🚧 in progress | 🚧 in progress | The same patches as 13.0 apply unchanged. |
+| 13.2 – 13.23 | ⬜ next | ⬜ next | |
 | 14 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -320,11 +321,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 13.0 cli          # the one-file Docker image
-./builder.sh test 13.0 cli
-./builder.sh build 13.0 wasm         # node engine, browser module, demo
-./builder.sh test 13.0 wasm
-./builder.sh build 13.0 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 13.1 cli          # the one-file Docker image
+./builder.sh test 13.1 cli
+./builder.sh build 13.1 wasm         # node engine, browser module, demo
+./builder.sh test 13.1 wasm
+./builder.sh build 13.1 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
