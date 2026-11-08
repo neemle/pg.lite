@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v14.2` is PostgreSQL 14.2 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v14.3` is PostgreSQL 14.3 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -302,7 +302,8 @@ A git tag is a PostgreSQL version: `v14.2` is PostgreSQL 14.2 with these patches
 | 14.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object list of src/common, the in-memory dynamic shared memory of the WebAssembly build and the pqcomm.c hunks of the embedded protocol have 14 variants, and the shutdown walker patch applies to 14.0 to 14.5; the other patches apply unchanged. |
 | 14.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.0 apply unchanged. |
 | 14.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.1 apply unchanged. |
-| 14.3 – 14.24 | ⬜ next | ⬜ next | |
+| 14.3 | 🚧 in progress | 🚧 in progress | The same patches as 14.2 apply unchanged. |
+| 14.4 – 14.24 | ⬜ next | ⬜ next | |
 | 15 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -346,11 +347,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 14.2 cli          # the one-file Docker image
-./builder.sh test 14.2 cli
-./builder.sh build 14.2 wasm         # node engine, browser module, demo
-./builder.sh test 14.2 wasm
-./builder.sh build 14.2 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 14.3 cli          # the one-file Docker image
+./builder.sh test 14.3 cli
+./builder.sh build 14.3 wasm         # node engine, browser module, demo
+./builder.sh test 14.3 wasm
+./builder.sh build 14.3 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
