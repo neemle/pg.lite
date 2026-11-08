@@ -1,0 +1,43 @@
+Targets: wasm
+Releases: 12.0-
+Subject: Skip the "do not run as root" check in the WebAssembly build
+Purpose: PostgreSQL refuses to start as root (geteuid() == 0) to protect the host. Emscripten reports user 0 to every program, whether it runs in a browser or under node in a build container, and there is no host account to protect: the module runs inside the sandbox of its host. The check is skipped only when __EMSCRIPTEN__ is defined. 9.2.9 added the variable do_check_root to main() (the root check is skipped for --describe-config and -C), so the lines around this hunk of main.c are different; this variant is for 9.2.9 and later, the sibling without it for the earlier releases. 9.3.5 added do_check_root to main() again (as 9.2.9 did), so this is the same patch as its sibling for 9.2.9 to 9.2.24, kept as a file of its own because the releases before 9.3.5 need the other variant: a patch has one range of releases. In 9.3 initdb.c spells xstrdup() pg_strdup(), so the line this patch adds uses pg_strdup(). This variant is for 9.4, where the user name is looked up in src/common/username.c (patch 0230) and initdb.c has only the root check in get_id(); the sibling for 9.3 is capped at 9.3.25. This variant is for 12, where initdb.c reports the root check with pg_log_error(), so the lines around the hunks of get_id() are different; the sibling for 9.4 to 11 is capped at 11.22.
+Components: src/backend/main/main.c, src/bin/initdb/initdb.c
+Checks: postgres --version and postgres --single run under node as root (scripts/test-wasm-node.sh); initdb creates the template data directory as root (scripts/build-wasm.sh)
+Origin: own
+
+diff --git a/src/backend/main/main.c b/src/backend/main/main.c
+--- a/src/backend/main/main.c
++++ b/src/backend/main/main.c
+@@ -194,8 +194,11 @@
+ 	 * Make sure we are not running as root, unless it's safe for the selected
+ 	 * option.
+ 	 */
++#ifndef __EMSCRIPTEN__
++	/* (the WebAssembly host reports uid 0 to everyone and has no account to protect) */
+ 	if (do_check_root)
+ 		check_root(progname);
++#endif
+ 
+ 	/*
+ 	 * Dispatch to one of various subprograms depending on first argument.
+diff --git a/src/bin/initdb/initdb.c b/src/bin/initdb/initdb.c
+--- a/src/bin/initdb/initdb.c
++++ b/src/bin/initdb/initdb.c
+@@ -646,6 +646,8 @@
+ 	const char *username;
+ 
+ #ifndef WIN32
++/* the WebAssembly host reports uid 0 to everyone and has no account to protect */
++#ifndef __EMSCRIPTEN__
+ 	if (geteuid() == 0)			/* 0 is root's uid */
+ 	{
+ 		pg_log_error("cannot be run as root");
+@@ -655,6 +657,7 @@
+ 		exit(1);
+ 	}
+ #endif
++#endif
+ 
+ 	username = get_user_name_or_exit(progname);
+ 

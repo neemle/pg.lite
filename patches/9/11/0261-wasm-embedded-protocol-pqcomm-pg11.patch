@@ -1,5 +1,5 @@
 Targets: wasm
-Releases: 11.0-
+Releases: 11.0-12.17
 Subject: Move the protocol bytes of the WebAssembly backend through JavaScript calls
 Purpose: pqcomm.c reads and writes the frontend/backend protocol through a socket; the embedded engine of the WebAssembly build has none (MyProcPort stays NULL, the client is JavaScript), so its reads and writes go through wasm_embed_read() and wasm_embed_write() (patch 0260) and the calls that switch a socket between blocking and non-blocking mode do nothing. It is a patch of its own because pqcomm.c differs from one series to the next (9.1 added non-blocking socket handling that would dereference the missing Port): one variant per series. This variant is for 9.5, where pq_set_nonblocking is called socket_set_nonblocking and has an error check in front, and pq_getbyte_if_available calls it too, so the two hunks around them are new; the sibling for 9.1 to 9.4 is capped at 9.4.26. This variant is for 10, where the include list of pqcomm.c has other lines (the first hunk keeps one line of context); the sibling for 9.5 and 9.6 is capped at 9.6.24. This variant is for 11, where the include list of pqcomm.c has port/pg_bswap.h after miscadmin.h (the first hunk keeps one line of context); the sibling for 10 is capped at 10.23.
 Components: src/backend/libpq/pqcomm.c
