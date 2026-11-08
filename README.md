@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v14.22` is PostgreSQL 14.22 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v14.23` is PostgreSQL 14.23 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -322,7 +322,8 @@ A git tag is a PostgreSQL version: `v14.22` is PostgreSQL 14.22 with these patch
 | 14.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.19 apply unchanged. |
 | 14.21 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.20 apply unchanged. |
 | 14.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.21 apply unchanged. |
-| 14.23 – 14.24 | ⬜ next | ⬜ next | |
+| 14.23 | 🚧 in progress | 🚧 in progress | The same patches as 14.22 apply unchanged. |
+| 14.24 | ⬜ next | ⬜ next | |
 | 15 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -366,11 +367,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 14.22 cli          # the one-file Docker image
-./builder.sh test 14.22 cli
-./builder.sh build 14.22 wasm         # node engine, browser module, demo
-./builder.sh test 14.22 wasm
-./builder.sh build 14.22 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 14.23 cli          # the one-file Docker image
+./builder.sh test 14.23 cli
+./builder.sh build 14.23 wasm         # node engine, browser module, demo
+./builder.sh test 14.23 wasm
+./builder.sh build 14.23 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
