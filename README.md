@@ -279,7 +279,7 @@ A git tag is a PostgreSQL version: `v13.4` is PostgreSQL 13.4 with these patches
 | 13.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.0 apply unchanged. |
 | 13.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.1 apply unchanged. |
 | 13.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.2 apply unchanged. |
-| 13.4 | 🚧 in progress | 🚧 in progress | The same patches as 13.3 apply unchanged. |
+| 13.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 13.3 apply unchanged. |
 | 13.5 – 13.23 | ⬜ next | ⬜ next | |
 | 14 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
