@@ -249,7 +249,7 @@ A git tag is a PostgreSQL version: `v11.20` is PostgreSQL 11.20 with these patch
 | 11.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.16 apply unchanged. |
 | 11.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.17 apply unchanged. |
 | 11.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.18 apply unchanged. |
-| 11.20 | 🚧 in progress | 🚧 in progress | The same patches as 11.19 apply unchanged. |
+| 11.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 11.19 apply unchanged. |
 | 11.21 – 11.22 | ⬜ next | ⬜ next | |
 | 12 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
