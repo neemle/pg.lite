@@ -303,7 +303,7 @@ A git tag is a PostgreSQL version: `v14.4` is PostgreSQL 14.4 with these patches
 | 14.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.0 apply unchanged. |
 | 14.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.1 apply unchanged. |
 | 14.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.2 apply unchanged. |
-| 14.4 | 🚧 in progress | 🚧 in progress | The same patches as 14.3 apply unchanged. |
+| 14.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.3 apply unchanged. |
 | 14.5 – 14.24 | ⬜ next | ⬜ next | |
 | 15 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
