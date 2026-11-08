@@ -213,7 +213,7 @@ A git tag is a PostgreSQL version: `v10.8` is PostgreSQL 10.8 with these patches
 | 10.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.4 apply unchanged. |
 | 10.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.5 apply unchanged. |
 | 10.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.6 apply unchanged. |
-| 10.8 | 🚧 in progress | 🚧 in progress | The same patches as 10.7 apply unchanged. |
+| 10.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 10.7 apply unchanged. |
 | 10.9 – 10.23 | ⬜ next | ⬜ next | |
 | 11 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
