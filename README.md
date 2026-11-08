@@ -302,7 +302,7 @@ A git tag is a PostgreSQL version: `v14.3` is PostgreSQL 14.3 with these patches
 | 14.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the object list of src/common, the in-memory dynamic shared memory of the WebAssembly build and the pqcomm.c hunks of the embedded protocol have 14 variants, and the shutdown walker patch applies to 14.0 to 14.5; the other patches apply unchanged. |
 | 14.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.0 apply unchanged. |
 | 14.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.1 apply unchanged. |
-| 14.3 | 🚧 in progress | 🚧 in progress | The same patches as 14.2 apply unchanged. |
+| 14.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.2 apply unchanged. |
 | 14.4 – 14.24 | ⬜ next | ⬜ next | |
 | 15 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
