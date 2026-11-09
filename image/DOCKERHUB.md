@@ -19,10 +19,10 @@ Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:17.5
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:17.6
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:17.5 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:17.6 -c max_connections=200`.
 
 ## Environment
 
