@@ -328,7 +328,7 @@ A git tag is a PostgreSQL version: `v15.4` is PostgreSQL 15.4 with these patches
 | 15.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.0 apply unchanged. |
 | 15.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.1 apply unchanged. |
 | 15.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.2 apply unchanged. |
-| 15.4 | 🚧 in progress | 🚧 in progress | The same patches as 15.3 apply unchanged. |
+| 15.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.3 apply unchanged. |
 | 15.5 – 15.19 | ⬜ next | ⬜ next | |
 | 16 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
