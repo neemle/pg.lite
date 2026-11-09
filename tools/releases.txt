@@ -304,3 +304,4 @@
 15.3 15 REL_15_3 8382864eb5c9f9ebe962ac20b3392be5ae304d23 ffc7d4891f00ffbf5c3f4eab7fbbced8460b8c0ee63c5a5167133b9e6599d932 https://ftp.postgresql.org/pub/source/v15.3/postgresql-15.3.tar.bz2 https://git.postgresql.org/git/postgresql.git
 15.4 15 REL_15_4 83ed1f71c88ae948a5b6ec6d2a4802cc54470102 baec5a4bdc4437336653b6cb5d9ed89be5bd5c0c58b94e0becee0a999e63c8f9 https://ftp.postgresql.org/pub/source/v15.4/postgresql-15.4.tar.bz2 https://git.postgresql.org/git/postgresql.git
 15.5 15 REL_15_5 1e7f81e90741795d547c0290b4a82d84d518faac 8f53aa95d78eb8e82536ea46b68187793b42bba3b4f65aa342f540b23c9b10a6 https://ftp.postgresql.org/pub/source/v15.5/postgresql-15.5.tar.bz2 https://git.postgresql.org/git/postgresql.git
+15.6 15 REL_15_6 496a1dc44bf1261053da9b3f7e430769754298b4 8455146ed9c69c93a57de954aead0302cafad035c2b242175d6aa1e17ebcb2fb https://ftp.postgresql.org/pub/source/v15.6/postgresql-15.6.tar.bz2 https://git.postgresql.org/git/postgresql.git
