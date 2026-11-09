@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v18.0` is PostgreSQL 18.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v18.1` is PostgreSQL 18.1 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -373,7 +373,8 @@ A git tag is a PostgreSQL version: `v18.0` is PostgreSQL 18.0 with these patches
 | 17.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.9 apply unchanged. |
 | 17.11 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.10 apply unchanged. |
 | 18.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the pqcomm.c hunks of the embedded protocol have an 18 variant (postmaster/postmaster.h is included in front of storage/ipc.h and the send buffer needs no cast); the other patches apply unchanged. PostgreSQL has no release 18.5. |
-| 18.1 – 18.6 | ⬜ next | ⬜ next | |
+| 18.1 | 🚧 in progress | 🚧 in progress | The same patches as 18.0 apply unchanged. |
+| 18.2 – 18.6 | ⬜ next | ⬜ next | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
 
@@ -415,11 +416,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 18.0 cli          # the one-file Docker image
-./builder.sh test 18.0 cli
-./builder.sh build 18.0 wasm         # node engine, browser module, demo
-./builder.sh test 18.0 wasm
-./builder.sh build 18.0 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 18.1 cli          # the one-file Docker image
+./builder.sh test 18.1 cli
+./builder.sh build 18.1 wasm         # node engine, browser module, demo
+./builder.sh test 18.1 wasm
+./builder.sh build 18.1 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
