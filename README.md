@@ -363,7 +363,7 @@ A git tag is a PostgreSQL version: `v17.3` is PostgreSQL 17.3 with these patches
 | 17.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the pqcomm.c hunks of the embedded protocol have a 17 variant (internal_flush_buffer casts the buffer); the other patches apply unchanged. |
 | 17.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.0 apply unchanged. |
 | 17.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.1 apply unchanged. |
-| 17.3 | 🚧 in progress | 🚧 in progress | The same patches as 17.2 apply unchanged. |
+| 17.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.2 apply unchanged. |
 | 17.4 – 17.11 | ⬜ next | ⬜ next | |
 | 18 | ⬜ planned | ⬜ planned | |
 
