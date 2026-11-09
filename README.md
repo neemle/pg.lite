@@ -333,7 +333,7 @@ A git tag is a PostgreSQL version: `v15.9` is PostgreSQL 15.9 with these patches
 | 15.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.5 apply unchanged. |
 | 15.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.6 apply unchanged. |
 | 15.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.7 apply unchanged. |
-| 15.9 | 🚧 in progress | 🚧 in progress | The same patches as 15.8 apply unchanged. |
+| 15.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.8 apply unchanged. |
 | 15.10 – 15.19 | ⬜ next | ⬜ next | |
 | 16 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
