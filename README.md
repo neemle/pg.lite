@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v15.4` is PostgreSQL 15.4 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v15.5` is PostgreSQL 15.5 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -329,7 +329,8 @@ A git tag is a PostgreSQL version: `v15.4` is PostgreSQL 15.4 with these patches
 | 15.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.1 apply unchanged. |
 | 15.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.2 apply unchanged. |
 | 15.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.3 apply unchanged. |
-| 15.5 – 15.19 | ⬜ next | ⬜ next | |
+| 15.5 | 🚧 in progress | 🚧 in progress | The same patches as 15.4 apply unchanged. |
+| 15.6 – 15.19 | ⬜ next | ⬜ next | |
 | 16 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -373,11 +374,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 15.4 cli          # the one-file Docker image
-./builder.sh test 15.4 cli
-./builder.sh build 15.4 wasm         # node engine, browser module, demo
-./builder.sh test 15.4 wasm
-./builder.sh build 15.4 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 15.5 cli          # the one-file Docker image
+./builder.sh test 15.5 cli
+./builder.sh build 15.5 wasm         # node engine, browser module, demo
+./builder.sh test 15.5 wasm
+./builder.sh build 15.5 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
