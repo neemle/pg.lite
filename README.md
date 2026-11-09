@@ -324,7 +324,7 @@ A git tag is a PostgreSQL version: `v15.0` is PostgreSQL 15.0 with these patches
 | 14.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.21 apply unchanged. |
 | 14.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.22 apply unchanged. |
 | 14.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.23 apply unchanged. |
-| 15.0 | 🚧 in progress | 🚧 in progress | A new series: stack_base_ptr is private to postgres.c in 15, so the stack depth patch has a 15 variant that calls set_stack_base(); the static-modules patch has a 15 variant (the object list of the fmgr Makefile has no DLSUFFIX line after it); the other patches apply unchanged. |
+| 15.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: stack_base_ptr is private to postgres.c in 15, so the stack depth patch has a 15 variant that calls set_stack_base(); the static-modules patch has a 15 variant (the object list of the fmgr Makefile has no DLSUFFIX line after it); the other patches apply unchanged. |
 | 15.1 – 15.19 | ⬜ next | ⬜ next | |
 | 16 – 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
