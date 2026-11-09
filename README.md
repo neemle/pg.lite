@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v16.0` is PostgreSQL 16.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v16.1` is PostgreSQL 16.1 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -345,7 +345,8 @@ A git tag is a PostgreSQL version: `v16.0` is PostgreSQL 16.0 with these patches
 | 15.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.17 apply unchanged. |
 | 15.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.18 apply unchanged. |
 | 16.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the static-modules patch has a 16 variant (the link rule of src/backend/Makefile changed) and the wasm build script finds snowball_create.sql in the source tree, where 16 ships it; the other patches apply unchanged. |
-| 16.1 – 16.15 | ⬜ next | ⬜ next | |
+| 16.1 | 🚧 in progress | 🚧 in progress | The same patches as 16.0 apply unchanged. |
+| 16.2 – 16.15 | ⬜ next | ⬜ next | |
 | 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
@@ -389,11 +390,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 16.0 cli          # the one-file Docker image
-./builder.sh test 16.0 cli
-./builder.sh build 16.0 wasm         # node engine, browser module, demo
-./builder.sh test 16.0 wasm
-./builder.sh build 16.0 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 16.1 cli          # the one-file Docker image
+./builder.sh test 16.1 cli
+./builder.sh build 16.1 wasm         # node engine, browser module, demo
+./builder.sh test 16.1 wasm
+./builder.sh build 16.1 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
