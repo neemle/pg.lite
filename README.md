@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v15.19` is PostgreSQL 15.19 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v16.0` is PostgreSQL 16.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -344,7 +344,9 @@ A git tag is a PostgreSQL version: `v15.19` is PostgreSQL 15.19 with these patch
 | 15.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.16 apply unchanged. |
 | 15.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.17 apply unchanged. |
 | 15.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.18 apply unchanged. |
-| 16 – 17 | ⬜ planned | ⬜ planned | |
+| 16.0 | 🚧 in progress | 🚧 in progress | A new series: the static-modules patch has a 16 variant (the link rule of src/backend/Makefile changed) and the wasm build script finds snowball_create.sql in the source tree, where 16 ships it; the other patches apply unchanged. |
+| 16.1 – 16.15 | ⬜ next | ⬜ next | |
+| 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
@@ -387,11 +389,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 15.19 cli          # the one-file Docker image
-./builder.sh test 15.19 cli
-./builder.sh build 15.19 wasm         # node engine, browser module, demo
-./builder.sh test 15.19 wasm
-./builder.sh build 15.19 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 16.0 cli          # the one-file Docker image
+./builder.sh test 16.0 cli
+./builder.sh build 16.0 wasm         # node engine, browser module, demo
+./builder.sh test 16.0 wasm
+./builder.sh build 16.0 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
