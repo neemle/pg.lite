@@ -329,3 +329,4 @@
 16.8 16 REL_16_8 71eb35c0b18de96537bd3876ec9bf8075bfd484f 9468083a56ce0ee7d294601b74dad3dd9fc69d87aff61f0a9fb63c813ff7efd8 https://ftp.postgresql.org/pub/source/v16.8/postgresql-16.8.tar.bz2 https://git.postgresql.org/git/postgresql.git
 16.9 16 REL_16_9 6e4ab1b69197e2756192a1019439aebacdea5497 07c00fb824df0a0c295f249f44691b86e3266753b380c96f633c3311e10bd005 https://ftp.postgresql.org/pub/source/v16.9/postgresql-16.9.tar.bz2 https://git.postgresql.org/git/postgresql.git
 16.10 16 REL_16_10 c13dd7d50f21268dc64b4b3edbce31993985ab12 de8485f4ce9c32e3ddfeef0b7c261eed1cecb54c9bcd170e437ff454cb292b42 https://ftp.postgresql.org/pub/source/v16.10/postgresql-16.10.tar.bz2 https://git.postgresql.org/git/postgresql.git
+16.11 16 REL_16_11 d61dd817be70749d14e982a369e97fdda9d5cba6 6deb08c23d03d77d8f8bd1c14049eeef64aef8968fd8891df2dfc0b42f178eac https://ftp.postgresql.org/pub/source/v16.11/postgresql-16.11.tar.bz2 https://git.postgresql.org/git/postgresql.git
