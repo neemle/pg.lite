@@ -2,7 +2,8 @@
  * libpq_static_shim.c - what a static link needs and the shared libpq normally provides.
  *
  * libpq.a is not self-contained: its objects call pg_char_to_encoding() and
- * pg_encoding_to_char(), which the shared libpq exports from its own copy of
+ * pg_encoding_to_char(), and from 17 on fe_utils (psqlscan.c) calls pg_valid_server_encoding_id(); the
+ * shared libpq exports all three from its own copy of
  * src/common/encnames.c.  Where libpgcommon.a does not export them under these names (17 and
  * later: the library is compiled with USE_PRIVATE_ENCODING_FUNCS and has them with a _private
  * suffix), statically linked frontends (initdb pulls libpq objects in through fe_utils) get the
@@ -13,6 +14,7 @@
  */
 extern int	pg_char_to_encoding_private(const char *name) __attribute__((weak));
 extern const char *pg_encoding_to_char_private(int encoding) __attribute__((weak));
+extern int	pg_valid_server_encoding_id_private(int encoding) __attribute__((weak));
 
 __attribute__((weak)) int
 pg_char_to_encoding(const char *name)
@@ -24,4 +26,10 @@ __attribute__((weak)) const char *
 pg_encoding_to_char(int encoding)
 {
 	return pg_encoding_to_char_private(encoding);
+}
+
+__attribute__((weak)) int
+pg_valid_server_encoding_id(int encoding)
+{
+	return pg_valid_server_encoding_id_private(encoding);
 }
