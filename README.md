@@ -347,7 +347,7 @@ A git tag is a PostgreSQL version: `v16.3` is PostgreSQL 16.3 with these patches
 | 16.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the static-modules patch has a 16 variant (the link rule of src/backend/Makefile changed) and the wasm build script finds snowball_create.sql in the source tree, where 16 ships it; the other patches apply unchanged. |
 | 16.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.0 apply unchanged. |
 | 16.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.1 apply unchanged. |
-| 16.3 | 🚧 in progress | 🚧 in progress | The same patches as 16.2 apply unchanged. |
+| 16.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.2 apply unchanged. |
 | 16.4 – 16.15 | ⬜ next | ⬜ next | |
 | 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
