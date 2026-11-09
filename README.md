@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v17.0` is PostgreSQL 17.0 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v17.1` is PostgreSQL 17.1 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -361,7 +361,8 @@ A git tag is a PostgreSQL version: `v17.0` is PostgreSQL 17.0 with these patches
 | 16.14 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.13 apply unchanged. |
 | 16.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.14 apply unchanged. |
 | 17.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the pqcomm.c hunks of the embedded protocol have a 17 variant (internal_flush_buffer casts the buffer); the other patches apply unchanged. |
-| 17.1 – 17.11 | ⬜ next | ⬜ next | |
+| 17.1 | 🚧 in progress | 🚧 in progress | The same patches as 17.0 apply unchanged. |
+| 17.2 – 17.11 | ⬜ next | ⬜ next | |
 | 18 | ⬜ planned | ⬜ planned | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
@@ -404,11 +405,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 17.0 cli          # the one-file Docker image
-./builder.sh test 17.0 cli
-./builder.sh build 17.0 wasm         # node engine, browser module, demo
-./builder.sh test 17.0 wasm
-./builder.sh build 17.0 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 17.1 cli          # the one-file Docker image
+./builder.sh test 17.1 cli
+./builder.sh build 17.1 wasm         # node engine, browser module, demo
+./builder.sh test 17.1 wasm
+./builder.sh build 17.1 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
