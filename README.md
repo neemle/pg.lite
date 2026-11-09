@@ -371,7 +371,7 @@ A git tag is a PostgreSQL version: `v17.11` is PostgreSQL 17.11 with these patch
 | 17.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.7 apply unchanged. |
 | 17.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.8 apply unchanged. |
 | 17.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.9 apply unchanged. |
-| 17.11 | 🚧 in progress | 🚧 in progress | The same patches as 17.10 apply unchanged. |
+| 17.11 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.10 apply unchanged. |
 | 18 | ⬜ planned | ⬜ planned | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
