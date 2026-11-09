@@ -165,11 +165,12 @@ jobs:
           path: /home/runner/pglite-cache
           key: cache-cli-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/releases.txt', 'image/fetch-xsfx.sh') }}
           restore-keys: cache-cli-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-
-      - name: "Cache (the packer; the same for every release, so it is not downloaded from GitHub in every job)"
+      - name: "Cache (the packer archives: the latest release is looked up in every job, the kept archive is used only when GitHub cannot be reached)"
         uses: actions/cache@v6
         with:
           path: /home/runner/pglite-cache/downloads
-          key: xsfx-v0.2.0-${{ matrix.arch }}
+          key: xsfx-${{ matrix.arch }}-${{ github.run_id }}
+          restore-keys: xsfx-${{ matrix.arch }}-
       - name: Disk space (cleaned only when less than 10 GB is free)
         run: |
           df -h /

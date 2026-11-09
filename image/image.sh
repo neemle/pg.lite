@@ -17,7 +17,7 @@ pack="${PACK:-}"; case "$pack" in ""|xsfx) ;; *) echo "native: PACK must be empt
 vs="$bvs${pack:+-$pack}"
 # the architecture of the docker host (x86_64 or aarch64), which is the one the image is built for: the packer and the label follow it
 case "$(docker info --format "{{.Architecture}}" 2>/dev/null)" in aarch64|arm64) arch=arm64; xsfx_arch=aarch64 ;; *) arch=amd64; xsfx_arch=x86_64 ;; esac
-xsfx_bin=/b/xsfx/v0.2.0/x/xsfx-$xsfx_arch-unknown-linux-musl
+xsfx_bin=/b/xsfx/latest/x/xsfx-$xsfx_arch-unknown-linux-musl
 img="compactdb-native:$ver$vs"
 client_img="${CLIENT_IMAGE:-compactdb-reference:$ver}"   # the stock psql of a first minor can crash on a current distribution: CLIENT_IMAGE=compactdb-reference:<later minor of the major>
 net="compactdb-ref-net"
@@ -68,7 +68,7 @@ image)
     major=$(echo "$ver" | awk -F. '{ if ($1 + 0 >= 10) print $1; else print $1 "." $2 }')
     revision=$(cd "$root/.." && git rev-parse HEAD 2>/dev/null || echo unknown)
     created=$(cd "$root/.." && git log -1 --format=%cI 2>/dev/null || echo unknown)
-    # the packer is fetched into the build volume (checked against a pinned SHA-256) the first time it is asked for
+    # the latest release of the packer is fetched into the build volume (its SHA-256 is checked against the digest GitHub shows for the release asset)
     if [ "$pack" = xsfx ]; then (unset MSYS_NO_PATHCONV; DC_NET=1 "$root/dc" sh image/fetch-xsfx.sh); fi
     docker run --rm --network none -e VDIR="$ver$bvs" -e PACK="$pack" -e XSFX="$xsfx_bin" -v "${DC_BUILD_VOLUME:-compactdb-build}":/b:ro -v "$root/../image/docker/native:/n:ro" "$builder" sh -c '
          set -e
