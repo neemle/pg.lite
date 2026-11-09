@@ -23,7 +23,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 ## Versions
 
-A git tag is a PostgreSQL version: `v17.9` is PostgreSQL 17.9 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
+A git tag is a PostgreSQL version: `v17.10` is PostgreSQL 17.10 with these patches and nothing else. The table shows what is built and tested today; it grows with every release that is brought over.
 
 | PostgreSQL | Image (`FROM scratch`) | WebAssembly (browser) | Notes |
 | --- | --- | --- | --- |
@@ -370,7 +370,8 @@ A git tag is a PostgreSQL version: `v17.9` is PostgreSQL 17.9 with these patches
 | 17.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.6 apply unchanged. |
 | 17.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.7 apply unchanged. |
 | 17.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.8 apply unchanged. |
-| 17.10 – 17.11 | ⬜ next | ⬜ next | |
+| 17.10 | 🚧 in progress | 🚧 in progress | The same patches as 17.9 apply unchanged. |
+| 17.11 | ⬜ next | ⬜ next | |
 | 18 | ⬜ planned | ⬜ planned | |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
@@ -413,11 +414,11 @@ tools/       the build containers, the list of releases and the settings of the 
 ## Build
 
 ```sh
-./builder.sh build 17.9 cli          # the one-file Docker image
-./builder.sh test 17.9 cli
-./builder.sh build 17.9 wasm         # node engine, browser module, demo
-./builder.sh test 17.9 wasm
-./builder.sh build 17.9 cli --pack   # the plain image and the one with the executable compressed
+./builder.sh build 17.10 cli          # the one-file Docker image
+./builder.sh test 17.10 cli
+./builder.sh build 17.10 wasm         # node engine, browser module, demo
+./builder.sh test 17.10 wasm
+./builder.sh build 17.10 cli --pack   # the plain image and the one with the executable compressed
 ```
 
 ## License
