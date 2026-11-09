@@ -356,7 +356,7 @@ A git tag is a PostgreSQL version: `v16.12` is PostgreSQL 16.12 with these patch
 | 16.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.8 apply unchanged. |
 | 16.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.9 apply unchanged. |
 | 16.11 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.10 apply unchanged. |
-| 16.12 | 🚧 in progress | 🚧 in progress | The same patches as 16.11 apply unchanged. |
+| 16.12 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.11 apply unchanged. |
 | 16.13 – 16.15 | ⬜ next | ⬜ next | |
 | 17 | ⬜ planned | ⬜ planned | |
 | 18 | ⬜ planned | ⬜ planned | |
