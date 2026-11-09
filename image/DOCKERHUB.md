@@ -1,6 +1,6 @@
 # pg.lite
 
-**PostgreSQL as one static executable in a `FROM scratch` image.** The real PostgreSQL, built from the official source with a few patches: about 15 MB (about 4.7 MB compressed), no shell, no loader, no other file. It reads the environment of the [official `postgres` image](https://hub.docker.com/_/postgres), so it can replace it for development, CI and tests.
+**PostgreSQL as one static executable in a `FROM scratch` image.** The real PostgreSQL, built from the official source with a few patches: 15 to 18 MB (4.7 to 7 MB compressed, depending on the release), no shell, no loader, no other file. It reads the environment of the [official `postgres` image](https://hub.docker.com/_/postgres), so it can replace it for development, CI and tests.
 
 Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.lite>
 
@@ -8,9 +8,10 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 
 | Tag | What it is |
 | --- | --- |
-| `9.1.0` (any release number) | exactly that PostgreSQL release and nothing else; the executable is compressed (about 4.7 MB) |
-| `9.1.0-uncompressed` | the same release with the plain executable (about 15 MB), a start that is about 0.4 s faster |
-| `9.0`, `9.1`, `9.2` | the newest release of that series built here |
+| `17.11` (any release number) | exactly that PostgreSQL release and nothing else; the executable is compressed (4.7 to 7 MB) |
+| `17.11-uncompressed` | the same release with the plain executable (15 to 18 MB), a start that is about 0.4 s faster |
+| `17`, `16`, … `10` | the newest release of that major version built here |
+| `9.6`, `9.5`, … `9.0` | the newest release of that 9.x series built here (9.x have two-part series: 9.6.24 is release 24 of series 9.6) |
 | `9` | the newest 9.x built here |
 | `latest` | the newest release built here |
 

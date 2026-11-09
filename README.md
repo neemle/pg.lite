@@ -2,7 +2,7 @@
 
 **The real PostgreSQL, built very small, for development and nearly 95% of all apps.** pg.lite takes the official source of a PostgreSQL release, applies a small set of patches, and builds it as
 
-* a **Docker image of about 15 MB**, or 4.7 MB with the packer (an official Alpine PostgreSQL image is about 430 MB): one static executable in a `FROM scratch` image, with no shell, no loader and no other file, and
+* a **Docker image of 15 to 18 MB** (a little more with each newer series), or 4.7 to 7 MB with the packer (the official `postgres:16-alpine` image is about 420 MB): one static executable in a `FROM scratch` image, with no shell, no loader and no other file, and
 * a **WebAssembly build** that runs PostgreSQL in the browser, in a Worker, with its data kept in IndexedDB.
 
 It is meant for places where a full PostgreSQL install is more than you need: a CI database, a throw-away test or development database, an appliance image, an offline web app that wants real SQL. If you do not need extensions and the other extras of a full install, you get the same server in a fraction of the size.
@@ -18,7 +18,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 * **One static executable.** The server, `initdb`, `psql`, the container entrypoint and the roughly 400 data files `initdb` reads are linked into a single musl executable, with the libraries the tools share (libpq and others) once; the data files are a tar image inside it, so nothing is extracted to disk.
 * **Size-first compiler flags** (`-Os`, section garbage collection) and no code that the profile does not use.
-* **A packer.** With `--pack` the executable is compressed with [xsfx](https://github.com/ratushnyi-labs/xsfx), a self-extracting packer: 15.3 MB become 4.7 MB (measured on 9.0.0), at the price of a start that is about 0.4 s slower. A release publishes both: the compressed image has the plain tags (for example `9.0.1`, `9.0`, `9`, `latest`), the one with the plain executable the same tags with `-uncompressed`.
+* **A packer.** With `--pack` the executable is compressed with [xsfx](https://github.com/ratushnyi-labs/xsfx), a self-extracting packer: 15.3 MB become 4.7 MB (measured on 9.0.1) and 18.2 MB become 7.0 MB (measured on 17.11), at the price of a start that is about 0.4 s slower. A release publishes both: the compressed image has the plain tags (for example `17.11`, `17`, `latest`; `9.6.24`, `9.6`, `9` for the 9.x series), the one with the plain executable the same tags with `-uncompressed`.
 * **WebAssembly** is built with Emscripten from the same patched source; the browser module is TypeScript with a `pg`-compatible facade (so ORMs such as TypeORM work on it).
 
 ## Versions
