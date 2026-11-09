@@ -223,7 +223,8 @@ test)
     if env_wait app s3cret appdb; then
         [ "$(envq app s3cret appdb "SELECT current_user || '|' || current_database()")" = "app|appdb" ] && pass "POSTGRES_USER, POSTGRES_PASSWORD and POSTGRES_DB" || bad "user/db: $(envq app s3cret appdb 'SELECT current_user, current_database()')"
         [ "$(envq app s3cret appdb "SELECT count(*) FROM pg_database WHERE datname IN ('postgres', 'appdb')")" = "2" ] && pass "the default database postgres is there too" || bad "databases"
-        [ "$(envq app s3cret appdb 'SHOW lc_collate')" = "C" ] && pass "POSTGRES_INITDB_ARGS reach initdb (--lc-collate=C)" || bad "initdb args: $(envq app s3cret appdb 'SHOW lc_collate')"
+        # 16 and later have no lc_collate setting to SHOW; the database row has it in every release
+        [ "$(envq app s3cret appdb 'SELECT datcollate FROM pg_database WHERE datname = current_database()')" = "C" ] && pass "POSTGRES_INITDB_ARGS reach initdb (--lc-collate=C)" || bad "initdb args: $(envq app s3cret appdb 'SELECT datcollate FROM pg_database WHERE datname = current_database()')"
         link=$(docker run --rm -v "$vol-env:/d:ro" --entrypoint "" "$builder" sh -c 'readlink /d/pg_wal || readlink /d/pg_xlog')
         [ "$link" = "/wal" ] && pass "POSTGRES_INITDB_WALDIR: the WAL directory is a link to /wal" || bad "waldir link: '$link'"
         envq app wrong appdb 'SELECT 1' | grep -q "authentication failed" && pass "a wrong password is rejected" || bad "wrong password accepted"
