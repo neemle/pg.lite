@@ -351,3 +351,4 @@
 18.2 18 REL_18_2 5a461dc4dbf72a1ec281394a76eb36d68cbdd935 5245bd1b79700d55b8e0575be0325ef61e7bbef627e6a616e4cf36ad4687be36 https://ftp.postgresql.org/pub/source/v18.2/postgresql-18.2.tar.bz2 https://git.postgresql.org/git/postgresql.git
 18.3 18 REL_18_3 62d6c7d3df6287f1bd83199c1a746e50d31571a0 d95663fbbf3a80f81a9d98d895266bdcb74ba274bcc04ef6d76630a72dee016f https://ftp.postgresql.org/pub/source/v18.3/postgresql-18.3.tar.bz2 https://git.postgresql.org/git/postgresql.git
 18.4 18 REL_18_4 f5cc81719e6da4cbdb1f797c48b693e91018153a 81a81ec695fb0c7901407defaa1d2f7973617154cf27ba74e3a7ab8e64436094 https://ftp.postgresql.org/pub/source/v18.4/postgresql-18.4.tar.bz2 https://git.postgresql.org/git/postgresql.git
+18.6 18 REL_18_6 724edf9bde9d356724ad384a2e196edc3c9f80f7 555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f https://ftp.postgresql.org/pub/source/v18.6/postgresql-18.6.tar.bz2 https://git.postgresql.org/git/postgresql.git
