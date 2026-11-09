@@ -370,7 +370,7 @@ A git tag is a PostgreSQL version: `v17.10` is PostgreSQL 17.10 with these patch
 | 17.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.6 apply unchanged. |
 | 17.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.7 apply unchanged. |
 | 17.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.8 apply unchanged. |
-| 17.10 | 🚧 in progress | 🚧 in progress | The same patches as 17.9 apply unchanged. |
+| 17.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.9 apply unchanged. |
 | 17.11 | ⬜ next | ⬜ next | |
 | 18 | ⬜ planned | ⬜ planned | |
 
