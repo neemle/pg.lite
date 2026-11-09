@@ -368,7 +368,7 @@ A git tag is a PostgreSQL version: `v17.8` is PostgreSQL 17.8 with these patches
 | 17.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.4 apply unchanged. |
 | 17.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.5 apply unchanged. |
 | 17.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.6 apply unchanged. |
-| 17.8 | 🚧 in progress | 🚧 in progress | The same patches as 17.7 apply unchanged. |
+| 17.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.7 apply unchanged. |
 | 17.9 – 17.11 | ⬜ next | ⬜ next | |
 | 18 | ⬜ planned | ⬜ planned | |
 
