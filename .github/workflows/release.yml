@@ -17,6 +17,8 @@ name: release
 # release in tools/releases.txt (9.0), the family when it is the newest of it (9), and "latest" for the newest release of all.
 # The same image with a plain executable has the same tags with the suffix -uncompressed (9.0.0-uncompressed, 9.0-uncompressed,
 # 9-uncompressed; no latest-uncompressed).
+# From 17 on there is also the full image (zlib, pg_dump and pg_restore inside the executable) with the suffix -full on every one of these
+# tags (17.11-full, 17-full, latest-full, 17.11-uncompressed-full). A manual run with full-backfill publishes only those, for a release that exists.
 # From 9.2.5 on (scripts/has-arm64.sh: where upstream PostgreSQL supports aarch64) every tag is multi-platform: the amd64 image and the
 # arm64 image, each built and tested on its own runner, are pushed as <tag>-amd64 and <tag>-arm64 and joined under <tag>.
 on:
