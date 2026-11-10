@@ -22,6 +22,11 @@ on:
         type: string
         required: false
         default: ''
+      only-full:
+        description: "true: build and test only the full flavour (zlib, pg_dump, pg_restore) of the releases, for the later publication of the -full tags of a release that exists"
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -63,7 +68,8 @@ jobs:
         name: "The image jobs: one per release, architecture and flavour (arm64 where the release has an arm64 image, the full flavour from 17 on)"
         env:
           VERSIONS: ${{ steps.versions.outputs.versions }}
-        run: sh scripts/builds.sh "$VERSIONS" | tee -a "$GITHUB_OUTPUT"
+          ONLY_FULL: ${{ inputs.only-full == 'true' && 'full' || '' }}
+        run: sh scripts/builds.sh "$VERSIONS" $ONLY_FULL | tee -a "$GITHUB_OUTPUT"
       - id: reuse
         name: Earlier run that built and tested the same files (nothing is built then)
         env:
@@ -83,7 +89,7 @@ jobs:
   # ---- stage 1: checks
   repo:
     needs: plan
-    if: ${{ needs.plan.outputs.reuse == '' }}
+    if: ${{ needs.plan.outputs.reuse == '' && inputs.only-full != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -93,7 +99,7 @@ jobs:
 
   typescript:
     needs: plan
-    if: ${{ needs.plan.outputs.reuse == '' }}
+    if: ${{ needs.plan.outputs.reuse == '' && inputs.only-full != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -213,7 +219,7 @@ jobs:
 
   build-wasm:
     needs: [plan]
-    if: ${{ needs.plan.outputs.reuse == '' }}
+    if: ${{ needs.plan.outputs.reuse == '' && inputs.only-full != 'true' }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

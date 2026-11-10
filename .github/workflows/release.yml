@@ -33,6 +33,10 @@ on:
         description: Only create the GitHub release of the existing tag v<version>, from the artifacts of the run that tested it (nothing is built, nothing is pushed to Docker Hub)
         type: boolean
         default: false
+      full-backfill:
+        description: "Publish ONLY the -full images (zlib, pg_dump, pg_restore; 17 and later) of the existing release v<version>, built from the files of this branch. The other tags and the GitHub release are not touched."
+        type: boolean
+        default: false
 
 permissions:
   contents: write     # create the release and upload its files
@@ -53,6 +57,7 @@ jobs:
       newestInFamily: ${{ steps.plan.outputs.newestInFamily }}
       newestOverall: ${{ steps.plan.outputs.newestOverall }}
       publish: ${{ steps.publish.outputs.publish }}
+      onlyFull: ${{ steps.publish.outputs.onlyFull }}
       ciRun: ${{ steps.reuse.outputs.run }}
       releaseOnly: ${{ steps.reuse.outputs.releaseOnly }}
       arm64: ${{ steps.arch.outputs.arm64 }}
@@ -79,18 +84,28 @@ jobs:
           # from 17 on there is a full flavour of the image (zlib, pg_dump, pg_restore), published with the suffix -full
           if [ "${VERSION%%.*}" -ge 17 ]; then echo "full=true" >> "$GITHUB_OUTPUT"; else echo "full=false" >> "$GITHUB_OUTPUT"; fi
       - id: publish
-        name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
+        name: Only a pushed tag publishes (or a full-backfill run for a release that exists), and only with Docker Hub configured (checked now, not after an hour of building)
         env:
           IS_TAG: ${{ github.ref_type == 'tag' }}
+          BACKFILL: ${{ inputs.full-backfill == true }}
+          VERSION: ${{ steps.plan.outputs.version }}
           DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          if [ "$IS_TAG" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
+          publish=$IS_TAG; onlyfull=false
+          if [ "$BACKFILL" = true ]; then
+            # the -full tags of a release that was published without them: the tag v<version> must exist, and the release must be 17 or later
+            git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null || { echo "::error::full-backfill: there is no tag v$VERSION"; exit 1; }
+            [ "${VERSION%%.*}" -ge 17 ] || { echo "::error::full-backfill: $VERSION has no full flavour (17 and later)"; exit 1; }
+            publish=true; onlyfull=true
+          fi
+          if [ "$publish" = true ] && { [ -z "$DOCKERHUB_REPOSITORY" ] || [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; }; then
             echo "::error::Docker Hub is not configured: set the repository variable DOCKERHUB_REPOSITORY (for example myorg/pg.lite) and the secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN."
             exit 1
           fi
-          echo "publish=$IS_TAG" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+          echo "onlyFull=$onlyfull" >> "$GITHUB_OUTPUT"
       - id: reuse
         name: Earlier run of ci.yml that built and tested the same files (nothing is built then)
         env:
@@ -118,6 +133,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
     with:
       versions: ${{ format('["{0}"]', needs.plan.outputs.version) }}
+      only-full: ${{ needs.plan.outputs.onlyFull }}
 
   publish:
     needs: [plan, ci]
@@ -134,16 +150,18 @@ jobs:
       DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
       ARM64: ${{ needs.plan.outputs.arm64 }}
       FULL: ${{ needs.plan.outputs.full }}
+      ONLY_FULL: ${{ needs.plan.outputs.onlyFull }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
+        if: ${{ needs.plan.outputs.onlyFull != 'true' }}
         with:
           name: image-${{ env.VERSION }}
           path: image
           run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}      # the reused run, or this one
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v8
-        if: ${{ needs.plan.outputs.arm64 == 'true' }}
+        if: ${{ needs.plan.outputs.arm64 == 'true' && needs.plan.outputs.onlyFull != 'true' }}
         with:
           name: image-${{ env.VERSION }}-arm64
           path: image-arm64
@@ -180,6 +198,8 @@ jobs:
             for t in $tags; do fulltags="$fulltags $t-full"; done
             for t in $plain; do fullplain="$fullplain $t-full"; done
           fi
+          # a full-backfill run publishes the -full tags only: the other tags of the release stay as they are
+          if [ "$ONLY_FULL" = true ]; then tags=""; plain=""; fi
           # A release with an arm64 image is published as one multi-platform tag (amd64 and arm64 under the same name). The two images
           # are pushed first under <tag>-amd64 and <tag>-arm64 and then joined; a release without arm64 is pushed under the tag itself.
           archtags=""
@@ -194,11 +214,11 @@ jobs:
             if [ -n "$1" ]; then for t in $tags $plain $fulltags $fullplain; do archtags="$archtags $t$1"; done; fi
           }
           if [ "$ARM64" = true ]; then
-            gunzip -c "image/image-$VERSION.tar.gz" | docker load
+            [ "$ONLY_FULL" = true ] || gunzip -c "image/image-$VERSION.tar.gz" | docker load
             [ "$FULL" != true ] || gunzip -c "image-full/image-$VERSION-full.tar.gz" | docker load
             retag -amd64
             # the arm64 archives hold the images under the same names: load them second and tag them right away
-            gunzip -c "image-arm64/image-$VERSION-arm64.tar.gz" | docker load
+            [ "$ONLY_FULL" = true ] || gunzip -c "image-arm64/image-$VERSION-arm64.tar.gz" | docker load
             [ "$FULL" != true ] || gunzip -c "image-full-arm64/image-$VERSION-full-arm64.tar.gz" | docker load
             retag -arm64
             for a in amd64 arm64; do
@@ -207,7 +227,7 @@ jobs:
               done
             done
           else
-            gunzip -c "image/image-$VERSION.tar.gz" | docker load
+            [ "$ONLY_FULL" = true ] || gunzip -c "image/image-$VERSION.tar.gz" | docker load
             [ "$FULL" != true ] || gunzip -c "image-full/image-$VERSION-full.tar.gz" | docker load
             retag ""
           fi
@@ -254,7 +274,7 @@ jobs:
     needs: [plan, publish]
     # publish is skipped on a manual dry run; ci is skipped when an earlier run is reused, and a skipped job upstream would skip this one too.
     # A manual run with github-release creates only this release, for a tag that exists already (its images were published by the tag run).
-    if: ${{ !cancelled() && (needs.publish.result == 'success' || (needs.plan.result == 'success' && needs.plan.outputs.releaseOnly == 'true')) }}
+    if: ${{ !cancelled() && (needs.publish.result == 'success' || (needs.plan.result == 'success' && needs.plan.outputs.releaseOnly == 'true')) && needs.plan.outputs.onlyFull != 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v8
