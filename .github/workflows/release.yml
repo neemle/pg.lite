@@ -56,6 +56,7 @@ jobs:
       ciRun: ${{ steps.reuse.outputs.run }}
       releaseOnly: ${{ steps.reuse.outputs.releaseOnly }}
       arm64: ${{ steps.arch.outputs.arm64 }}
+      full: ${{ steps.arch.outputs.full }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -75,6 +76,8 @@ jobs:
           VERSION: ${{ steps.plan.outputs.version }}
         run: |
           if sh scripts/has-arm64.sh "$VERSION"; then echo "arm64=true" >> "$GITHUB_OUTPUT"; else echo "arm64=false" >> "$GITHUB_OUTPUT"; fi
+          # from 17 on there is a full flavour of the image (zlib, pg_dump, pg_restore), published with the suffix -full
+          if [ "${VERSION%%.*}" -ge 17 ]; then echo "full=true" >> "$GITHUB_OUTPUT"; else echo "full=false" >> "$GITHUB_OUTPUT"; fi
       - id: publish
         name: Only a pushed tag publishes, and only with Docker Hub configured (checked now, not after an hour of building)
         env:
@@ -130,6 +133,7 @@ jobs:
       NEWEST_OVERALL: ${{ needs.plan.outputs.newestOverall }}
       DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
       ARM64: ${{ needs.plan.outputs.arm64 }}
+      FULL: ${{ needs.plan.outputs.full }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -145,6 +149,20 @@ jobs:
           path: image-arm64
           run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}
           github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        if: ${{ needs.plan.outputs.full == 'true' }}
+        with:
+          name: image-${{ env.VERSION }}-full
+          path: image-full
+          run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        if: ${{ needs.plan.outputs.full == 'true' && needs.plan.outputs.arm64 == 'true' }}
+        with:
+          name: image-${{ env.VERSION }}-full-arm64
+          path: image-full-arm64
+          run-id: ${{ needs.plan.outputs.ciRun || github.run_id }}
+          github-token: ${{ github.token }}
       - name: Load the tested images and give them their tags
         id: tags
         run: |
@@ -155,28 +173,45 @@ jobs:
           plain=""
           for t in $tags; do plain="$plain $t-uncompressed"; done
           [ "$NEWEST_OVERALL" = true ] && tags="$tags latest"
+          # From 17 on the full flavour (zlib, pg_dump and pg_restore inside the executable) has the same tags with -full:
+          # 17.11-full, 17-full, latest-full for the compressed one, 17.11-uncompressed-full, 17-uncompressed-full for the plain one.
+          fulltags=""; fullplain=""
+          if [ "$FULL" = true ]; then
+            for t in $tags; do fulltags="$fulltags $t-full"; done
+            for t in $plain; do fullplain="$fullplain $t-full"; done
+          fi
           # A release with an arm64 image is published as one multi-platform tag (amd64 and arm64 under the same name). The two images
           # are pushed first under <tag>-amd64 and <tag>-arm64 and then joined; a release without arm64 is pushed under the tag itself.
           archtags=""
+          # give the loaded images (pg.lite-image:...) their Docker Hub names; $1 is the suffix of the architecture tag, or empty
+          retag() {
+            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t$1"; done
+            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t$1"; done
+            if [ "$FULL" = true ]; then
+              for t in $fulltags; do docker tag "pg.lite-image:$VERSION-full" "$DOCKERHUB_REPOSITORY:$t$1"; done
+              for t in $fullplain; do docker tag "pg.lite-image:$VERSION-uncompressed-full" "$DOCKERHUB_REPOSITORY:$t$1"; done
+            fi
+            if [ -n "$1" ]; then for t in $tags $plain $fulltags $fullplain; do archtags="$archtags $t$1"; done; fi
+          }
           if [ "$ARM64" = true ]; then
             gunzip -c "image/image-$VERSION.tar.gz" | docker load
-            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t-amd64"; archtags="$archtags $t-amd64"; done
-            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t-amd64"; archtags="$archtags $t-amd64"; done
-            # the arm64 archive holds the images under the same names: load it second and tag it right away
+            [ "$FULL" != true ] || gunzip -c "image-full/image-$VERSION-full.tar.gz" | docker load
+            retag -amd64
+            # the arm64 archives hold the images under the same names: load them second and tag them right away
             gunzip -c "image-arm64/image-$VERSION-arm64.tar.gz" | docker load
-            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t-arm64"; archtags="$archtags $t-arm64"; done
-            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t-arm64"; archtags="$archtags $t-arm64"; done
+            [ "$FULL" != true ] || gunzip -c "image-full-arm64/image-$VERSION-full-arm64.tar.gz" | docker load
+            retag -arm64
             for a in amd64 arm64; do
-              for t in $tags; do
+              for t in $tags $fulltags; do
                 [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t-$a" --format '{{.Architecture}}')" = "$a" ] || { echo "::error::$t-$a is not a $a image"; exit 1; }
               done
             done
           else
             gunzip -c "image/image-$VERSION.tar.gz" | docker load
-            for t in $tags; do docker tag "pg.lite-image:$VERSION" "$DOCKERHUB_REPOSITORY:$t"; done
-            for t in $plain; do docker tag "pg.lite-image:$VERSION-uncompressed" "$DOCKERHUB_REPOSITORY:$t"; done
+            [ "$FULL" != true ] || gunzip -c "image-full/image-$VERSION-full.tar.gz" | docker load
+            retag ""
           fi
-          echo "tags=$tags $plain" >> "$GITHUB_OUTPUT"
+          echo "tags=$tags $plain $fulltags $fullplain" >> "$GITHUB_OUTPUT"
           echo "archtags=$archtags" >> "$GITHUB_OUTPUT"
       - name: Push to Docker Hub
         env:
@@ -207,8 +242,11 @@ jobs:
             docker pull -q "$DOCKERHUB_REPOSITORY:$t"
             docker run --rm --entrypoint /usr/local/pgsql/bin/postgres "$DOCKERHUB_REPOSITORY:$t" --version | tee /dev/stderr | grep -q "(PostgreSQL) $VERSION"
             [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "$VERSION" ]
-            case "$t" in *-uncompressed) want=no ;; *) want=yes ;; esac
+            case "$t" in *-uncompressed|*-uncompressed-full) want=no ;; *) want=yes ;; esac
             [ "$(docker image inspect "$DOCKERHUB_REPOSITORY:$t" --format '{{index .Config.Labels "io.github.neemle.pglite.packed"}}')" = "$want" ]
+            case "$t" in
+              *-full) docker run --rm --entrypoint /usr/local/pgsql/bin/postgres "$DOCKERHUB_REPOSITORY:$t" --pg_dump --version | tee /dev/stderr | grep -q "(PostgreSQL) $VERSION" ;;
+            esac
             echo "published $DOCKERHUB_REPOSITORY:$t"
           done
 

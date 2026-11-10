@@ -40,6 +40,8 @@ lto="${NATIVE_LTO:-0}"
 extra_opts="${NATIVE_CONFIGURE:-}"
 be_arg=""
 embed=0; [ -f "$src/src/backend/main/embedded.c" ] && embed=1
+# the "full" flavour: zlib, and the dump tools (pg_dump, pg_restore) linked into the executable
+full=0; case "$variant" in *full) full=1 ;; esac
 # link-time interception of the file system calls that main/embedded.c answers from the embedded share/ tree
 wraps=""
 if [ "$embed" = 1 ]; then
@@ -52,7 +54,7 @@ if [ "${NATIVE_BE_LD+set}" = set ]; then be_arg="LDFLAGS_EX_BE=${NATIVE_BE_LD}";
 #   os     the same with -Os                         <- smallest build that stays simple and fast to build
 #   oslto  the same with -Os and link-time optimization
 case "$variant" in
-    gc|os|oslto|ospie|min1|min2|min3)
+    gc|os|oslto|ospie|min1|min2|min3|min3full)
         if [ -z "$cflags" ] && [ -z "$ldflags" ] && [ "$ldex" = -static ] && [ -z "$be_arg" ] && [ "$lto" != 1 ]; then
             common="-ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables -fno-unwind-tables"
             ldex="-static -no-pie -Wl,--gc-sections"; be_arg="LDFLAGS_EX_BE="
@@ -65,9 +67,12 @@ case "$variant" in
                 # min1..min3 = ospie, then cumulatively:
                 #   min2 adds -ffile-prefix-map (shorter __FILE__ strings, build paths normalized)
                 #   min3 adds --without-zlib (the server needs zlib only for gzip base backups; pg_dump is not in the image)
+                #   min3full is min3 with zlib kept, and pg_dump and pg_restore inside the executable (17 and later, the "full" image)
                 min1) cflags="-Os $common"; ldex="-static -Wl,--gc-sections" ;;
                 min2) cflags="-Os $common -ffile-prefix-map=$src/= -ffile-prefix-map=$out/obj/="; ldex="-static -Wl,--gc-sections" ;;
                 min3) cflags="-Os $common -ffile-prefix-map=$src/= -ffile-prefix-map=$out/obj/="; ldex="-static -Wl,--gc-sections"; extra_opts="--without-zlib" ;;
+                # min3full = min3 with zlib, and the dump tools (pg_dump, pg_restore) linked in: the "full" image
+                min3full) cflags="-Os $common -ffile-prefix-map=$src/= -ffile-prefix-map=$out/obj/="; ldex="-static -Wl,--gc-sections"; extra_opts="--with-zlib" ;;
             esac
         fi ;;
 esac
@@ -163,7 +168,9 @@ for d in src/pl/plpgsql/src src/backend/snowball src/backend/utils/mb/conversion
 done
 # pg_resetwal was called pg_resetxlog before 10
 resetwal=pg_resetwal; [ -d "$src/src/bin/pg_resetwal" ] || resetwal=pg_resetxlog
-for d in src/bin/initdb src/bin/$resetwal src/bin/pg_controldata src/bin/psql; do
+frontends="src/bin/initdb src/bin/$resetwal src/bin/pg_controldata src/bin/psql"
+[ "$full" != 1 ] || frontends="$frontends src/bin/pg_dump"
+for d in $frontends; do
     echo "build-native: make $d (frontend, with the libpq static shim)"
     step make -j"$(nproc)" -C "$d" LDFLAGS_EX="$fe_ldx"
 done
@@ -234,11 +241,25 @@ if [ "$embed" = 1 ]; then
     frontend_program src/bin/$resetwal embedded_resetwal_main
     frontend_program src/bin/pg_controldata embedded_controldata_main
     frontend_program src/bin/psql embedded_psql_main
+    if [ "$full" = 1 ]; then
+        # pg_dump and pg_restore share most of their objects (the archive code, the formats, the compression): ONE blob holds both programs, the shared
+        # objects once. Only the two mains are renamed (on copies, the build tree stays as it is); pg_dumpall is not linked in: it starts pg_dump
+        # through a shell, which this image does not have.
+        dd="$sm/dump_objs"; rm -rf "$dd"; mkdir -p "$dd"
+        for o in "$out"/obj/src/bin/pg_dump/*.o; do
+            [ "$(basename "$o")" = pg_dumpall.o ] || cp "$o" "$dd/"
+        done
+        step objcopy --redefine-sym main=embedded_pg_dump_main "$dd/pg_dump.o"
+        step objcopy --redefine-sym main=embedded_pg_restore_main "$dd/pg_restore.o"
+        # shellcheck disable=SC2046
+        step ld -r -o "$sm/prog_embedded_pg_dump_main.o" $(ls "$dd"/*.o)
+        step objcopy --keep-global-symbol=embedded_pg_dump_main --keep-global-symbol=embedded_pg_restore_main "$sm/prog_embedded_pg_dump_main.o"
+    fi
     # the programs, the libpq static shim and the shared libraries: "ld -r" takes from the libraries only what is needed, once for all four
     # shellcheck disable=SC2086
     step ld -r -o "$sm/frontend_tools.o" "$sm"/prog_embedded_*_main.o "$out/shim.o" --start-group $libs --end-group
     step objcopy --keep-global-symbol=embedded_initdb_main --keep-global-symbol=embedded_resetwal_main \
-        --keep-global-symbol=embedded_controldata_main --keep-global-symbol=embedded_psql_main "$sm/frontend_tools.o"
+        --keep-global-symbol=embedded_controldata_main --keep-global-symbol=embedded_psql_main $([ "$full" = 1 ] && echo "--keep-global-symbol=embedded_pg_dump_main --keep-global-symbol=embedded_pg_restore_main") "$sm/frontend_tools.o"
     # share/: a tar image (links and hard links stored as files, no timestamps, owners or order from this host), linked in as read-only data
     step tar --format=ustar -h --hard-dereference --owner=0 --group=0 --numeric-owner --mtime=@0 --sort=name --exclude=./errcodes.txt \
         -cf "$out/embed.tar" -C "$out/install-strip$prefix/share" .
@@ -248,7 +269,9 @@ if [ "$embed" = 1 ]; then
     rm -f src/backend/postgres
     echo "build-native: relink postgres with initdb and the share/ image inside"
     step make -C src/backend STATIC_MODULE_OBJS="$mods $sm/frontend_tools.o $sm/embed_data.o" $be_arg "$bex"
-    for sym in embedded_initdb_main embedded_resetwal_main embedded_controldata_main embedded_psql_main embedded_tar_start __wrap_open __wrap_opendir; do
+    syms="embedded_initdb_main embedded_resetwal_main embedded_controldata_main embedded_psql_main embedded_tar_start __wrap_open __wrap_opendir"
+    [ "$full" != 1 ] || syms="$syms embedded_pg_dump_main embedded_pg_restore_main"
+    for sym in $syms; do
         nm src/backend/postgres | grep -q " [TtWwRrDd] $sym$" || { echo "build-native: symbol $sym missing from postgres" >&2; exit 1; }
     done
     mkdir -p "$out/image"

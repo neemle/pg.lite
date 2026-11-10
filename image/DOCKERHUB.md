@@ -14,6 +14,8 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | `9.6`, `9.5`, … `9.0` | the newest release of that 9.x series built here (9.x have two-part series: 9.6.24 is release 24 of series 9.6) |
 | `9` | the newest 9.x built here |
 | `latest` | the newest release built here |
+| `18.6-full`, `18-full`, `latest-full` | from 17 on: the same, with zlib and the backup and restore tools (below) |
+| `18.6-uncompressed-full` | the full flavour with the plain executable |
 
 Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9.1.24, 9.2.0 to 9.2.24, 9.3.0 to 9.3.25, 9.4.0 to 9.4.26, 9.5.0 to 9.5.25, 9.6.0 to 9.6.24, 10.0 to 10.23, 11.0 to 11.22, 12.0 to 12.22, 13.0 to 13.23, 14.0 to 14.24, 15.0 to 15.19, 16.0 to 16.15, 17.0 to 17.11, 18.0 to 18.4 and 18.6 (PostgreSQL has no 18.5); newer releases are added as they come out. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platforms: from 9.2.5 on every tag is multi-platform (`linux/amd64` and `linux/arm64`, so it runs on Intel/AMD machines and on Apple silicon and other ARM machines alike; docker picks the right one); 9.0.0 to 9.2.4 are `linux/amd64` only (before 9.2.5 PostgreSQL itself has no native aarch64 support). Each multi-platform release also has the single-platform tags `<tag>-amd64` and `<tag>-arm64` (for example `9.2.5-arm64`); the ordinary tags are the ones to use.
 
@@ -41,6 +43,21 @@ The first start, with an empty data directory, reads the same variables as the o
 | `POSTGRES_PASSWORD_FILE`, `POSTGRES_USER_FILE`, `POSTGRES_DB_FILE`, `POSTGRES_INITDB_ARGS_FILE` | Read the value from a file (Docker secrets). |
 
 Scripts in `/docker-entrypoint-initdb.d` run once after the first initialisation: `*.sql` files are run by a `psql` that is part of the executable; `*.sh` and compressed files are reported and skipped (there is no shell).
+
+## Backup and restore: the `-full` tags (17 and later)
+
+`18.6-full`, `18-full`, `latest-full` (compressed) and `18.6-uncompressed-full` (plain executable) are the same release with zlib and with `pg_dump` and `pg_restore` inside the executable: about 0.3 MB more compressed, 0.5 MB more plain. The image still holds one file; `pg_dumpall` is not included (it needs a shell). The tools are started through the executable and connect over the network:
+
+```sh
+docker run --rm --network net --user 70 -e PGPASSWORD=change-me -v "$PWD/backup:/backup" \
+  --entrypoint /usr/local/pgsql/bin/postgres neemle/pg.lite:18-full \
+  --pg_dump -h pg -U postgres -Fc -f /backup/db.dump postgres
+docker run --rm --network net --user 70 -e PGPASSWORD=change-me -v "$PWD/backup:/backup:ro" \
+  --entrypoint /usr/local/pgsql/bin/postgres neemle/pg.lite:18-full \
+  --pg_restore -h pg -U postgres -d newdb /backup/db.dump
+```
+
+Plain SQL, custom (compressed), directory (`-j`) and tar formats work as in upstream.
 
 ## What is different from the official image
 

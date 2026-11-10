@@ -48,6 +48,7 @@ jobs:
     outputs:
       versions: ${{ steps.versions.outputs.versions }}
       builds: ${{ steps.matrix.outputs.builds }}
+      refs: ${{ steps.matrix.outputs.refs }}
       tests: ${{ steps.matrix.outputs.tests }}
       reuse: ${{ steps.reuse.outputs.run }}
     steps:
@@ -59,7 +60,7 @@ jobs:
           VERSIONS: ${{ inputs.versions || env.DEFAULT_VERSIONS }}
         run: echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
       - id: matrix
-        name: "The image jobs: one per release and architecture (arm64 where the release has an arm64 image)"
+        name: "The image jobs: one per release, architecture and flavour (arm64 where the release has an arm64 image, the full flavour from 17 on)"
         env:
           VERSIONS: ${{ steps.versions.outputs.versions }}
         run: sh scripts/builds.sh "$VERSIONS" | tee -a "$GITHUB_OUTPUT"
@@ -122,7 +123,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.plan.outputs.builds) }}
+        include: ${{ fromJSON(needs.plan.outputs.refs) }}
     steps:
       - uses: actions/checkout@v7
       - name: Cache of the reference image
@@ -157,6 +158,9 @@ jobs:
       VERSION: ${{ matrix.version }}
       # the artifact of the arm64 image has its own name; the amd64 one keeps image-<version>
       SUFFIX: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+      # the flavour: min3 is the image of every release, min3full (tags with -full, from 17 on) has zlib, pg_dump and pg_restore too
+      VARIANT: ${{ matrix.variant }}
+      TAGSUFFIX: ${{ matrix.tagsuffix }}
     steps:
       - uses: actions/checkout@v7
       - name: Cache (downloaded sources and packer)
@@ -183,27 +187,27 @@ jobs:
       - name: Fetch the pinned upstream source (SHA-256 verified) and apply the patches
         run: ./builder.sh patch "$VERSION" cli
       - name: Build the static one-file server and the FROM scratch images (plain and compressed)
-        run: ./builder.sh build "$VERSION" cli --pack
-      - name: Unit tests (they need the build tree)
+        run: ./builder.sh build "$VERSION" cli --pack --variant "$VARIANT"
+      - name: Unit tests (they need the build tree; once per release, the full flavour has the same code)
+        if: ${{ matrix.variant == 'min3' }}
         run: ONLY_UNIT=1 ./builder.sh test "$VERSION" cli
       - name: Keep the images for the test jobs and for the release
         run: |
-          docker tag "compactdb-native:$VERSION-min3-xsfx" "pg.lite-image:$VERSION"
-          docker tag "compactdb-native:$VERSION-min3" "pg.lite-image:$VERSION-uncompressed"
-          for i in "$VERSION" "$VERSION-uncompressed"; do
-            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION$SUFFIX.txt"
+          # tags of the images: 17.11 and 17.11-uncompressed; the full flavour 17.11-full and 17.11-uncompressed-full
+          docker tag "compactdb-native:$VERSION-$VARIANT-xsfx" "pg.lite-image:$VERSION$TAGSUFFIX"
+          docker tag "compactdb-native:$VERSION-$VARIANT" "pg.lite-image:$VERSION-uncompressed$TAGSUFFIX"
+          for i in "$VERSION$TAGSUFFIX" "$VERSION-uncompressed$TAGSUFFIX"; do
+            docker image inspect "pg.lite-image:$i" --format "pg.lite-image:$i {{.Id}} {{.Size}} bytes" | tee -a "image-$VERSION$TAGSUFFIX$SUFFIX.txt"
           done
-          docker save "pg.lite-image:$VERSION" "pg.lite-image:$VERSION-uncompressed" "compactdb-native:$VERSION-min3" "compactdb-native:$VERSION-min3-xsfx" | gzip -9 > "image-$VERSION$SUFFIX.tar.gz"
+          docker save "pg.lite-image:$VERSION$TAGSUFFIX" "pg.lite-image:$VERSION-uncompressed$TAGSUFFIX" "compactdb-native:$VERSION-$VARIANT" "compactdb-native:$VERSION-$VARIANT-xsfx" | gzip -9 > "image-$VERSION$TAGSUFFIX$SUFFIX.tar.gz"
       - name: Disk space at the end (to see how much a job really needs)
         run: df -h /
       - uses: actions/upload-artifact@v7
         with:
-          name: image-${{ env.VERSION }}${{ env.SUFFIX }}
+          name: image-${{ env.VERSION }}${{ env.TAGSUFFIX }}${{ env.SUFFIX }}
           path: |
-            image-${{ env.VERSION }}${{ env.SUFFIX }}.tar.gz
-            image-${{ env.VERSION }}${{ env.SUFFIX }}.txt|
-            image-${{ env.VERSION }}.tar.gz
-            image-${{ env.VERSION }}.txt
+            image-${{ env.VERSION }}${{ env.TAGSUFFIX }}${{ env.SUFFIX }}.tar.gz
+            image-${{ env.VERSION }}${{ env.TAGSUFFIX }}${{ env.SUFFIX }}.txt
           if-no-files-found: error
           retention-days: 7
 
@@ -286,7 +290,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
         with:
-          name: image-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+          name: image-${{ matrix.version }}${{ matrix.tagsuffix }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}
       - name: The reference image from the cache
         uses: actions/cache/restore@v6
         with:
@@ -294,11 +298,11 @@ jobs:
           key: reference-${{ matrix.version }}${{ matrix.arch == 'arm64' && '-arm64' || '' }}-${{ hashFiles('tools/docker/builders/ref/**', 'image/docker/reference/**', 'image/reference.sh', 'image/build-reference.sh', 'tools/releases.txt', 'tools/release.env') }}
       - name: Load the images
         run: |
-          gunzip -c "image-$VERSION$SUFFIX.tar.gz" | docker load
+          gunzip -c "image-$VERSION${{ matrix.tagsuffix }}$SUFFIX.tar.gz" | docker load
           # no cached reference image (evicted): the test builds it
           if [ -f reference-image.tar ]; then docker load -i reference-image.tar; fi
       - name: Test the image (SQL, modules, authentication, restart, environment, initdb.d, metadata, one file in the image)
-        run: ./builder.sh test "$VERSION" cli ${{ matrix.image == 'compressed' && '--pack' || '' }}
+        run: ./builder.sh test "$VERSION" cli --variant "${{ matrix.variant }}" ${{ matrix.image == 'compressed' && '--pack' || '' }}
 
   test-wasm:
     needs: [plan, build-wasm]

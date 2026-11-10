@@ -313,6 +313,40 @@ SQL
     { [ "$rc" = 1 ] && echo "$out" | grep -q "are exclusive"; } && pass "POSTGRES_PASSWORD together with POSTGRES_PASSWORD_FILE is refused" || bad "exclusive: rc=$rc $out"
     env_clean
 
+    # the dump tools: linked into the "full" variant only (a "postgres --pg_dump" of any other image says that it was built without them)
+    pgbin=/usr/local/pgsql/bin/postgres
+    case "${VARIANT:-}" in
+    *full)
+        echo "--- backup and restore: pg_dump and pg_restore inside the executable, with zlib"
+        vol_dump="$vol-dump"
+        docker volume rm -f "$vol_dump" >/dev/null 2>&1 || true
+        docker volume create "$vol_dump" >/dev/null
+        docker run --rm --user 0 -v "$vol_dump:/o" --entrypoint "" "$builder" chown 70:70 /o
+        # tool <program> <args>: one of the programs of the image against the running server, files in /o
+        tool() { prog=$1; shift; docker run --rm --network "$net" -e PGPASSWORD="$pw" -v "$vol_dump:/o" --entrypoint "$pgbin" "$img" "$prog" -h "$name" -U postgres "$@"; }
+        client -At -c "CREATE TABLE bulk AS SELECT g AS id, repeat('pg.lite backup test ', 20) AS note FROM generate_series(1, 20000) g" >/dev/null
+        out=$(tool --pg_dump -t t postgres 2>&1) && echo "$out" | grep -q "^42" && pass "pg_dump: plain SQL dump of a table holds its row" || bad "plain dump: $(echo "$out" | tail -n 3)"
+        tool --pg_dump -Fp -f /o/plain.sql postgres >/dev/null 2>&1 || bad "plain dump to a file"
+        out=$(tool --pg_dump -Fc -Z9 -f /o/db.dump postgres 2>&1) && pass "pg_dump -Fc -Z9 (custom format, zlib)" || bad "custom dump: $out"
+        sizes=$(docker run --rm -v "$vol_dump:/o:ro" --entrypoint "" "$builder" sh -c 'echo $(stat -c %s /o/plain.sql) $(stat -c %s /o/db.dump)')
+        set -- $sizes
+        { [ "${2:-0}" -gt 0 ] && [ "$(( ${2:-0} * 4 ))" -lt "${1:-0}" ]; } && pass "the custom dump is compressed ($2 bytes against $1 of plain SQL)" || bad "dump sizes: $sizes"
+        out=$(tool --pg_restore --list /o/db.dump 2>&1) && echo "$out" | grep -q "TABLE DATA public bulk" && pass "pg_restore --list reads the archive" || bad "restore list: $(echo "$out" | tail -n 3)"
+        client -At -c "CREATE DATABASE restored" >/dev/null
+        out=$(tool --pg_restore -d restored /o/db.dump 2>&1) && pass "pg_restore into a new database" || bad "restore: $out"
+        rows=$(client -At -d restored -c "SELECT (SELECT count(*) FROM bulk) || ',' || (SELECT x FROM t)" 2>&1)
+        [ "$rows" = "20000,42" ] && pass "the restored database has the rows (20000 and 42)" || bad "restored rows: $rows"
+        out=$(tool --pg_dump -Fd -j2 -f /o/dir postgres 2>&1) && pass "pg_dump -Fd -j2 (directory format, two worker processes)" || bad "directory dump: $out"
+        client -At -c "CREATE DATABASE restored2" >/dev/null
+        out=$(tool --pg_restore -j2 -d restored2 /o/dir 2>&1) && [ "$(client -At -d restored2 -c 'SELECT count(*) FROM bulk')" = "20000" ] && pass "pg_restore -j2 from the directory dump" || bad "parallel restore: $out"
+        docker volume rm -f "$vol_dump" >/dev/null 2>&1 || true
+        ;;
+    *)
+        out=$(docker run --rm --entrypoint "$pgbin" "$img" --pg_dump 2>&1 || true)
+        echo "$out" | grep -q "built without pg_dump" && pass "this image has no pg_dump (the -full image has)" || bad "pg_dump in a plain image: $out"
+        ;;
+    esac
+
     [ "$fail" = 0 ] && echo "native image test: PASS" || { echo "native image test: FAIL"; exit 1; }
     ;;
 *)

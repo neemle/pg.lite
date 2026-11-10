@@ -37,6 +37,11 @@ printf '%s\n' "$runs" | while read -r id sha; do
         printf '%s\n' "$names" | grep -qx "pg.lite-wasm-$v" || complete=0
         # a release with an arm64 image (scripts/has-arm64.sh) has the arm64 image artifact as well
         if sh "$(dirname "$0")/has-arm64.sh" "$v"; then printf '%s\n' "$names" | grep -qx "image-$v-arm64" || complete=0; fi
+        # from 17 on there is a full flavour (zlib, pg_dump, pg_restore): its images are artifacts too
+        if [ "${v%%.*}" -ge 17 ]; then
+            printf '%s\n' "$names" | grep -qx "image-$v-full" || complete=0
+            if sh "$(dirname "$0")/has-arm64.sh" "$v"; then printf '%s\n' "$names" | grep -qx "image-$v-full-arm64" || complete=0; fi
+        fi
     done
     [ "$complete" = 1 ] || continue
     echo "ci-reuse: run $id (commit $sha) built and tested the same files" >&2

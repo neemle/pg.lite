@@ -400,6 +400,26 @@ Without a password and without `trust` the container stops with the message of t
 
 The image runs as user and group 70 (build arguments `PG_UID` and `PG_GID`), declares the data directory as a volume, exposes port 5432 and stops on `SIGINT` (a fast shutdown). It carries the OCI labels (version, commit, source, license) and the environment `PG_VERSION`, `PG_MAJOR` and `PGDATA`.
 
+## Backup and restore: the `-full` image (17 and later)
+
+From PostgreSQL 17 on every release also has a `-full` flavour: `18.6-full` (the executable compressed) and `18.6-uncompressed-full` (the plain executable), with the usual series tags (`18-full`, `latest-full`). It is the same server, built with zlib, and with `pg_dump` and `pg_restore` linked into the same single executable (`pg_dumpall` is not part of it: it starts `pg_dump` through a shell, which the image does not have). Measured on 17.11, that is 0.5 MB more for the plain executable (18.2 to 18.8 MB) and 0.3 MB more for the compressed one (7.0 to 7.2 MB). The image still holds one file.
+
+The tools are started through the executable, like `psql`; they connect to a server over the network, with the usual options and `PG*` variables:
+
+```sh
+# a compressed dump (custom format) of a running container "pg" on the network "net", into ./backup (the image runs as user 70)
+docker run --rm --network net --user 70 -e PGPASSWORD=change-me -v "$PWD/backup:/backup" \
+  --entrypoint /usr/local/pgsql/bin/postgres neemle/pg.lite:18-full \
+  --pg_dump -h pg -U postgres -Fc -f /backup/db.dump postgres
+
+# and the restore into another database (-j N restores with N workers)
+docker run --rm --network net --user 70 -e PGPASSWORD=change-me -v "$PWD/backup:/backup:ro" \
+  --entrypoint /usr/local/pgsql/bin/postgres neemle/pg.lite:18-full \
+  --pg_restore -h pg -U postgres -d newdb /backup/db.dump
+```
+
+The dump formats are the upstream's: plain SQL, custom (`-Fc`, compressed with zlib), directory (`-Fd`, also with `-j`) and tar. The image tests of the `-full` flavour dump a database in the custom and the directory format and restore both. The WebAssembly build has no such tools.
+
 ## What is in this repository
 
 ```
