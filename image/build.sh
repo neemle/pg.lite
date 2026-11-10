@@ -3,9 +3,9 @@
 #   tools/dc make native-src VERSION=18.6            # apply the common+native series into build/native/<v>/src
 #   tools/dcb musl make native-build VERSION=18.6    # this script
 #
-# What is built (the runtime needs nothing else): postgres, initdb, pg_resetwal, pg_controldata.
-# The libpq-based clients (psql, pg_dump, pg_ctl) are not linked statically: libpq.a is not
-# self-contained and its common-library flavours clash, and they are admin tools outside the runtime.
+# What is built (the runtime needs nothing else): postgres, with initdb, pg_resetwal, pg_controldata and psql linked into it. The "full"
+# flavour (variant min3full, 17 and later) also has zlib and pg_dump and pg_restore inside the executable. pg_ctl, pg_dumpall and the
+# other clients are not linked in: they are admin tools outside the runtime (pg_dumpall starts pg_dump through a shell).
 #
 # Static modules: plpgsql, dict_snowball and libpqwalreceiver (with the libpq objects it needs) are normal module builds whose objects are combined
 # with "ld -r", get unique Pg_magic_func/_PG_init names (objcopy), and are linked into postgres
@@ -66,7 +66,7 @@ case "$variant" in
                 ospie) cflags="-Os $common"; ldex="-static -Wl,--gc-sections" ;;
                 # min1..min3 = ospie, then cumulatively:
                 #   min2 adds -ffile-prefix-map (shorter __FILE__ strings, build paths normalized)
-                #   min3 adds --without-zlib (the server needs zlib only for gzip base backups; pg_dump is not in the image)
+                #   min3 adds --without-zlib (the server needs zlib only for gzip base backups and the dump tools; they are in the full flavour only)
                 #   min3full is min3 with zlib kept, and pg_dump and pg_restore inside the executable (17 and later, the "full" image)
                 min1) cflags="-Os $common"; ldex="-static -Wl,--gc-sections" ;;
                 min2) cflags="-Os $common -ffile-prefix-map=$src/= -ffile-prefix-map=$out/obj/="; ldex="-static -Wl,--gc-sections" ;;

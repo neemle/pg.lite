@@ -11,7 +11,7 @@ It is meant for places where a full PostgreSQL install is more than you need: a 
 
 * **It is PostgreSQL.** The planner, executor, storage format, WAL and catalogs are the upstream's, untouched. A data directory written by the official image of the same release opens here and the other way round.
 * **It is patches, not a fork.** This repository never contains PostgreSQL itself. The source of an exact release is downloaded at build time and checked against a pinned SHA-256, then the patches are applied.
-* **It leaves out what a development database does not need.** A static executable cannot load shared objects, so there are no loadable extensions (the `plpgsql` language, the text-search stemmers of every language and every encoding conversion are built in), no `COPY ... PROGRAM`, and no shell-based `archive_command`. Pick a full PostgreSQL image if you need extensions.
+* **It leaves out what a development database does not need.** A static executable cannot load shared objects, so there are no loadable extensions (the `plpgsql` language, the text-search stemmers of every language and every encoding conversion are built in), no `COPY ... PROGRAM`, and no shell-based `archive_command`. Pick a full PostgreSQL image if you need extensions. Backup and restore tools (`pg_dump`, `pg_restore`) are part of the `-full` images of 17 and later (below); `pg_dumpall` and `pg_basebackup` are in none.
 * **It is for development and actually most apps that use postgres.** It is not hardened or tuned as a production database.
 
 ## How it is made small
@@ -432,7 +432,7 @@ tools/       the build containers, the list of releases and the settings of the 
 ```
 
 * **Everything runs in Docker.** The host needs only `docker` and `git`; sources and build trees live in Docker volumes.
-* **The tests of the image** build it from scratch and check it end to end: cold `initdb`, SQL, restart, authentication, the environment of the official image, `initdb.d` scripts, encodings and text search, the image metadata, and that the image holds one file.
+* **The tests of the image** build it from scratch and check it end to end: cold `initdb`, SQL, restart, authentication, the environment of the official image, `initdb.d` scripts, encodings and text search, the image metadata, and that the image holds one file. The `-full` flavour is tested the same way, plus a dump and restore round trip in the custom and the directory format.
 * **The tests of WebAssembly** run the engine under node, then in Chromium: the engine, persistence, offline use and the demo app. Each browser test leaves a Full HD video, step screenshots and an HTML report.
 * **CI** runs the checks, the TypeScript checks (types, oxlint, vitest) and the build and tests of both products for every release the branch covers; the same files are built and tested once: merging a tested branch, tagging it, or changing only documentation reuses the earlier run (artifacts live 7 days), and a release tag publishes what that run built, the image to Docker Hub and the browser module as a GitHub release.
 

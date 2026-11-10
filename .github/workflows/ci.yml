@@ -5,7 +5,7 @@ name: ci
 #
 #   plan     is there already a run that built and tested these very files? then everything below is skipped
 #   checks   repo (self-tests) | typescript (types, oxlint, vitest)  | reference (the unmodified upstream image, cached)
-#   build    build-cli (plain + compressed image, unit tests) | build-wasm (engine, browser module, demo, archive)
+#   build    build-cli (plain + compressed image, unit tests; from 17 on also the -full flavour with zlib, pg_dump and pg_restore) | build-wasm (engine, browser module, demo, archive)
 #   test     test-image (plain, compressed) | test-wasm (SQL under node, Chromium)
 #
 # What was built and tested is kept as workflow artifacts (image-<version>, pg.lite-wasm-<version>). The same files are never built

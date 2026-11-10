@@ -62,6 +62,7 @@ Plain SQL, custom (compressed), directory (`-j`) and tar formats work as in upst
 ## What is different from the official image
 
 * **No loadable extensions** (a static executable cannot load shared objects), no `COPY ... PROGRAM`, no shell-based `archive_command`. The `plpgsql` language, text search for every language and every encoding conversion are built in.
+* **Backup and restore tools only in the `-full` tags** (17 and later): `pg_dump` and `pg_restore` are inside the executable there; the plain tags do not have them, and `pg_dumpall` and `pg_basebackup` are in none.
 * **No shell in the image**, so `docker exec ... sh` and `*.sh` init scripts do not work.
 * The default locale is `C.UTF-8`; use `POSTGRES_INITDB_ARGS` for another one.
 * The server runs as user and group 70, the data directory is a volume, the container stops on `SIGINT` (fast shutdown).

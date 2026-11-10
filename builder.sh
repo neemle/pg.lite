@@ -21,7 +21,7 @@
 #   --test            build only: run the tests right after the build
 #   --pack            cli: also build the image with the executable compressed by xsfx (about a fifth of the size, a start that is
 #                     about 0.4 s slower); the plain image is built as well. test --pack tests the compressed one
-#   --variant NAME    cli: compiler flavour of the static build, default min3 (smallest)
+#   --variant NAME    cli: compiler flavour of the static build, default min3 (smallest); min3full: the full image flavour (zlib, pg_dump, pg_restore; 17 and later, tags -full)
 #   --tag NAME        cli: also tag the finished image as NAME (for example myorg/postgres:18.6)
 #
 # test builds first when there is nothing to test yet, so on a laptop one command is enough: ./builder.sh test 17.11 cli
