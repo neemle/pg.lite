@@ -369,7 +369,7 @@ A git tag is a PostgreSQL version: `v18.6` is PostgreSQL 18.6 with these patches
 | 17.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.5 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 17.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.6 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 17.8 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.7 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
-| 17.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.8 apply unchanged. |
+| 17.9 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.8 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is 🚧 in progress. |
 | 17.10 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.9 apply unchanged. |
 | 17.11 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.10 apply unchanged. |
 | 18.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the pqcomm.c hunks of the embedded protocol have an 18 variant (postmaster/postmaster.h is included in front of storage/ipc.h and the send buffer needs no cast); the other patches apply unchanged. PostgreSQL has no release 18.5. |
