@@ -376,7 +376,7 @@ A git tag is a PostgreSQL version: `v18.6` is PostgreSQL 18.6 with these patches
 | 18.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.0 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 18.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.1 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 18.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.2 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
-| 18.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.3 apply unchanged. |
+| 18.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.3 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is 🚧 in progress. |
 | 18.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.4 apply unchanged. |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
