@@ -362,7 +362,7 @@ A git tag is a PostgreSQL version: `v18.6` is PostgreSQL 18.6 with these patches
 | 16.15 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.14 apply unchanged. |
 | 17.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the pqcomm.c hunks of the embedded protocol have a 17 variant (internal_flush_buffer casts the buffer); the other patches apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 17.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.0 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
-| 17.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.1 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is 🚧 in progress. |
+| 17.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.1 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 17.3 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.2 apply unchanged. |
 | 17.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.3 apply unchanged. |
 | 17.5 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 17.4 apply unchanged. |
