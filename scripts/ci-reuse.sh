@@ -30,7 +30,8 @@ printf '%s\n' "$runs" | while read -r id sha; do
     [ -n "$id" ] || continue
     git cat-file -e "$sha^{commit}" 2>/dev/null || continue          # a commit we do not have (deleted branch): cannot compare
     [ "$(files_id "$sha")" = "$here" ] || continue
-    names=$(gh api "repos/$repo/actions/runs/$id/artifacts?per_page=100" --jq '.artifacts[] | select(.expired | not) | .name') || continue
+    # every page: a run of many releases has far more than 100 artifacts, and the ones beyond the first page would look missing
+    names=$(gh api "repos/$repo/actions/runs/$id/artifacts?per_page=100" --paginate --jq '.artifacts[] | select(.expired | not) | .name') || continue
     complete=1
     for v in "$@"; do
         printf '%s\n' "$names" | grep -qx "image-$v" || complete=0
