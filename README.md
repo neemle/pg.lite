@@ -554,6 +554,4 @@ tools/       the build containers, the list of releases and the settings of the 
 
 ## License
 
-The files of this repository (the scripts, the patches, the tests, the documentation) are released under the [MIT License](LICENSE).
-
-PostgreSQL itself is released under the [PostgreSQL License](POSTGRESQL-LICENSE.md). The executables and images built here contain PostgreSQL, so that license, with its copyright notice, goes with them. The borrowed patches keep the license of their source, listed in [`tools/THIRD_PARTY.md`](tools/THIRD_PARTY.md).
+This project is released under the [MIT License](LICENSE). The borrowed patches keep the license of their source, listed in [`tools/THIRD_PARTY.md`](tools/THIRD_PARTY.md).
