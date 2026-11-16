@@ -112,4 +112,4 @@ The data directory is the one of the PostgreSQL release: a cluster written by th
 
 ## License
 
-PostgreSQL License, the license of PostgreSQL itself. See <https://github.com/neemle/pg.lite/blob/main/LICENSE>.
+The files of the pg.lite repository are MIT licensed (<https://github.com/neemle/pg.lite/blob/main/LICENSE>). The image contains PostgreSQL, which is released under the PostgreSQL License (<https://github.com/neemle/pg.lite/blob/main/POSTGRESQL-LICENSE.md>).
