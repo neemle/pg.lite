@@ -291,6 +291,11 @@ jobs:
           VERSION: ${{ needs.plan.outputs.version }}
           DOCKERHUB_REPOSITORY: ${{ vars.DOCKERHUB_REPOSITORY }}
         run: |
-          gh release create "v$VERSION" assets/* --repo "$GITHUB_REPOSITORY" --verify-tag \
-            --title "PostgreSQL $VERSION (pg.lite)" \
-            --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in tools/releases.txt."
+          # A tag that was moved and pushed again (to rebuild the release) already has its release: replace its files instead of failing.
+          if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" assets/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "v$VERSION" assets/* --repo "$GITHUB_REPOSITORY" --verify-tag \
+              --title "PostgreSQL $VERSION (pg.lite)" \
+              --notes "PostgreSQL $VERSION, minimal: WebAssembly browser module (this release) and the static musl image on Docker Hub: $DOCKERHUB_REPOSITORY:$VERSION. Checksums: the .sha256 file; upstream source SHA-256 is pinned in tools/releases.txt."
+          fi
