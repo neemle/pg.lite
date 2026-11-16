@@ -1,0 +1,98 @@
+Subject: Container health check: postgres --healthcheck (and --pg_isready) in the one-file server
+Purpose: The image has no shell and no pg_isready, so a Docker HEALTHCHECK or the healthcheck of a Compose file had nothing to run. "postgres --healthcheck" is pg_isready, linked into the executable as embedded_pg_isready_main, with the defaults of the image (POSTGRES_USER and POSTGRES_DB, the _FILE forms too; PGHOST and PGPORT through libpq) and a status Docker understands: 0 when the server accepts connections, 1 otherwise (Docker reserves 2). "postgres --pg_isready [options]" is plain pg_isready for other checks, as "--psql" is psql. The temporary server of the first start listens only on a socket inside the data directory, so it does not count as healthy. An image built without pg_isready reports that, as it does for the other tools. This is a patch of its own on top of 0900 and for 17 and later, as the dump tools of the "full" image are; the releases before 17 have no health check.
+Components: src/backend/main/embedded.c
+Checks: image/native-production-test.sh P18 (status 0 on a running server, 1 with no response or a wrong port, plain pg_isready through --pg_isready, and a Docker Compose service with the exec-form healthcheck that becomes healthy under "up --wait")
+Origin: own
+Targets: native
+Releases: 17.0-
+
+--- a/src/backend/main/embedded.c
++++ b/src/backend/main/embedded.c
+@@ -68,6 +68,7 @@
+ extern int	embedded_psql_main(int argc, char **argv) __attribute__((weak));
+ extern int	embedded_pg_dump_main(int argc, char **argv) __attribute__((weak));
+ extern int	embedded_pg_restore_main(int argc, char **argv) __attribute__((weak));
++extern int	embedded_pg_isready_main(int argc, char **argv) __attribute__((weak));
+ 
+ /* the C library functions the linker wraps */
+ extern int	__real_open(const char *path, int flags, ...);
+@@ -1356,6 +1357,62 @@
+ }
+ 
+ /*
++ * "postgres --healthcheck [pg_isready options]": the health check of a container, for the HEALTHCHECK of a
++ * Dockerfile and the "healthcheck:" of a Compose file (the image has no shell and no pg_isready to call).
++ * It is pg_isready (linked in as embedded_pg_isready_main) with the defaults of this image: the superuser and
++ * the database the launcher made (POSTGRES_USER and POSTGRES_DB, the _FILE forms too, so a "trust" connection
++ * is not logged as an unknown role), and the server where libpq looks for it (PGHOST and PGPORT: the socket in
++ * /tmp and port 5432 unless set).  Options after --healthcheck go to pg_isready and win over the defaults.
++ * The temporary server of the first start listens on a socket inside the data directory only, so it never
++ * counts as healthy.  The exit status is 0 when the server accepts connections and 1 otherwise: Docker reserves
++ * 2, and pg_isready's 1 (rejecting connections, e.g. starting up), 2 (no response) and 3 (no attempt) all mean
++ * "not healthy" here.  The line pg_isready prints is kept by Docker (docker inspect, Health.Log).
++ */
++static void
++emb_healthcheck(int argc, char **argv)
++{
++	char	   *user = emb_env("POSTGRES_USER");
++	char	   *db = emb_env("POSTGRES_DB");
++	char	  **args;
++	pid_t		child;
++	int			status;
++	int			n = 0,
++				i;
++
++	if (embedded_pg_isready_main == NULL)
++	{
++		fprintf(stderr, "%s: this executable was built without pg_isready\n", argv[0]);
++		exit(1);
++	}
++	if (user == NULL)
++		user = "postgres";
++	if (db == NULL)
++		db = user;
++	args = calloc((size_t) argc + 5, sizeof(char *));
++	if (args == NULL)
++		emb_die("out of memory");
++	args[n++] = argv[0];
++	args[n++] = "-U";
++	args[n++] = user;
++	args[n++] = "-d";
++	args[n++] = db;
++	for (i = 2; i < argc; i++)
++		args[n++] = argv[i];
++	args[n] = NULL;
++	/* pg_isready ends with exit(status) itself, so it runs in a child and its status is mapped here */
++	fflush(NULL);
++	child = fork();
++	if (child < 0)
++		emb_die("cannot fork");
++	if (child == 0)
++		exit(embedded_pg_isready_main(n, args));
++	while (waitpid(child, &status, 0) < 0)
++		if (errno != EINTR)
++			exit(1);
++	exit(WIFEXITED(status) && WEXITSTATUS(status) == 0 ? 0 : 1);
++}
++
++/*
+  * Called by main() before anything else.  Returns normally when the process
+  * is an ordinary postgres; may rewrite argc/argv (--launcher).
+  */
+@@ -1378,6 +1435,7 @@
+ 			{"--psql", embedded_psql_main},
+ 			{"--pg_dump", embedded_pg_dump_main},
+ 			{"--pg_restore", embedded_pg_restore_main},
++			{"--pg_isready", embedded_pg_isready_main},
+ 		};
+ 		size_t		t;
+ 
+@@ -1404,6 +1462,8 @@
+ 			args[n] = NULL;
+ 			exit(tools[t].main_fn(n, args));
+ 		}
++		if (strcmp((*argv)[1], "--healthcheck") == 0)
++			emb_healthcheck(*argc, *argv);
+ 	}
+ 	if (*argc >= 2 && strcmp((*argv)[1], "--launcher") == 0)
+ 		emb_launcher(argc, argv);

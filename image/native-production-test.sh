@@ -13,6 +13,7 @@
 # P10 DDL under load          P11 connection churn, no leaks               P12 cancel, timeouts, terminate
 # P13 one backend killed      P14 graceful stop under load                 P15 kill -9 under load (3 cycles)
 # P16 streaming replication   P17 log and container health
+# P18 health check (postgres --healthcheck, 17 and later) alone and as the healthcheck of a Docker Compose service
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 ver="${1:-18.6}"
@@ -24,6 +25,8 @@ net="compactdb-ref-net"
 name="compactdb-prod-$ver$vs"
 rname="$name-replica"
 vol="$name-data"
+cproj="compactdb-hc"
+cdir=""
 rvol="$name-replica-data"
 pw="native-test-only"
 T="${PROD_T:-10}"
@@ -40,6 +43,8 @@ check() { # check <description> <command...>
 }
 cleanup() {
     docker rm -f "$name" "$rname" prod-w prod-r prod-v prod-l prod-s >/dev/null 2>&1 || true
+    [ -z "$cdir" ] || docker compose -p "$cproj" -f "$cdir/compose.yaml" down -v >/dev/null 2>&1 || true
+    [ -z "$cdir" ] || rm -rf "$cdir"
     docker volume rm "$vol" "$rvol" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -337,5 +342,52 @@ done
 if ledger_ok 100 && index_ok; then pass "final state of the primary: balances consistent, indexes agree"; else bad "final state inconsistent"; fi
 mem3=$(docker stats --no-stream --format '{{.MemUsage}}' "$name" | cut -d/ -f1)
 echo "container memory at the end: $mem3"
+
+echo "=== P18: health check (postgres --healthcheck) alone and in Docker Compose"
+case "${ver%%.*}" in
+9|10|11|12|13|14|15|16) echo "skipped: the health check is in 17 and later" ;;
+*)
+pgbin=/usr/local/pgsql/bin/postgres
+hc() { docker exec "$name" "$pgbin" --healthcheck "$@"; }
+rc=0; r=$(hc 2>&1) || rc=$?
+[ "$rc" = 0 ] && echo "$r" | grep -q "accepting connections" && pass "--healthcheck on the running server: status 0 ($r)" || bad "--healthcheck on the running server: status $rc: $r"
+rc=0; r=$(hc -p 1 2>&1) || rc=$?
+[ "$rc" = 1 ] && echo "$r" | grep -q "no response" && pass "--healthcheck with a port nobody listens on: status 1 ($r)" || bad "--healthcheck, wrong port: status $rc: $r"
+rc=0; r=$(docker exec "$name" "$pgbin" --pg_isready -p 1 -q 2>&1) || rc=$?
+[ "$rc" = 2 ] && [ -z "$r" ] && pass "--pg_isready is plain pg_isready (status 2 for no response, -q is silent)" || bad "--pg_isready: status $rc: $r"
+rc=0; r=$(docker run --rm --entrypoint "$pgbin" "$img" --healthcheck 2>&1) || rc=$?
+[ "$rc" = 1 ] && echo "$r" | grep -q "no response" && pass "--healthcheck with no server in the container: status 1 ($r)" || bad "--healthcheck, no server: status $rc: $r"
+
+# the Compose scenario of the documentation: no shell in the image, so the healthcheck is the exec form
+if docker compose version >/dev/null 2>&1; then
+    cdir=$(mktemp -d)
+    cat > "$cdir/compose.yaml" <<COMPOSE
+services:
+  db:
+    image: $img
+    environment:
+      POSTGRES_PASSWORD: $pw
+    healthcheck:
+      test: ["CMD", "$pgbin", "--healthcheck"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+COMPOSE
+    if docker compose -p "$cproj" -f "$cdir/compose.yaml" up -d --wait --wait-timeout 120 >/dev/null 2>&1; then
+        cid=$(docker compose -p "$cproj" -f "$cdir/compose.yaml" ps -q db)
+        st=$(docker inspect -f '{{.State.Health.Status}}' "$cid")
+        [ "$st" = healthy ] && pass "a Compose service with the exec-form healthcheck becomes healthy (up --wait returned)" || bad "Compose health status: $st"
+        # the log holds the last checks, the oldest first: the first ones may have run before the server was up
+        out=$(docker inspect -f '{{json .State.Health.Log}}' "$cid")
+        echo "$out" | grep -q "accepting connections" && pass "Docker keeps the line of the check (accepting connections)" || bad "health log: $out"
+    else
+        bad "docker compose up --wait did not report a healthy service"
+        docker compose -p "$cproj" -f "$cdir/compose.yaml" logs 2>&1 | tail -20
+    fi
+    docker compose -p "$cproj" -f "$cdir/compose.yaml" down -v >/dev/null 2>&1 || true
+else
+    echo "skipped: the Compose part needs the docker compose plugin"
+fi ;;
+esac
 
 [ "$fail" = 0 ] && echo "production test: PASS (known limitations reported: $limits)" || { echo "production test: FAIL"; exit 1; }

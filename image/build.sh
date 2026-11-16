@@ -5,7 +5,8 @@
 #
 # What is built (the runtime needs nothing else): postgres, with initdb, pg_resetwal, pg_controldata and psql linked into it. The "full"
 # flavour (variant min3full, 17 and later) also has zlib and pg_dump and pg_restore inside the executable. pg_ctl, pg_dumpall and the
-# other clients are not linked in: they are admin tools outside the runtime (pg_dumpall starts pg_dump through a shell).
+# other clients are not linked in: they are admin tools outside the runtime (pg_dumpall starts pg_dump through a shell). From 17 on pg_isready is
+# linked in too (one small object), for "postgres --healthcheck", the health check of a container (patch 0910).
 #
 # Static modules: plpgsql, dict_snowball and libpqwalreceiver (with the libpq objects it needs) are normal module builds whose objects are combined
 # with "ld -r", get unique Pg_magic_func/_PG_init names (objcopy), and are linked into postgres
@@ -40,6 +41,8 @@ lto="${NATIVE_LTO:-0}"
 extra_opts="${NATIVE_CONFIGURE:-}"
 be_arg=""
 embed=0; [ -f "$src/src/backend/main/embedded.c" ] && embed=1
+# the health check (postgres --healthcheck, 17 and later, patch 0910): pg_isready linked in as embedded_pg_isready_main
+isready=0; [ "$embed" = 1 ] && grep -q embedded_pg_isready_main "$src/src/backend/main/embedded.c" && isready=1
 # the "full" flavour: zlib, and the dump tools (pg_dump, pg_restore) linked into the executable
 full=0; case "$variant" in *full) full=1 ;; esac
 # link-time interception of the file system calls that main/embedded.c answers from the embedded share/ tree
@@ -174,6 +177,11 @@ for d in $frontends; do
     echo "build-native: make $d (frontend, with the libpq static shim)"
     step make -j"$(nproc)" -C "$d" LDFLAGS_EX="$fe_ldx"
 done
+# pg_isready is one object of src/bin/scripts (the other programs there are not linked in); only that object is built
+if [ "$isready" = 1 ]; then
+    echo "build-native: make src/bin/scripts/pg_isready.o (health check)"
+    step make -C src/bin/scripts pg_isready.o
+fi
 
 # ---- static modules: one relocatable object per module with unique entry-point names
 sm="$out/staticmods"
@@ -241,6 +249,12 @@ if [ "$embed" = 1 ]; then
     frontend_program src/bin/$resetwal embedded_resetwal_main
     frontend_program src/bin/pg_controldata embedded_controldata_main
     frontend_program src/bin/psql embedded_psql_main
+    if [ "$isready" = 1 ]; then
+        # one object of a directory that holds other programs too, so not frontend_program (which takes every object of a directory)
+        step ld -r -o "$sm/prog_embedded_pg_isready_main.o" "$out/obj/src/bin/scripts/pg_isready.o"
+        step objcopy --redefine-sym main=embedded_pg_isready_main "$sm/prog_embedded_pg_isready_main.o"
+        step objcopy --keep-global-symbol=embedded_pg_isready_main "$sm/prog_embedded_pg_isready_main.o"
+    fi
     if [ "$full" = 1 ]; then
         # pg_dump and pg_restore share most of their objects (the archive code, the formats, the compression): ONE blob holds both programs, the shared
         # objects once. Only the two mains are renamed (on copies, the build tree stays as it is); pg_dumpall is not linked in: it starts pg_dump
@@ -259,7 +273,8 @@ if [ "$embed" = 1 ]; then
     # shellcheck disable=SC2086
     step ld -r -o "$sm/frontend_tools.o" "$sm"/prog_embedded_*_main.o "$out/shim.o" --start-group $libs --end-group
     step objcopy --keep-global-symbol=embedded_initdb_main --keep-global-symbol=embedded_resetwal_main \
-        --keep-global-symbol=embedded_controldata_main --keep-global-symbol=embedded_psql_main $([ "$full" = 1 ] && echo "--keep-global-symbol=embedded_pg_dump_main --keep-global-symbol=embedded_pg_restore_main") "$sm/frontend_tools.o"
+        --keep-global-symbol=embedded_controldata_main --keep-global-symbol=embedded_psql_main $([ "$full" = 1 ] && echo "--keep-global-symbol=embedded_pg_dump_main --keep-global-symbol=embedded_pg_restore_main") \
+        $([ "$isready" = 1 ] && echo "--keep-global-symbol=embedded_pg_isready_main") "$sm/frontend_tools.o"
     # share/: a tar image (links and hard links stored as files, no timestamps, owners or order from this host), linked in as read-only data
     step tar --format=ustar -h --hard-dereference --owner=0 --group=0 --numeric-owner --mtime=@0 --sort=name --exclude=./errcodes.txt \
         -cf "$out/embed.tar" -C "$out/install-strip$prefix/share" .
@@ -271,6 +286,7 @@ if [ "$embed" = 1 ]; then
     step make -C src/backend STATIC_MODULE_OBJS="$mods $sm/frontend_tools.o $sm/embed_data.o" $be_arg "$bex"
     syms="embedded_initdb_main embedded_resetwal_main embedded_controldata_main embedded_psql_main embedded_tar_start __wrap_open __wrap_opendir"
     [ "$full" != 1 ] || syms="$syms embedded_pg_dump_main embedded_pg_restore_main"
+    [ "$isready" != 1 ] || syms="$syms embedded_pg_isready_main"
     for sym in $syms; do
         nm src/backend/postgres | grep -q " [TtWwRrDd] $sym$" || { echo "build-native: symbol $sym missing from postgres" >&2; exit 1; }
     done

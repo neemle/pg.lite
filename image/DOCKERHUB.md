@@ -14,18 +14,20 @@ Source, build scripts and the WebAssembly build: <https://github.com/neemle/pg.l
 | `9.6`, `9.5`, … `9.0` | the newest release of that 9.x series built here (9.x have two-part series: 9.6.24 is release 24 of series 9.6) |
 | `9` | the newest 9.x built here |
 | `latest` | the newest release built here |
-| `18.6-full`, `18-full`, `latest-full` | from 17 on: the same, with zlib and the backup and restore tools (below) |
-| `18.6-uncompressed-full` | the full flavour with the plain executable |
+| `18.7-full`, `18-full`, `latest-full` | from 17 on: the same, with zlib and the backup and restore tools (below) |
+| `18.7-uncompressed-full` | the full flavour with the plain executable |
 
-Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9.1.24, 9.2.0 to 9.2.24, 9.3.0 to 9.3.25, 9.4.0 to 9.4.26, 9.5.0 to 9.5.25, 9.6.0 to 9.6.24, 10.0 to 10.23, 11.0 to 11.22, 12.0 to 12.22, 13.0 to 13.23, 14.0 to 14.24, 15.0 to 15.19, 16.0 to 16.15, 17.0 to 17.11, 18.0 to 18.4 and 18.6 (PostgreSQL has no 18.5); newer releases are added as they come out. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platforms: from 9.2.5 on every tag is multi-platform (`linux/amd64` and `linux/arm64`, so it runs on Intel/AMD machines and on Apple silicon and other ARM machines alike; docker picks the right one); 9.0.0 to 9.2.4 are `linux/amd64` only (before 9.2.5 PostgreSQL itself has no native aarch64 support). Each multi-platform release also has the single-platform tags `<tag>-amd64` and `<tag>-arm64` (for example `9.2.5-arm64`); the ordinary tags are the ones to use.
+Every release built here has its own tag: PostgreSQL 9.0.0 to 9.0.23, 9.1.0 to 9.1.24, 9.2.0 to 9.2.24, 9.3.0 to 9.3.25, 9.4.0 to 9.4.26, 9.5.0 to 9.5.25, 9.6.0 to 9.6.24, 10.0 to 10.23, 11.0 to 11.22, 12.0 to 12.22, 13.0 to 13.23, 14.0 to 14.24, 15.0 to 15.19, 16.0 to 16.15, 17.0 to 17.12, 18.0 to 18.4, 18.6 and 18.7 (PostgreSQL has no 18.5); newer releases are added as they come out. The full list is on the Tags tab; what is built and tested for each release is in the table of the [README](https://github.com/neemle/pg.lite#versions). Platforms: from 9.2.5 on every tag is multi-platform (`linux/amd64` and `linux/arm64`, so it runs on Intel/AMD machines and on Apple silicon and other ARM machines alike; docker picks the right one); 9.0.0 to 9.2.4 are `linux/amd64` only (before 9.2.5 PostgreSQL itself has no native aarch64 support). Each multi-platform release also has the single-platform tags `<tag>-amd64` and `<tag>-arm64` (for example `9.2.5-arm64`); the ordinary tags are the ones to use.
+
+**Supported versions:** the two newest major versions, now 18 and 17. Earlier majors are not supported: their images stay as they are, nothing new is added to them, and we recommend upgrading.
 
 ## Quick start
 
 ```sh
-docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:18.6
+docker run -d --name pg -e POSTGRES_PASSWORD=change-me -v pgdata:/var/lib/postgresql/data -p 5432:5432 neemle/pg.lite:18.7
 ```
 
-Arguments after the image name go to the server: `... neemle/pg.lite:18.6 -c max_connections=200`.
+Arguments after the image name go to the server: `... neemle/pg.lite:18.7 -c max_connections=200`.
 
 ## Environment
 
@@ -44,9 +46,47 @@ The first start, with an empty data directory, reads the same variables as the o
 
 Scripts in `/docker-entrypoint-initdb.d` run once after the first initialisation: `*.sql` files are run by a `psql` that is part of the executable; `*.sh` and compressed files are reported and skipped (there is no shell).
 
+## Docker Compose and the health check (17 and later)
+
+The image has no shell, so `pg_isready` and `CMD-SHELL` health checks cannot run in it. From 17 on the executable has the check built in: `postgres --healthcheck` is `pg_isready` with the defaults of the image (the user and database of `POSTGRES_USER` and `POSTGRES_DB`, `PGHOST` and `PGPORT`); it exits with `0` when the server accepts connections and `1` otherwise. Write it in the exec form with the full path:
+
+```yaml
+services:
+  db:
+    image: neemle/pg.lite:18.7
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: change-me
+      POSTGRES_DB: app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro   # optional, *.sql only
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "/usr/local/pgsql/bin/postgres", "--healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    image: your/app
+    environment:
+      DATABASE_URL: postgres://app:change-me@db:5432/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+```
+
+`docker compose up -d --wait` returns when the database is healthy. Compared with the official `postgres:18` service: the health check is the one above instead of `["CMD-SHELL", "pg_isready -U app -d app"]`, and the volume is `/var/lib/postgresql/data` (the official 18 image uses `/var/lib/postgresql`). If the server listens on another port, pass it on: `["CMD", "/usr/local/pgsql/bin/postgres", "--healthcheck", "-p", "5433"]`. Releases before 17 have no `--healthcheck` and will not get one: only the two newest major versions (now 18 and 17) are supported, so upgrade to 17 or later. More: <https://github.com/neemle/pg.lite#docker-compose-and-the-health-check-17-and-later>
+
 ## Backup and restore: the `-full` tags (17 and later)
 
-`18.6-full`, `18-full`, `latest-full` (compressed) and `18.6-uncompressed-full` (plain executable) are the same release with zlib and with `pg_dump` and `pg_restore` inside the executable: about 0.3 MB more compressed, 0.5 MB more plain. The image still holds one file; `pg_dumpall` is not included (it needs a shell). The tools are started through the executable and connect over the network:
+`18.7-full`, `18-full`, `latest-full` (compressed) and `18.7-uncompressed-full` (plain executable) are the same release with zlib and with `pg_dump` and `pg_restore` inside the executable: about 0.3 MB more compressed, 0.5 MB more plain. The image still holds one file; `pg_dumpall` is not included (it needs a shell). The tools are started through the executable and connect over the network:
 
 ```sh
 docker run --rm --network net --user 70 -e PGPASSWORD=change-me -v "$PWD/backup:/backup" \
@@ -63,7 +103,7 @@ Plain SQL, custom (compressed), directory (`-j`) and tar formats work as in upst
 
 * **No loadable extensions** (a static executable cannot load shared objects), no `COPY ... PROGRAM`, no shell-based `archive_command`. The `plpgsql` language, text search for every language and every encoding conversion are built in.
 * **Backup and restore tools only in the `-full` tags** (17 and later): `pg_dump` and `pg_restore` are inside the executable there; the plain tags do not have them, and `pg_dumpall` and `pg_basebackup` are in none.
-* **No shell in the image**, so `docker exec ... sh` and `*.sh` init scripts do not work.
+* **No shell in the image**, so `docker exec ... sh`, `*.sh` init scripts and shell health checks (`pg_isready` in `CMD-SHELL`) do not work; from 17 on use `postgres --healthcheck` (above).
 * The default locale is `C.UTF-8`; use `POSTGRES_INITDB_ARGS` for another one.
 * The server runs as user and group 70, the data directory is a volume, the container stops on `SIGINT` (fast shutdown).
 * Meant for development, CI and tests; it is not tuned or hardened as a production database.
