@@ -4,7 +4,7 @@
 # with the same files: its build is the one that was tested, so it is reused instead of built again.
 #   GH_TOKEN=... GITHUB_REPOSITORY=owner/name sh scripts/ci-reuse.sh <version>...
 # "The same files": the same content of every file except those that do not go into what is built or tested: the documentation
-# (*.md and LICENSE), this script, and the workflows that only publish (release.yml, dockerhub-page.yml). They are compared by a hash
+# (*.md, LICENSE and the pictures of docs/), this script, and the workflows that only publish (release.yml, dockerhub-page.yml). They are compared by a hash
 # of the file list with the blob ids (not by the commit or the tree id, which a README change would alter). Since the same function
 # hashes the old commits too, changing this list never makes an earlier run unfindable. A run counts only when it succeeded and
 # still has the artifacts of every given version (image-<version> and pg.lite-wasm-<version>, and image-<version>-arm64 where the release
@@ -17,7 +17,7 @@ repo="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is not set}"
 
 # the id of the files of a commit
 files_id() {
-    git ls-tree -r "$1" | awk -F'\t' '$2 !~ /\.md$/ && $2 != "LICENSE" && $2 != "scripts/ci-reuse.sh" && $2 !~ /^\.github\/workflows\/(release|dockerhub-page)\.yml$/' | sha256sum | cut -d' ' -f1
+    git ls-tree -r "$1" | awk -F'\t' '$2 !~ /\.md$/ && $2 != "LICENSE" && $2 !~ /^docs\// && $2 != "scripts/ci-reuse.sh" && $2 !~ /^\.github\/workflows\/(release|dockerhub-page)\.yml$/' | sha256sum | cut -d' ' -f1
 }
 
 here=$(files_id HEAD)

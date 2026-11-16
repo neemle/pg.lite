@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo.svg" alt="pg.lite" width="360"></p>
+
 # pg.lite
 
 [![ci](https://github.com/neemle/pg.lite/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/neemle/pg.lite/actions/workflows/ci.yml)
