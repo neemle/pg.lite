@@ -1,5 +1,13 @@
 # pg.lite
 
+[![ci](https://github.com/neemle/pg.lite/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/neemle/pg.lite/actions/workflows/ci.yml)
+[![Docker pulls](https://img.shields.io/docker/pulls/neemle/pg.lite?logo=docker&label=docker%20pulls)](https://hub.docker.com/r/neemle/pg.lite)
+[![Docker image size](https://img.shields.io/docker/image-size/neemle/pg.lite/latest?logo=docker&label=image%20size)](https://hub.docker.com/r/neemle/pg.lite/tags)
+[![Docker version](https://img.shields.io/docker/v/neemle/pg.lite?sort=semver&logo=docker&label=docker%20tag)](https://hub.docker.com/r/neemle/pg.lite/tags)
+[![WebAssembly module downloads](https://img.shields.io/github/downloads/neemle/pg.lite/total?logo=github&label=wasm%20downloads)](https://github.com/neemle/pg.lite/releases)
+[![Latest release](https://img.shields.io/github/v/release/neemle/pg.lite?logo=github&label=release)](https://github.com/neemle/pg.lite/releases/latest)
+[![License](https://img.shields.io/github/license/neemle/pg.lite?label=license)](LICENSE)
+
 **The real PostgreSQL, built very small, for development and nearly 95% of all apps.** pg.lite takes the official source of a PostgreSQL release, applies a small set of patches, and builds it as
 
 * a **Docker image of 15 to 18 MB** (a little more with each newer series), or 4.7 to 7 MB with the packer (the official `postgres:16-alpine` image is about 420 MB): one static executable in a `FROM scratch` image, with no shell, no loader and no other file, and
