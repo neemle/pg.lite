@@ -218,7 +218,7 @@ mods="$sm/plpgsql.o $sm/dict_snowball.o $sm/libpqwalreceiver.o$convmods"
 rm -f src/backend/postgres
 echo "build-native: relink postgres with static modules"
 step make -C src/backend STATIC_MODULE_OBJS="$mods" $be_arg "$bex"
-for sym in plpgsql_call_handler dsnowball_init plpgsql_Pg_magic_func dict_snowball_Pg_magic_func libpqwalreceiver_PG_init utf8_to_big5 utf8_and_sjis2004_Pg_magic_func win1251_to_mic; do
+for sym in plpgsql_call_handler dsnowball_init plpgsql_Pg_magic_func dict_snowball_Pg_magic_func libpqwalreceiver_PG_init utf8_to_big5 utf8_and_sjis2004_Pg_magic_func win1251_to_koi8r; do
     nm src/backend/postgres | grep -q " [TtWw] $sym\$" || { echo "build-native: symbol $sym missing from postgres" >&2; exit 1; }
 done
 
