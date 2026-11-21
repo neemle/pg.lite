@@ -359,6 +359,6 @@ A git tag is a PostgreSQL version: `v18.7` is PostgreSQL 18.7 with these patches
 | 18.4 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.3 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 18.6 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.4 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 | 18.7 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 18.6 apply unchanged. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
-| 19.0 | 🚧 in progress | 🚧 in progress | A new series: the patches of the 18 series apply to it unchanged (none needs a 19 variant). |
+| 19.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the patches apply unchanged, none needs a 19 variant. PostgreSQL 19 no longer has the MULE_INTERNAL conversions (the `*_to_mic` functions), so the build check of the static link looks for `win1251_to_koi8r` instead. The `-full` flavour (zlib, pg_dump, pg_restore) is ✅ built and tested. |
 
 ✅ built and tested · 🚧 in progress · ⬜ planned. The image is for Linux: `linux/amd64` for every release, and from 9.2.5 on also `linux/arm64` (one multi-platform tag, so it runs on Apple silicon and other ARM machines too; upstream PostgreSQL has native aarch64 support from 9.2.5). Each platform is built and tested on its own runner.
