@@ -342,8 +342,11 @@ SQL
         docker volume rm -f "$vol_dump" >/dev/null 2>&1 || true
         ;;
     *)
-        out=$(docker run --rm --entrypoint "$pgbin" "$img" --pg_dump 2>&1 || true)
-        echo "$out" | grep -q "built without pg_dump" && pass "this image has no pg_dump (the -full image has)" || bad "pg_dump in a plain image: $out"
+        # only 17 and later know "--pg_dump" (patch 0900 of the 17 series); the earlier releases have no -full flavour at all
+        if [ "${ver%%.*}" -ge 17 ]; then
+            out=$(docker run --rm --entrypoint "$pgbin" "$img" --pg_dump 2>&1 || true)
+            echo "$out" | grep -q "built without pg_dump" && pass "this image has no pg_dump (the -full image has)" || bad "pg_dump in a plain image: $out"
+        fi
         ;;
     esac
 
