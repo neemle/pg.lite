@@ -303,6 +303,7 @@ A git tag is a PostgreSQL version: `v18.7` is PostgreSQL 18.7 with these patches
 | 14.22 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.21 apply unchanged. |
 | 14.23 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.22 apply unchanged. |
 | 14.24 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 14.23 apply unchanged. |
+| 14.25 | 🚧 in progress | 🚧 in progress | The same patches as 14.24 apply unchanged. |
 | 15.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: stack_base_ptr is private to postgres.c in 15, so the stack depth patch has a 15 variant that calls set_stack_base(); the static-modules patch has a 15 variant (the object list of the fmgr Makefile has no DLSUFFIX line after it); the other patches apply unchanged. |
 | 15.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.0 apply unchanged. |
 | 15.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.1 apply unchanged. |
