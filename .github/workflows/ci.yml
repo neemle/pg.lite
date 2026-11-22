@@ -215,7 +215,7 @@ jobs:
             image-${{ env.VERSION }}${{ env.TAGSUFFIX }}${{ env.SUFFIX }}.tar.gz
             image-${{ env.VERSION }}${{ env.TAGSUFFIX }}${{ env.SUFFIX }}.txt
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 2
 
   build-wasm:
     needs: [plan]
@@ -278,7 +278,7 @@ jobs:
             tools/dist/pg.lite-wasm-${{ env.VERSION }}.tar.gz.sha256
             tools/dist/pg.lite-wasm-${{ env.VERSION }}.sizes.txt
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 2
 
   # ---- stage 3: test
   test-image:
@@ -354,4 +354,28 @@ jobs:
           name: browser-tests-${{ env.VERSION }}
           path: tools/reports/browser
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 2
+
+  # ---- last stage: the history of the runs does not grow without end
+  # Keeps the newest 50 runs of every workflow and deletes the older finished ones with their logs and artifacts. Only a run of ci.yml
+  # itself does it (not the ci.yml that release.yml calls), and it runs whatever the other jobs ended with.
+  cleanup:
+    needs: [plan, repo, typescript, reference, build-cli, build-wasm, test-image, test-wasm]
+    if: ${{ always() && github.workflow == 'ci' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write      # to delete runs
+    env:
+      GH_TOKEN: ${{ github.token }}
+      KEEP: 50
+    steps:
+      - name: Delete the runs beyond the newest 50 of each workflow
+        run: |
+          for wf in $(gh api "repos/$GITHUB_REPOSITORY/actions/workflows" --jq '.workflows[].id'); do
+            # newest first; a run that is not finished is never deleted
+            gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$wf/runs?per_page=100" --paginate \
+              --jq '.workflow_runs[] | "\(.id) \(.status)"' | tail -n +$((KEEP + 1)) | while read -r id status; do
+              [ "$status" = completed ] || continue
+              gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/$id" --silent && echo "deleted run $id" || echo "run $id not deleted"
+            done
+          done
