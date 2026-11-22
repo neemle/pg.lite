@@ -324,7 +324,7 @@ A git tag is a PostgreSQL version: `v18.7` is PostgreSQL 18.7 with these patches
 | 15.17 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.16 apply unchanged. |
 | 15.18 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.17 apply unchanged. |
 | 15.19 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.18 apply unchanged. |
-| 15.20 | 🚧 in progress | 🚧 in progress | The same patches as 15.19 apply unchanged. |
+| 15.20 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 15.19 apply unchanged. |
 | 16.0 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | A new series: the static-modules patch has a 16 variant (the link rule of src/backend/Makefile changed) and the wasm build script finds snowball_create.sql in the source tree, where 16 ships it; the other patches apply unchanged. |
 | 16.1 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.0 apply unchanged. |
 | 16.2 | ✅ built and tested | ✅ built and tested, 19 of 19 browser tests | The same patches as 16.1 apply unchanged. |
